@@ -1,0 +1,80 @@
+{
+  "name": "msw-devtool",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs"
+    },
+    "./adapters/urql": {
+      "types": "./dist/adapters/urql.d.ts",
+      "import": "./dist/adapters/urql.mjs"
+    },
+    "./adapters/tanstack-query": {
+      "types": "./dist/adapters/tanstack-query.d.ts",
+      "import": "./dist/adapters/tanstack-query.mjs"
+    },
+    "./adapters/swr": {
+      "types": "./dist/adapters/swr.d.ts",
+      "import": "./dist/adapters/swr.mjs"
+    },
+    "./adapters/apollo": {
+      "types": "./dist/adapters/apollo.d.ts",
+      "import": "./dist/adapters/apollo.mjs"
+    },
+    "./adapters/axios": {
+      "types": "./dist/adapters/axios.d.ts",
+      "import": "./dist/adapters/axios.mjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "@tanstack/pacer": ">=0.19.0",
+    "msw": "^2.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "zustand": "^5.0.0",
+    "@urql/core": ">=5.0.0",
+    "wonka": ">=6.0.0",
+    "@tanstack/react-query": ">=5.0.0",
+    "swr": ">=2.0.0",
+    "@apollo/client": ">=3.0.0",
+    "graphql": ">=16.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@urql/core": { "optional": true },
+    "wonka": { "optional": true },
+    "@tanstack/react-query": { "optional": true },
+    "swr": { "optional": true },
+    "@apollo/client": { "optional": true },
+    "graphql": { "optional": true }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@tanstack/pacer": "^0.19.0",
+    "msw": "^2.12.10",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zustand": "^5.0.11",
+    "@urql/core": "^6.0.1",
+    "wonka": "^6.3.5",
+    "@tanstack/react-query": "^5.80.7",
+    "swr": "^2.3.3",
+    "@apollo/client": "^3.13.8",
+    "graphql": "^16.10.0"
+  }
+}
