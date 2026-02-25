@@ -41,9 +41,7 @@ test.describe("Demo Cards", () => {
 
   test("cards show Pokemon sprites", async ({ page }) => {
     const spriteImages = page.locator('img[src*="sprites/master/sprites/pokemon"]');
-    await expect(spriteImages.first()).toBeVisible({ timeout: 10_000 });
-    const count = await spriteImages.count();
-    expect(count).toBeGreaterThanOrEqual(5);
+    await expect(spriteImages).toHaveCount(6, { timeout: 10_000 });
   });
 
   test("cards have refetch buttons", async ({ page }) => {
