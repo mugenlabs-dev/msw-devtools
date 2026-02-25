@@ -1,169 +1,157 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import type { mockRegistry } from "./registry";
 import type { MockOperationDescriptor } from "./types";
 
-// We need a fresh MockRegistry for each test, but the module exports a singleton.
-// Re-import to get a fresh module each time.
-describe("MockRegistry", () => {
-	let mockRegistry: typeof import("./registry").mockRegistry;
-	let registerMocks: typeof import("./registry").registerMocks;
+const graphqlDescriptor: MockOperationDescriptor = {
+  operationName: "GetUser",
+  operationType: "query",
+  type: "graphql",
+  variants: [],
+};
 
-	const graphqlDescriptor: MockOperationDescriptor = {
-		type: "graphql",
-		operationName: "GetUser",
-		operationType: "query",
-		variants: [{ id: "success", label: "Success", data: { id: 1, name: "Alice" } }],
-	};
+const restDescriptor: MockOperationDescriptor = {
+  method: "get",
+  operationName: "GET Users",
+  path: "/api/users",
+  type: "rest",
+  variants: [],
+};
 
-	const restDescriptor: MockOperationDescriptor = {
-		type: "rest",
-		operationName: "GET Users",
-		method: "get",
-		path: "/api/users",
-		variants: [{ id: "success", label: "Success (200)", data: [{ id: 1 }], statusCode: 200 }],
-	};
+describe("mock registry", () => {
+  let mockRegistryInstance: typeof mockRegistry;
 
-	beforeEach(async () => {
-		// Reset modules to get a fresh singleton
-		vi.resetModules();
-		const mod = await import("./registry");
-		mockRegistry = mod.mockRegistry;
-		registerMocks = mod.registerMocks;
-	});
+  beforeEach(async () => {
+    vi.resetModules();
+    const mod = await import("./registry");
+    ({ mockRegistry: mockRegistryInstance } = mod);
+  });
 
-	describe("register", () => {
-		it("registers a single descriptor", () => {
-			mockRegistry.register(graphqlDescriptor);
-			expect(mockRegistry.size).toBe(1);
-			expect(mockRegistry.get("GetUser")).toEqual(graphqlDescriptor);
-		});
+  describe("register", () => {
+    it("registers a single descriptor", () => {
+      mockRegistryInstance.register(graphqlDescriptor);
+      expect(mockRegistryInstance.size).toBe(1);
+      expect(mockRegistryInstance.get("GetUser")).toStrictEqual(graphqlDescriptor);
+    });
 
-		it("registers multiple descriptors", () => {
-			mockRegistry.register(graphqlDescriptor, restDescriptor);
-			expect(mockRegistry.size).toBe(2);
-		});
+    it("registers multiple descriptors", () => {
+      mockRegistryInstance.register(graphqlDescriptor, restDescriptor);
+      expect(mockRegistryInstance.size).toBe(2);
+    });
 
-		it("overwrites existing descriptor with same operationName", () => {
-			const updated = { ...graphqlDescriptor, variants: [] };
-			mockRegistry.register(graphqlDescriptor);
-			mockRegistry.register(updated);
-			expect(mockRegistry.size).toBe(1);
-			expect(mockRegistry.get("GetUser")?.variants).toEqual([]);
-		});
+    it("overwrites existing descriptor with same operationName", () => {
+      const updated = { ...graphqlDescriptor, variants: [] };
+      mockRegistryInstance.register(graphqlDescriptor);
+      mockRegistryInstance.register(updated);
+      expect(mockRegistryInstance.size).toBe(1);
+      expect(mockRegistryInstance.get("GetUser")?.variants).toStrictEqual([]);
+    });
 
-		it("notifies listeners on register", () => {
-			const listener = vi.fn();
-			mockRegistry.subscribe(listener);
-			mockRegistry.register(graphqlDescriptor);
-			expect(listener).toHaveBeenCalledTimes(1);
-		});
-	});
+    it("notifies listeners on register", () => {
+      const listener = vi.fn();
+      mockRegistryInstance.subscribe(listener);
+      mockRegistryInstance.register(graphqlDescriptor);
+      expect(listener).toHaveBeenCalledOnce();
+    });
+  });
 
-	describe("unregister", () => {
-		it("removes a descriptor by operationName", () => {
-			mockRegistry.register(graphqlDescriptor);
-			mockRegistry.unregister("GetUser");
-			expect(mockRegistry.size).toBe(0);
-			expect(mockRegistry.get("GetUser")).toBeUndefined();
-		});
+  describe("unregister", () => {
+    it("removes a descriptor by operationName", () => {
+      mockRegistryInstance.register(graphqlDescriptor);
+      mockRegistryInstance.unregister("GetUser");
+      expect(mockRegistryInstance.size).toBe(0);
+      expect(mockRegistryInstance.get("GetUser")).toBeUndefined();
+    });
 
-		it("notifies listeners on unregister", () => {
-			mockRegistry.register(graphqlDescriptor);
-			const listener = vi.fn();
-			mockRegistry.subscribe(listener);
-			mockRegistry.unregister("GetUser");
-			expect(listener).toHaveBeenCalledTimes(1);
-		});
+    it("notifies listeners on unregister", () => {
+      mockRegistryInstance.register(graphqlDescriptor);
+      const listener = vi.fn();
+      mockRegistryInstance.subscribe(listener);
+      mockRegistryInstance.unregister("GetUser");
+      expect(listener).toHaveBeenCalledOnce();
+    });
 
-		it("is safe to unregister non-existent descriptor", () => {
-			expect(() => mockRegistry.unregister("NonExistent")).not.toThrow();
-		});
-	});
+    it("is safe to unregister non-existent descriptor", () => {
+      expect(() => {
+        mockRegistryInstance.unregister("NonExistent");
+      }).not.toThrow();
+    });
+  });
 
-	describe("getAll", () => {
-		it("returns empty array when no descriptors registered", () => {
-			expect(mockRegistry.getAll()).toEqual([]);
-		});
+  describe("getAll", () => {
+    it("returns empty array when no descriptors registered", () => {
+      expect(mockRegistryInstance.getAll()).toStrictEqual([]);
+    });
 
-		it("returns all registered descriptors", () => {
-			mockRegistry.register(graphqlDescriptor, restDescriptor);
-			const all = mockRegistry.getAll();
-			expect(all).toHaveLength(2);
-			expect(all).toContainEqual(graphqlDescriptor);
-			expect(all).toContainEqual(restDescriptor);
-		});
+    it("returns all registered descriptors", () => {
+      mockRegistryInstance.register(graphqlDescriptor, restDescriptor);
+      const all = mockRegistryInstance.getAll();
+      expect(all).toHaveLength(2);
+      expect(all).toContainEqual(graphqlDescriptor);
+      expect(all).toContainEqual(restDescriptor);
+    });
 
-		it("returns a stable reference (cached snapshot)", () => {
-			mockRegistry.register(graphqlDescriptor);
-			const first = mockRegistry.getAll();
-			const second = mockRegistry.getAll();
-			expect(first).toBe(second);
-		});
+    it("returns a stable reference (cached snapshot)", () => {
+      mockRegistryInstance.register(graphqlDescriptor);
+      const first = mockRegistryInstance.getAll();
+      const second = mockRegistryInstance.getAll();
+      expect(first).toBe(second);
+    });
 
-		it("returns a new reference after mutation", () => {
-			mockRegistry.register(graphqlDescriptor);
-			const first = mockRegistry.getAll();
-			mockRegistry.register(restDescriptor);
-			const second = mockRegistry.getAll();
-			expect(first).not.toBe(second);
-		});
-	});
+    it("returns a new reference after mutation", () => {
+      mockRegistryInstance.register(graphqlDescriptor);
+      const first = mockRegistryInstance.getAll();
+      mockRegistryInstance.register(restDescriptor);
+      const second = mockRegistryInstance.getAll();
+      expect(first).not.toBe(second);
+    });
+  });
 
-	describe("get", () => {
-		it("returns undefined for non-existent descriptor", () => {
-			expect(mockRegistry.get("NonExistent")).toBeUndefined();
-		});
+  describe("get and subscribe", () => {
+    it("returns undefined for non-existent descriptor", () => {
+      expect(mockRegistryInstance.get("NonExistent")).toBeUndefined();
+    });
 
-		it("returns the correct descriptor", () => {
-			mockRegistry.register(graphqlDescriptor, restDescriptor);
-			expect(mockRegistry.get("GetUser")).toEqual(graphqlDescriptor);
-			expect(mockRegistry.get("GET Users")).toEqual(restDescriptor);
-		});
-	});
+    it("returns the correct descriptor", () => {
+      mockRegistryInstance.register(graphqlDescriptor, restDescriptor);
+      expect(mockRegistryInstance.get("GetUser")).toStrictEqual(graphqlDescriptor);
+      expect(mockRegistryInstance.get("GET Users")).toStrictEqual(restDescriptor);
+    });
 
-	describe("subscribe", () => {
-		it("returns an unsubscribe function", () => {
-			const listener = vi.fn();
-			const unsub = mockRegistry.subscribe(listener);
-			mockRegistry.register(graphqlDescriptor);
-			expect(listener).toHaveBeenCalledTimes(1);
+    it("subscribe returns an unsubscribe function", () => {
+      const listener = vi.fn();
+      const unsub = mockRegistryInstance.subscribe(listener);
+      mockRegistryInstance.register(graphqlDescriptor);
+      expect(listener).toHaveBeenCalledOnce();
 
-			unsub();
-			mockRegistry.register(restDescriptor);
-			expect(listener).toHaveBeenCalledTimes(1); // not called again
-		});
+      unsub();
+      mockRegistryInstance.register(restDescriptor);
+      // not called again
+      expect(listener).toHaveBeenCalledOnce();
+    });
 
-		it("supports multiple listeners", () => {
-			const listener1 = vi.fn();
-			const listener2 = vi.fn();
-			mockRegistry.subscribe(listener1);
-			mockRegistry.subscribe(listener2);
+    it("subscribe supports multiple listeners", () => {
+      const listener1 = vi.fn();
+      const listener2 = vi.fn();
+      mockRegistryInstance.subscribe(listener1);
+      mockRegistryInstance.subscribe(listener2);
 
-			mockRegistry.register(graphqlDescriptor);
-			expect(listener1).toHaveBeenCalledTimes(1);
-			expect(listener2).toHaveBeenCalledTimes(1);
-		});
-	});
+      mockRegistryInstance.register(graphqlDescriptor);
+      expect(listener1).toHaveBeenCalledOnce();
+      expect(listener2).toHaveBeenCalledOnce();
+    });
+  });
 
-	describe("size", () => {
-		it("returns 0 for empty registry", () => {
-			expect(mockRegistry.size).toBe(0);
-		});
+  describe("size", () => {
+    it("returns 0 for empty registry", () => {
+      expect(mockRegistryInstance.size).toBe(0);
+    });
 
-		it("reflects current descriptor count", () => {
-			mockRegistry.register(graphqlDescriptor);
-			expect(mockRegistry.size).toBe(1);
-			mockRegistry.register(restDescriptor);
-			expect(mockRegistry.size).toBe(2);
-			mockRegistry.unregister("GetUser");
-			expect(mockRegistry.size).toBe(1);
-		});
-	});
-
-	describe("registerMocks", () => {
-		it("is a convenience function that delegates to mockRegistry.register", () => {
-			registerMocks(graphqlDescriptor, restDescriptor);
-			expect(mockRegistry.size).toBe(2);
-			expect(mockRegistry.get("GetUser")).toEqual(graphqlDescriptor);
-		});
-	});
+    it("reflects current descriptor count", () => {
+      mockRegistryInstance.register(graphqlDescriptor);
+      expect(mockRegistryInstance.size).toBe(1);
+      mockRegistryInstance.register(restDescriptor);
+      expect(mockRegistryInstance.size).toBe(2);
+      mockRegistryInstance.unregister("GetUser");
+      expect(mockRegistryInstance.size).toBe(1);
+    });
+  });
 });

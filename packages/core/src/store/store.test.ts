@@ -1,205 +1,258 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { useMockStore } from "./store";
 
-describe("MockStore", () => {
-	beforeEach(() => {
-		// Reset store state between tests
-		useMockStore.setState({
-			operations: {},
-			workerStatus: "idle",
-			seenOperations: new Set(),
-		});
-	});
+const resetStore = () => {
+  useMockStore.setState({
+    filter: "all",
+    isGrouped: true,
+    operations: {},
+    seenOperations: new Set(),
+    sort: "default",
+    workerStatus: "idle",
+  });
+};
 
-	describe("setEnabled", () => {
-		it("sets enabled state for an operation", () => {
-			const { setEnabled } = useMockStore.getState();
-			setEnabled("GetUser", true);
+const setupMultipleOperations = () => {
+  useMockStore.getState().setEnabled("Op1", false);
+  useMockStore.getState().setEnabled("Op2", false);
+  useMockStore.getState().setEnabled("Op3", true);
+};
 
-			const { operations } = useMockStore.getState();
-			expect(operations.GetUser.enabled).toBe(true);
-		});
+describe("mockStore - setEnabled", () => {
+  it("sets enabled state for an operation", () => {
+    resetStore();
+    const { setEnabled } = useMockStore.getState();
+    setEnabled("GetUser", true);
 
-		it("toggles enabled state", () => {
-			const store = useMockStore.getState();
-			store.setEnabled("GetUser", true);
-			expect(useMockStore.getState().operations.GetUser.enabled).toBe(true);
+    const { operations } = useMockStore.getState();
+    expect(operations.GetUser.enabled).toBeTruthy();
+  });
 
-			useMockStore.getState().setEnabled("GetUser", false);
-			expect(useMockStore.getState().operations.GetUser.enabled).toBe(false);
-		});
-	});
+  it("toggles enabled state", () => {
+    resetStore();
+    const store = useMockStore.getState();
+    store.setEnabled("GetUser", true);
+    expect(useMockStore.getState().operations.GetUser.enabled).toBeTruthy();
 
-	describe("setActiveVariant", () => {
-		it("sets the active variant for an operation", () => {
-			useMockStore.getState().setActiveVariant("GetUser", "error");
-			expect(useMockStore.getState().operations.GetUser.activeVariantId).toBe("error");
-		});
+    useMockStore.getState().setEnabled("GetUser", false);
+    expect(useMockStore.getState().operations.GetUser.enabled).toBeFalsy();
+  });
+});
 
-		it("resets customJsonOverride when changing variant", () => {
-			useMockStore.getState().setCustomJsonOverride("GetUser", '{"test":true}');
-			useMockStore.getState().setActiveVariant("GetUser", "error");
-			expect(useMockStore.getState().operations.GetUser.customJsonOverride).toBeNull();
-		});
+describe("mockStore - setActiveVariant", () => {
+  it("sets the active variant for an operation", () => {
+    resetStore();
+    useMockStore.getState().setActiveVariant("GetUser", "error");
+    expect(useMockStore.getState().operations.GetUser.activeVariantId).toBe("error");
+  });
 
-		it("resets statusCode when changing variant", () => {
-			useMockStore.getState().setStatusCode("GetUser", 404);
-			useMockStore.getState().setActiveVariant("GetUser", "error");
-			expect(useMockStore.getState().operations.GetUser.statusCode).toBeNull();
-		});
+  it("resets customJsonOverride when changing variant", () => {
+    resetStore();
+    useMockStore.getState().setCustomJsonOverride("GetUser", '{"test":true}');
+    useMockStore.getState().setActiveVariant("GetUser", "error");
+    expect(useMockStore.getState().operations.GetUser.customJsonOverride).toBeNull();
+  });
 
-		it("resets customHeaders when changing variant", () => {
-			useMockStore.getState().setCustomHeaders("GetUser", '{"X-Test":"1"}');
-			useMockStore.getState().setActiveVariant("GetUser", "error");
-			expect(useMockStore.getState().operations.GetUser.customHeaders).toBeNull();
-		});
-	});
+  it("resets statusCode when changing variant", () => {
+    resetStore();
+    useMockStore.getState().setStatusCode("GetUser", 404);
+    useMockStore.getState().setActiveVariant("GetUser", "error");
+    expect(useMockStore.getState().operations.GetUser.statusCode).toBeNull();
+  });
 
-	describe("setCustomJsonOverride", () => {
-		it("sets custom JSON override", () => {
-			const json = '{"id":1,"name":"Alice"}';
-			useMockStore.getState().setCustomJsonOverride("GetUser", json);
-			expect(useMockStore.getState().operations.GetUser.customJsonOverride).toBe(json);
-		});
+  it("resets customHeaders when changing variant", () => {
+    resetStore();
+    useMockStore.getState().setCustomHeaders("GetUser", '{"X-Test":"1"}');
+    useMockStore.getState().setActiveVariant("GetUser", "error");
+    expect(useMockStore.getState().operations.GetUser.customHeaders).toBeNull();
+  });
+});
 
-		it("can be cleared by setting null", () => {
-			useMockStore.getState().setCustomJsonOverride("GetUser", '{"test":true}');
-			useMockStore.getState().setCustomJsonOverride("GetUser", null);
-			expect(useMockStore.getState().operations.GetUser.customJsonOverride).toBeNull();
-		});
-	});
+describe("mockStore - setCustomJsonOverride", () => {
+  it("sets custom JSON override", () => {
+    resetStore();
+    const json = '{"id":1,"name":"Alice"}';
+    useMockStore.getState().setCustomJsonOverride("GetUser", json);
+    expect(useMockStore.getState().operations.GetUser.customJsonOverride).toBe(json);
+  });
 
-	describe("setDelay", () => {
-		it("sets delay for an operation", () => {
-			useMockStore.getState().setDelay("GetUser", 500);
-			expect(useMockStore.getState().operations.GetUser.delay).toBe(500);
-		});
+  it("can be cleared by setting null", () => {
+    resetStore();
+    useMockStore.getState().setCustomJsonOverride("GetUser", '{"test":true}');
+    useMockStore.getState().setCustomJsonOverride("GetUser", null);
+    expect(useMockStore.getState().operations.GetUser.customJsonOverride).toBeNull();
+  });
+});
 
-		it("clamps negative values to 0", () => {
-			useMockStore.getState().setDelay("GetUser", -100);
-			expect(useMockStore.getState().operations.GetUser.delay).toBe(0);
-		});
-	});
+describe("mockStore - setDelay", () => {
+  it("sets delay for an operation", () => {
+    resetStore();
+    useMockStore.getState().setDelay("GetUser", 500);
+    expect(useMockStore.getState().operations.GetUser.delay).toBe(500);
+  });
 
-	describe("setStatusCode", () => {
-		it("sets status code override", () => {
-			useMockStore.getState().setStatusCode("GetUser", 404);
-			expect(useMockStore.getState().operations.GetUser.statusCode).toBe(404);
-		});
+  it("clamps negative values to 0", () => {
+    resetStore();
+    useMockStore.getState().setDelay("GetUser", -100);
+    expect(useMockStore.getState().operations.GetUser.delay).toBe(0);
+  });
+});
 
-		it("can be cleared by setting null", () => {
-			useMockStore.getState().setStatusCode("GetUser", 500);
-			useMockStore.getState().setStatusCode("GetUser", null);
-			expect(useMockStore.getState().operations.GetUser.statusCode).toBeNull();
-		});
-	});
+describe("mockStore - setStatusCode", () => {
+  it("sets status code override", () => {
+    resetStore();
+    useMockStore.getState().setStatusCode("GetUser", 404);
+    expect(useMockStore.getState().operations.GetUser.statusCode).toBe(404);
+  });
 
-	describe("setCustomHeaders", () => {
-		it("sets custom headers JSON string", () => {
-			const headers = '{"Content-Type":"application/xml"}';
-			useMockStore.getState().setCustomHeaders("GetUser", headers);
-			expect(useMockStore.getState().operations.GetUser.customHeaders).toBe(headers);
-		});
+  it("can be cleared by setting null", () => {
+    resetStore();
+    useMockStore.getState().setStatusCode("GetUser", 500);
+    useMockStore.getState().setStatusCode("GetUser", null);
+    expect(useMockStore.getState().operations.GetUser.statusCode).toBeNull();
+  });
+});
 
-		it("can be cleared by setting null", () => {
-			useMockStore.getState().setCustomHeaders("GetUser", '{"X-Test":"1"}');
-			useMockStore.getState().setCustomHeaders("GetUser", null);
-			expect(useMockStore.getState().operations.GetUser.customHeaders).toBeNull();
-		});
-	});
+describe("mockStore - setCustomHeaders", () => {
+  it("sets custom headers JSON string", () => {
+    resetStore();
+    const headers = '{"Content-Type":"application/xml"}';
+    useMockStore.getState().setCustomHeaders("GetUser", headers);
+    expect(useMockStore.getState().operations.GetUser.customHeaders).toBe(headers);
+  });
 
-	describe("enableAll / disableAll", () => {
-		beforeEach(() => {
-			// Set up multiple operations
-			useMockStore.getState().setEnabled("Op1", false);
-			useMockStore.getState().setEnabled("Op2", false);
-			useMockStore.getState().setEnabled("Op3", true);
-		});
+  it("can be cleared by setting null", () => {
+    resetStore();
+    useMockStore.getState().setCustomHeaders("GetUser", '{"X-Test":"1"}');
+    useMockStore.getState().setCustomHeaders("GetUser", null);
+    expect(useMockStore.getState().operations.GetUser.customHeaders).toBeNull();
+  });
+});
 
-		it("enableAll sets all operations to enabled", () => {
-			useMockStore.getState().enableAll();
-			const { operations } = useMockStore.getState();
-			expect(operations.Op1.enabled).toBe(true);
-			expect(operations.Op2.enabled).toBe(true);
-			expect(operations.Op3.enabled).toBe(true);
-		});
+describe("mockStore - enableAll / disableAll", () => {
+  it("enableAll sets all operations to enabled", () => {
+    resetStore();
+    setupMultipleOperations();
+    useMockStore.getState().enableAll();
+    const { operations } = useMockStore.getState();
+    expect(operations.Op1.enabled).toBeTruthy();
+    expect(operations.Op2.enabled).toBeTruthy();
+    expect(operations.Op3.enabled).toBeTruthy();
+  });
 
-		it("disableAll sets all operations to disabled", () => {
-			useMockStore.getState().disableAll();
-			const { operations } = useMockStore.getState();
-			expect(operations.Op1.enabled).toBe(false);
-			expect(operations.Op2.enabled).toBe(false);
-			expect(operations.Op3.enabled).toBe(false);
-		});
-	});
+  it("disableAll sets all operations to disabled", () => {
+    resetStore();
+    setupMultipleOperations();
+    useMockStore.getState().disableAll();
+    const { operations } = useMockStore.getState();
+    expect(operations.Op1.enabled).toBeFalsy();
+    expect(operations.Op2.enabled).toBeFalsy();
+    expect(operations.Op3.enabled).toBeFalsy();
+  });
+});
 
-	describe("workerStatus", () => {
-		it("defaults to idle", () => {
-			expect(useMockStore.getState().workerStatus).toBe("idle");
-		});
+describe("mockStore - workerStatus", () => {
+  it("defaults to idle", () => {
+    resetStore();
+    expect(useMockStore.getState().workerStatus).toBe("idle");
+  });
 
-		it("can be set to any status", () => {
-			useMockStore.getState().setWorkerStatus("active");
-			expect(useMockStore.getState().workerStatus).toBe("active");
+  it("can be set to any status", () => {
+    resetStore();
+    useMockStore.getState().setWorkerStatus("active");
+    expect(useMockStore.getState().workerStatus).toBe("active");
 
-			useMockStore.getState().setWorkerStatus("error");
-			expect(useMockStore.getState().workerStatus).toBe("error");
-		});
-	});
+    useMockStore.getState().setWorkerStatus("error");
+    expect(useMockStore.getState().workerStatus).toBe("error");
+  });
+});
 
-	describe("seenOperations", () => {
-		it("defaults to empty set", () => {
-			expect(useMockStore.getState().seenOperations.size).toBe(0);
-		});
+describe("mockStore - seenOperations", () => {
+  it("defaults to empty set", () => {
+    resetStore();
+    expect(useMockStore.getState().seenOperations.size).toBe(0);
+  });
 
-		it("markOperationSeen adds operation to the set", () => {
-			useMockStore.getState().markOperationSeen("GetUser");
-			expect(useMockStore.getState().seenOperations.has("GetUser")).toBe(true);
-		});
+  it("markOperationSeen adds operation to the set", () => {
+    resetStore();
+    useMockStore.getState().markOperationSeen("GetUser");
+    expect(useMockStore.getState().seenOperations.has("GetUser")).toBeTruthy();
+  });
 
-		it("markOperationSeen is idempotent", () => {
-			useMockStore.getState().markOperationSeen("GetUser");
-			useMockStore.getState().markOperationSeen("GetUser");
-			expect(useMockStore.getState().seenOperations.size).toBe(1);
-		});
+  it("markOperationSeen is idempotent", () => {
+    resetStore();
+    useMockStore.getState().markOperationSeen("GetUser");
+    useMockStore.getState().markOperationSeen("GetUser");
+    expect(useMockStore.getState().seenOperations.size).toBe(1);
+  });
 
-		it("clearSeenOperations resets the set", () => {
-			useMockStore.getState().markOperationSeen("Op1");
-			useMockStore.getState().markOperationSeen("Op2");
-			useMockStore.getState().clearSeenOperations();
-			expect(useMockStore.getState().seenOperations.size).toBe(0);
-		});
-	});
+  it("clearSeenOperations resets the set", () => {
+    resetStore();
+    useMockStore.getState().markOperationSeen("Op1");
+    useMockStore.getState().markOperationSeen("Op2");
+    useMockStore.getState().clearSeenOperations();
+    expect(useMockStore.getState().seenOperations.size).toBe(0);
+  });
+});
 
-	describe("syncWithRegistry", () => {
-		it("adds default config for new operations", () => {
-			useMockStore.getState().syncWithRegistry(["GetUser", "GetPosts"]);
-			const { operations } = useMockStore.getState();
-			expect(operations.GetUser).toBeDefined();
-			expect(operations.GetPosts).toBeDefined();
-			expect(operations.GetUser.enabled).toBe(false);
-			expect(operations.GetUser.activeVariantId).toBe("success");
-			expect(operations.GetUser.delay).toBe(0);
-		});
+describe("mockStore - filter / sort / isGrouped", () => {
+  it("defaults to filter=all, sort=default, isGrouped=true", () => {
+    resetStore();
+    const state = useMockStore.getState();
+    expect(state.filter).toBe("all");
+    expect(state.sort).toBe("default");
+    expect(state.isGrouped).toBeTruthy();
+  });
 
-		it("preserves existing operation config", () => {
-			useMockStore.getState().setEnabled("GetUser", true);
-			useMockStore.getState().setDelay("GetUser", 500);
+  it("setFilter updates the filter value", () => {
+    resetStore();
+    useMockStore.getState().setFilter("rest");
+    expect(useMockStore.getState().filter).toBe("rest");
+  });
 
-			useMockStore.getState().syncWithRegistry(["GetUser", "GetPosts"]);
-			const { operations } = useMockStore.getState();
-			expect(operations.GetUser.enabled).toBe(true);
-			expect(operations.GetUser.delay).toBe(500);
-		});
+  it("setSort updates the sort value", () => {
+    resetStore();
+    useMockStore.getState().setSort("a-z");
+    expect(useMockStore.getState().sort).toBe("a-z");
+  });
 
-		it("removes operations not in the registry", () => {
-			useMockStore.getState().setEnabled("GetUser", true);
-			useMockStore.getState().setEnabled("GetPosts", true);
+  it("setIsGrouped updates the grouped state", () => {
+    resetStore();
+    useMockStore.getState().setIsGrouped(false);
+    expect(useMockStore.getState().isGrouped).toBeFalsy();
+  });
+});
 
-			useMockStore.getState().syncWithRegistry(["GetUser"]);
-			const { operations } = useMockStore.getState();
-			expect(operations.GetUser).toBeDefined();
-			expect(operations.GetPosts).toBeUndefined();
-		});
-	});
+describe("mockStore - syncWithRegistry", () => {
+  it("adds default config for new operations", () => {
+    resetStore();
+    useMockStore.getState().syncWithRegistry(["GetUser", "GetPosts"]);
+    const { operations } = useMockStore.getState();
+    expect(operations.GetUser).toBeDefined();
+    expect(operations.GetPosts).toBeDefined();
+    expect(operations.GetUser.enabled).toBeFalsy();
+    expect(operations.GetUser.activeVariantId).toBe("variant-0");
+    expect(operations.GetUser.delay).toBe(0);
+  });
+
+  it("preserves existing operation config", () => {
+    resetStore();
+    useMockStore.getState().setEnabled("GetUser", true);
+    useMockStore.getState().setDelay("GetUser", 500);
+
+    useMockStore.getState().syncWithRegistry(["GetUser", "GetPosts"]);
+    const { operations } = useMockStore.getState();
+    expect(operations.GetUser.enabled).toBeTruthy();
+    expect(operations.GetUser.delay).toBe(500);
+  });
+
+  it("removes operations not in the registry", () => {
+    resetStore();
+    useMockStore.getState().setEnabled("GetUser", true);
+    useMockStore.getState().setEnabled("GetPosts", true);
+
+    useMockStore.getState().syncWithRegistry(["GetUser"]);
+    const { operations } = useMockStore.getState();
+    expect(operations.GetUser).toBeDefined();
+    expect(operations.GetPosts).toBeUndefined();
+  });
 });

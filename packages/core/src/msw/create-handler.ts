@@ -1,118 +1,169 @@
-import { HttpResponse, delay, graphql, http, passthrough } from "msw";
-import type { MockOperationDescriptor } from "../registry/types";
-import type { MockVariant } from "../registry/types";
-import { isGraphQLDescriptor, isRestDescriptor } from "../registry/types";
-import { useMockStore } from "../store/store";
-import type { OperationMockConfig } from "../store/types";
+import { delay, graphql, HttpResponse, http, passthrough } from "msw";
+import type { HandlerVariant, MockOperationDescriptor } from "#/registry/types";
+import { isGraphQLDescriptor, isRestDescriptor } from "#/registry/types";
+import { useMockStore } from "#/store/store";
+import type { ErrorOverride, OperationMockConfig } from "#/store/types";
 
-function resolveResponseOptions(
-	config: OperationMockConfig,
-	variant: MockVariant,
-): { status: number; headers: Record<string, string> } {
-	const status = config.statusCode ?? variant.statusCode ?? 200;
+// ---------------------------------------------------------------------------
+// Generic error responses
+// ---------------------------------------------------------------------------
 
-	let headers: Record<string, string> = variant.headers ?? {};
-	if (config.customHeaders) {
-		try {
-			headers = JSON.parse(config.customHeaders);
-		} catch {
-			// Invalid JSON — fall back to variant default headers
-		}
-	}
+const ERROR_MESSAGES: Record<number, string> = {
+  401: "Unauthorized",
+  404: "Not Found",
+  429: "Too Many Requests",
+  500: "Internal Server Error",
+};
 
-	return { status, headers };
-}
+const buildErrorResponse = (code: number): Response =>
+  HttpResponse.json({ error: ERROR_MESSAGES[code] ?? "Error", status: code }, { status: code });
 
-export function createDynamicHandler(descriptor: MockOperationDescriptor) {
-	if (isGraphQLDescriptor(descriptor)) {
-		return createGraphQLHandler(descriptor);
-	}
-	if (isRestDescriptor(descriptor)) {
-		return createRestHandler(descriptor);
-	}
-	throw new Error(
-		`Unknown descriptor type for operation: ${(descriptor as MockOperationDescriptor).operationName}`,
-	);
-}
+// ---------------------------------------------------------------------------
+// Response capture — lazily store the handler's response for the JSON editor
+// ---------------------------------------------------------------------------
 
-function createGraphQLHandler(
-	descriptor: Extract<MockOperationDescriptor, { type: "graphql" }>,
-) {
-	const gqlMethod =
-		descriptor.operationType === "query" ? graphql.query : graphql.mutation;
+const captureResponseBody = async (operationName: string, response: Response): Promise<void> => {
+  try {
+    const cloned = response.clone();
+    const body = await cloned.json();
+    useMockStore.getState().setCapturedResponse(operationName, JSON.stringify(body, null, 2));
+  } catch {
+    // Non-JSON response — skip capture
+  }
+};
 
-	return gqlMethod(descriptor.operationName, async () => {
-		const config =
-			useMockStore.getState().operations[descriptor.operationName];
+// ---------------------------------------------------------------------------
+// Override application — mutate the handler response with user overrides
+// ---------------------------------------------------------------------------
 
-		if (!config?.enabled) return passthrough();
+const applyOverrides = async (
+  original: Response,
+  config: OperationMockConfig
+): Promise<Response> => {
+  const hasJsonOverride = config.customJsonOverride != null && config.customJsonOverride !== "";
+  const hasStatusOverride = config.statusCode != null;
+  const hasHeaderOverride = config.customHeaders != null && config.customHeaders !== "";
 
-		const variant = descriptor.variants.find(
-			(v) => v.id === config.activeVariantId,
-		);
-		if (!variant) return passthrough();
+  // If nothing to override, return as-is
+  if (!(hasJsonOverride || hasStatusOverride || hasHeaderOverride)) {
+    return original;
+  }
 
-		if (config.delay > 0) await delay(config.delay);
+  // Read original body if needed
+  let body: unknown;
+  if (hasJsonOverride) {
+    try {
+      body = JSON.parse(config.customJsonOverride as string);
+    } catch {
+      body = await original
+        .clone()
+        .json()
+        .catch(() => null);
+    }
+  } else {
+    body = await original
+      .clone()
+      .json()
+      .catch(() => null);
+  }
 
-		if (variant.isNetworkError) return HttpResponse.error();
+  // Resolve status
+  const status = config.statusCode ?? original.status;
 
-		let responseData = variant.data;
-		if (config.customJsonOverride) {
-			try {
-				responseData = JSON.parse(config.customJsonOverride);
-			} catch {
-				// Invalid JSON — fall back to variant default data
-			}
-		}
+  // Resolve headers
+  let headers: Record<string, string> = {};
+  original.headers.forEach((value, key) => {
+    headers[key] = value;
+  });
+  if (hasHeaderOverride) {
+    try {
+      headers = JSON.parse(config.customHeaders as string) as Record<string, string>;
+    } catch {
+      // Invalid JSON — keep original headers
+    }
+  }
 
-		const options = resolveResponseOptions(config, variant);
+  return HttpResponse.json(body as Record<string, unknown>, { headers, status });
+};
 
-		return HttpResponse.json(
-			{
-				data: responseData as Record<string, unknown>,
-				errors: variant.isGraphQLError
-					? [{ message: "Mocked GraphQL error" }]
-					: undefined,
-			},
-			options,
-		);
-	});
-}
+// ---------------------------------------------------------------------------
+// Core handler resolution — shared logic for REST and GraphQL wrappers
+// ---------------------------------------------------------------------------
 
-function createRestHandler(
-	descriptor: Extract<MockOperationDescriptor, { type: "rest" }>,
-) {
-	const httpMethod = http[descriptor.method];
+const resolveAndRespond = async (
+  descriptor: MockOperationDescriptor,
+  resolverInfo: unknown
+): Promise<Response | undefined> => {
+  const config = useMockStore.getState().operations[descriptor.operationName];
+  if (!config?.enabled) {
+    return passthrough() as unknown as Response;
+  }
 
-	return httpMethod(descriptor.path, async () => {
-		const config =
-			useMockStore.getState().operations[descriptor.operationName];
+  // Apply delay
+  if (config.delay > 0) {
+    await delay(config.delay);
+  }
 
-		if (!config?.enabled) return passthrough();
+  // Error override takes priority
+  const errorOverride = config.errorOverride as ErrorOverride;
+  if (errorOverride === "networkError") {
+    return HttpResponse.error();
+  }
+  if (errorOverride != null) {
+    return buildErrorResponse(errorOverride as number);
+  }
 
-		const variant = descriptor.variants.find(
-			(v) => v.id === config.activeVariantId,
-		);
-		if (!variant) return passthrough();
+  // Find active variant handler
+  const variant: HandlerVariant | undefined = descriptor.variants.find(
+    (v) => v.id === config.activeVariantId
+  );
+  if (!variant) {
+    return passthrough() as unknown as Response;
+  }
 
-		if (config.delay > 0) await delay(config.delay);
+  // Call the user's handler resolver
+  const resolver = (
+    variant.handler as unknown as { resolver: (info: unknown) => Promise<Response> }
+  ).resolver;
+  const response = await resolver(resolverInfo);
 
-		if (variant.isNetworkError) return HttpResponse.error();
+  if (!response) {
+    return passthrough() as unknown as Response;
+  }
 
-		let responseData = variant.data;
-		if (config.customJsonOverride) {
-			try {
-				responseData = JSON.parse(config.customJsonOverride);
-			} catch {
-				// Invalid JSON — fall back to variant default data
-			}
-		}
+  // Capture response body for JSON editor
+  await captureResponseBody(descriptor.operationName, response);
 
-		const options = resolveResponseOptions(config, variant);
+  // Apply user overrides (custom JSON, status code, headers)
+  return applyOverrides(response, config);
+};
 
-		return HttpResponse.json(
-			responseData as Record<string, unknown>,
-			options,
-		);
-	});
-}
+// ---------------------------------------------------------------------------
+// Dynamic handler creation — wraps user handlers with DevTools logic
+// ---------------------------------------------------------------------------
+
+const createRestHandler = (descriptor: Extract<MockOperationDescriptor, { type: "rest" }>) => {
+  const httpMethod = http[descriptor.method];
+
+  return httpMethod(descriptor.path, (info) => resolveAndRespond(descriptor, info));
+};
+
+const createGraphQLHandler = (
+  descriptor: Extract<MockOperationDescriptor, { type: "graphql" }>
+) => {
+  const gqlMethod = descriptor.operationType === "query" ? graphql.query : graphql.mutation;
+
+  return gqlMethod(descriptor.operationName, (info) => resolveAndRespond(descriptor, info));
+};
+
+export const createDynamicHandler = (descriptor: MockOperationDescriptor) => {
+  if (isGraphQLDescriptor(descriptor)) {
+    return createGraphQLHandler(descriptor);
+  }
+  if (isRestDescriptor(descriptor)) {
+    return createRestHandler(descriptor);
+  }
+  throw new Error(
+    `Unknown descriptor type for operation: ${(descriptor as MockOperationDescriptor).operationName}`
+  );
+};

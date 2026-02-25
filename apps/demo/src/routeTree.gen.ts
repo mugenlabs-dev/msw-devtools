@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PlaygroundRouteImport } from './routes/playground'
+import { Route as PlaygroundRouteRouteImport } from './routes/playground/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlaygroundIndexRouteImport } from './routes/playground/index'
+import { Route as PlaygroundUrqlRouteImport } from './routes/playground/urql'
+import { Route as PlaygroundSwrRouteImport } from './routes/playground/swr'
+import { Route as PlaygroundQueryRouteImport } from './routes/playground/query'
+import { Route as PlaygroundFetchRouteImport } from './routes/playground/fetch'
+import { Route as PlaygroundApolloRouteImport } from './routes/playground/apollo'
 
-const PlaygroundRoute = PlaygroundRouteImport.update({
+const PlaygroundRouteRoute = PlaygroundRouteRouteImport.update({
   id: '/playground',
   path: '/playground',
   getParentRoute: () => rootRouteImport,
@@ -22,31 +28,102 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaygroundIndexRoute = PlaygroundIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
+const PlaygroundUrqlRoute = PlaygroundUrqlRouteImport.update({
+  id: '/urql',
+  path: '/urql',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
+const PlaygroundSwrRoute = PlaygroundSwrRouteImport.update({
+  id: '/swr',
+  path: '/swr',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
+const PlaygroundQueryRoute = PlaygroundQueryRouteImport.update({
+  id: '/query',
+  path: '/query',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
+const PlaygroundFetchRoute = PlaygroundFetchRouteImport.update({
+  id: '/fetch',
+  path: '/fetch',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
+const PlaygroundApolloRoute = PlaygroundApolloRouteImport.update({
+  id: '/apollo',
+  path: '/apollo',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/playground': typeof PlaygroundRoute
+  '/playground': typeof PlaygroundRouteRouteWithChildren
+  '/playground/apollo': typeof PlaygroundApolloRoute
+  '/playground/fetch': typeof PlaygroundFetchRoute
+  '/playground/query': typeof PlaygroundQueryRoute
+  '/playground/swr': typeof PlaygroundSwrRoute
+  '/playground/urql': typeof PlaygroundUrqlRoute
+  '/playground/': typeof PlaygroundIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/playground': typeof PlaygroundRoute
+  '/playground/apollo': typeof PlaygroundApolloRoute
+  '/playground/fetch': typeof PlaygroundFetchRoute
+  '/playground/query': typeof PlaygroundQueryRoute
+  '/playground/swr': typeof PlaygroundSwrRoute
+  '/playground/urql': typeof PlaygroundUrqlRoute
+  '/playground': typeof PlaygroundIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/playground': typeof PlaygroundRoute
+  '/playground': typeof PlaygroundRouteRouteWithChildren
+  '/playground/apollo': typeof PlaygroundApolloRoute
+  '/playground/fetch': typeof PlaygroundFetchRoute
+  '/playground/query': typeof PlaygroundQueryRoute
+  '/playground/swr': typeof PlaygroundSwrRoute
+  '/playground/urql': typeof PlaygroundUrqlRoute
+  '/playground/': typeof PlaygroundIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/playground'
+  fullPaths:
+    | '/'
+    | '/playground'
+    | '/playground/apollo'
+    | '/playground/fetch'
+    | '/playground/query'
+    | '/playground/swr'
+    | '/playground/urql'
+    | '/playground/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/playground'
-  id: '__root__' | '/' | '/playground'
+  to:
+    | '/'
+    | '/playground/apollo'
+    | '/playground/fetch'
+    | '/playground/query'
+    | '/playground/swr'
+    | '/playground/urql'
+    | '/playground'
+  id:
+    | '__root__'
+    | '/'
+    | '/playground'
+    | '/playground/apollo'
+    | '/playground/fetch'
+    | '/playground/query'
+    | '/playground/swr'
+    | '/playground/urql'
+    | '/playground/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PlaygroundRoute: typeof PlaygroundRoute
+  PlaygroundRouteRoute: typeof PlaygroundRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -55,7 +132,7 @@ declare module '@tanstack/react-router' {
       id: '/playground'
       path: '/playground'
       fullPath: '/playground'
-      preLoaderRoute: typeof PlaygroundRouteImport
+      preLoaderRoute: typeof PlaygroundRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +142,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/playground/': {
+      id: '/playground/'
+      path: '/'
+      fullPath: '/playground/'
+      preLoaderRoute: typeof PlaygroundIndexRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
+    '/playground/urql': {
+      id: '/playground/urql'
+      path: '/urql'
+      fullPath: '/playground/urql'
+      preLoaderRoute: typeof PlaygroundUrqlRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
+    '/playground/swr': {
+      id: '/playground/swr'
+      path: '/swr'
+      fullPath: '/playground/swr'
+      preLoaderRoute: typeof PlaygroundSwrRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
+    '/playground/query': {
+      id: '/playground/query'
+      path: '/query'
+      fullPath: '/playground/query'
+      preLoaderRoute: typeof PlaygroundQueryRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
+    '/playground/fetch': {
+      id: '/playground/fetch'
+      path: '/fetch'
+      fullPath: '/playground/fetch'
+      preLoaderRoute: typeof PlaygroundFetchRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
+    '/playground/apollo': {
+      id: '/playground/apollo'
+      path: '/apollo'
+      fullPath: '/playground/apollo'
+      preLoaderRoute: typeof PlaygroundApolloRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
   }
 }
 
+interface PlaygroundRouteRouteChildren {
+  PlaygroundApolloRoute: typeof PlaygroundApolloRoute
+  PlaygroundFetchRoute: typeof PlaygroundFetchRoute
+  PlaygroundQueryRoute: typeof PlaygroundQueryRoute
+  PlaygroundSwrRoute: typeof PlaygroundSwrRoute
+  PlaygroundUrqlRoute: typeof PlaygroundUrqlRoute
+  PlaygroundIndexRoute: typeof PlaygroundIndexRoute
+}
+
+const PlaygroundRouteRouteChildren: PlaygroundRouteRouteChildren = {
+  PlaygroundApolloRoute: PlaygroundApolloRoute,
+  PlaygroundFetchRoute: PlaygroundFetchRoute,
+  PlaygroundQueryRoute: PlaygroundQueryRoute,
+  PlaygroundSwrRoute: PlaygroundSwrRoute,
+  PlaygroundUrqlRoute: PlaygroundUrqlRoute,
+  PlaygroundIndexRoute: PlaygroundIndexRoute,
+}
+
+const PlaygroundRouteRouteWithChildren = PlaygroundRouteRoute._addFileChildren(
+  PlaygroundRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PlaygroundRoute: PlaygroundRoute,
+  PlaygroundRouteRoute: PlaygroundRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

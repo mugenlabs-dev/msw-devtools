@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  /* Map CSS custom properties from theme-context.tsx to Tailwind colors */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-card-bg: var(--card-bg);
+  --color-header-bg: var(--header-bg);
+  --color-code-bg: var(--code-bg);
+  --color-code-block-bg: var(--code-block-bg);
+  --color-pill-bg: var(--pill-bg);
+  --color-hero-btn-bg: var(--hero-btn-bg);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  --color-text-dimmed: var(--text-dimmed);
+  --color-pill-color: var(--pill-color);
+  --color-hero-btn-color: var(--hero-btn-color);
+
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-tertiary: var(--border-tertiary);
+
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-green: var(--accent-green);
+  --color-accent-purple: var(--accent-purple);
+
+  --color-badge-graphql-bg: var(--badge-graphql-bg);
+  --color-badge-graphql-color: var(--badge-graphql-color);
+  --color-badge-rest-bg: var(--badge-rest-bg);
+  --color-badge-rest-color: var(--badge-rest-color);
+  --color-badge-method-bg: var(--badge-method-bg);
+  --color-badge-method-color: var(--badge-method-color);
+  --color-badge-lib-bg: var(--badge-lib-bg);
+  --color-badge-lib-color: var(--badge-lib-color);
+}
+
+/* Pokeball wobble animation on hover */
+@keyframes pokeball-wobble {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-12deg);
+  }
+  60% {
+    transform: rotate(8deg);
+  }
+  80% {
+    transform: rotate(-4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.pokeball-img {
+  transition: transform 0.15s ease;
+}
+
+.group:hover .pokeball-img {
+  animation: pokeball-wobble 0.6s ease-in-out;
+}
+
+/* Playground page enter transition */
+@keyframes playground-enter {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    filter: blur(0px);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.playground-page-enter {
+  animation: playground-enter 0.3s ease-out both;
+}
+
+/* Responsive sidebar visibility */
+@media (max-width: 1200px) {
+  .docs-sidebar {
+    display: none !important;
+  }
+}
+
+/* View transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation: none;
+}

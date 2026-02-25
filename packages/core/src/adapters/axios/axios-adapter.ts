@@ -1,4 +1,4 @@
-import type { MockChangeType, MswDevToolAdapter } from "../../adapter/types";
+import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
 
 /**
  * Creates an Axios adapter for MSW DevTools.
@@ -7,12 +7,10 @@ import type { MockChangeType, MswDevToolAdapter } from "../../adapter/types";
  * registration marker. Use `useMockRefetch()` in your components
  * to automatically refetch when mock config changes.
  */
-export function createAxiosAdapter(): MswDevToolAdapter {
-	return {
-		id: "axios",
-		onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
-			// Axios has no query cache to invalidate.
-			// Components should use useMockRefetch() for live updates.
-		},
-	};
-}
+export const createAxiosAdapter = (): MswDevToolAdapter => ({
+  id: "axios",
+  onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
+    // Axios has no query cache to invalidate.
+    // Components should use useMockRefetch() for live updates.
+  },
+});
