@@ -1,6 +1,6 @@
 {
   "name": "msw-devtools-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser",
   "keywords": [
     "api-mocking",
