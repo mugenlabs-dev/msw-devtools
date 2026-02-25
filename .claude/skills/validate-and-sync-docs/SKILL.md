@@ -1,6 +1,6 @@
 ---
 name: validate-and-sync-docs
-description: Runs unit and E2E tests, then syncs README.md and DocsPage.tsx with the latest codebase changes. Use after making code changes to ensure tests pass and documentation stays up to date.
+description: Runs unit and E2E tests, then syncs README.md and docs-page.tsx with the latest codebase changes. Use after making code changes to ensure tests pass and documentation stays up to date.
 user-invocable: true
 allowed-tools: Read, Grep, Glob, Bash(pnpm test:ci), Bash(pnpm test:e2e), Bash(pnpm build), Edit, Write
 ---
@@ -36,10 +36,10 @@ Read the following source files to understand the current state of the library:
 - `packages/core/src/types.ts` — all public types
 - `packages/core/src/adapters/*/index.ts` — adapter exports
 - `packages/core/src/registry/helpers.ts` — `withStandardVariants`, `withRestVariants`
-- `packages/core/src/plugin/createMswDevToolsPlugin.tsx` — plugin options
-- `packages/core/src/msw/worker-manager.ts` — `enableMocking` options
-- `apps/demo/src/PlaygroundPage.tsx` — how the demo uses the library
-- `apps/demo/src/DocsPage.tsx` — current docs page content
+- `packages/core/src/plugin/create-msw-dev-tools-plugin.tsx` — plugin options
+- `packages/core/src/msw/worker-manager.ts` — `startWorker` options
+- `apps/demo/src/playground-page.tsx` — how the demo uses the library
+- `apps/demo/src/docs-page.tsx` — current docs page content
 - `README.md` — current README content
 
 ## Step 3 — Sync README.md
@@ -57,23 +57,25 @@ Compare the README against the actual codebase and update any sections that are 
 - **Project Structure** — match actual directory layout
 
 Rules:
+
 - Do NOT rewrite sections that are already correct
 - Do NOT change writing style or add emoji
 - Only update factual inaccuracies (wrong imports, missing exports, outdated examples)
 - If a new feature/export was added but is not documented, add it in the appropriate section
 - If a feature/export was removed, remove its documentation
 
-## Step 4 — Sync DocsPage.tsx
+## Step 4 — Sync docs-page.tsx
 
-Compare `apps/demo/src/DocsPage.tsx` against the actual codebase:
+Compare `apps/demo/src/docs-page.tsx` against the actual codebase:
 
 - **Installation command** — correct package name
-- **Quick Start code** — match actual API (registerMocks, enableMocking, TanStackDevtools)
+- **Quick Start code** — match actual API (registerMocks, createMswDevToolsPlugin, TanStackDevtools)
 - **Adapter imports** — match actual import paths and function names
 - **Features grid** — match actual capabilities
 - **Supported Libraries list** — match actual adapters
 
 Rules:
+
 - Same rules as README: only fix inaccuracies, don't change style
 - Keep the JSX structure and inline CSS intact
 - Only update string content inside the existing components
@@ -91,6 +93,7 @@ to ensure the demo still builds.
 ## Step 6 — Report
 
 Summarize what happened:
+
 1. Test results (pass counts)
 2. Files changed (if any) with a brief description of what was updated
 3. If nothing needed updating, say "Docs are already in sync"

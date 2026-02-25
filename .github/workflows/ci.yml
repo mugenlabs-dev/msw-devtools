@@ -15,10 +15,10 @@ concurrency:
 
 jobs:
   # ─────────────────────────────────────────────
-  # Job 1: Lint, format check & typecheck
+  # Job 1: Lint & Format (Biome)
   # ─────────────────────────────────────────────
-  quality:
-    name: Quality
+  lint:
+    name: 🔍 Lint & Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,18 +32,38 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Lint & format check
+      - name: Lint & Format
         run: pnpm lint
 
+  # ─────────────────────────────────────────────
+  # Job 1b: Typecheck
+  # ─────────────────────────────────────────────
+  typecheck:
+    name: 🧠 Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build packages (for type info)
+        run: pnpm build
+
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
   # ─────────────────────────────────────────────
   # Job 2: Unit tests
   # ─────────────────────────────────────────────
   test:
-    name: Unit Tests
-    needs: quality
+    name: 🧪 Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,8 +84,7 @@ jobs:
   # Job 3: Build packages + demo
   # ─────────────────────────────────────────────
   build:
-    name: Build
-    needs: test
+    name: 📦 Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -109,8 +128,8 @@ jobs:
   # Job 4: Deploy to GitHub Pages
   # ─────────────────────────────────────────────
   deploy:
-    name: Deploy
-    needs: build
+    name: 🚀 Deploy
+    needs: [lint, typecheck, test, build]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -126,7 +145,7 @@ jobs:
   # Job 5: E2E tests against deployed site
   # ─────────────────────────────────────────────
   e2e:
-    name: E2E Tests
+    name: 🎭 E2E Tests
     needs: deploy
     runs-on: ubuntu-latest
     steps:
@@ -162,7 +181,7 @@ jobs:
   # Job 6: Rollback if E2E fails
   # ─────────────────────────────────────────────
   rollback:
-    name: Rollback
+    name: ⏪ Rollback
     needs: e2e
     if: failure()
     runs-on: ubuntu-latest
@@ -230,15 +249,3 @@ jobs:
 
       - name: Re-deploy previous version
         uses: actions/deploy-pages@v4
-
-  # ─────────────────────────────────────────────
-  # Job 7: NPM Publish (placeholder)
-  # ─────────────────────────────────────────────
-  publish:
-    name: NPM Publish
-    needs: e2e
-    if: success()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Placeholder
-        run: echo "NPM publish would happen here when ready"

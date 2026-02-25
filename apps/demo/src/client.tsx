@@ -1,18 +1,14 @@
+import { StartClient } from "@tanstack/react-start/client";
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { StartClient } from "@tanstack/react-start/client";
-import { enableMocking } from "msw-devtool";
+import "./styles.css";
 
-// Register mocks before enabling mocking so the worker starts with handlers
+// Register mocks — the worker auto-starts when the devtools plugin mounts
 import "./mocks/setup";
 
-enableMocking({
-	serviceWorkerUrl: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
-}).then(() => {
-	hydrateRoot(
-		document,
-		<StrictMode>
-			<StartClient />
-		</StrictMode>,
-	);
-});
+hydrateRoot(
+  document,
+  <StrictMode>
+    <StartClient />
+  </StrictMode>
+);

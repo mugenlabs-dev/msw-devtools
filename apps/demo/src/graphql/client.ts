@@ -1,8 +1,8 @@
 import { Client, cacheExchange, fetchExchange } from "@urql/core";
-import { mockRefetchExchange } from "msw-devtool/adapters/urql";
+import { mockRefetchExchange } from "msw-devtools-plugin/adapters/urql";
 
 export const urqlClient = new Client({
-	url: "https://beta.pokeapi.co/graphql/v1beta",
-	exchanges: [cacheExchange, mockRefetchExchange, fetchExchange],
-	preferGetMethod: false,
+  exchanges: [cacheExchange, mockRefetchExchange, fetchExchange],
+  preferGetMethod: false,
+  url: "https://beta.pokeapi.co/graphql/v1beta",
 });

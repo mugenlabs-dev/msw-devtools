@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "./node_modules/ultracite/config/biome/core/biome.jsonc",
+    "./node_modules/ultracite/config/biome/react/biome.jsonc"
+  ],
+  "files": {
+    "includes": ["!!**/routeTree.gen.ts", "!!**/mockServiceWorker.js"]
+  },
+  "formatter": {
+    "lineWidth": 100
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        // Biome can't resolve TypeScript path aliases (#/...) or vitest globals
+        "noUndeclaredVariables": "off"
+      },
+      "suspicious": {
+        "noDoubleEquals": "off"
+      },
+      "complexity": {
+        "noVoid": "off"
+      },
+      "performance": {
+        // E2E tests and callback patterns use inline regex legitimately
+        "useTopLevelRegex": "off",
+        // Core package re-exports via index.ts intentionally
+        "noBarrelFile": "off"
+      }
+    }
+  }
+}

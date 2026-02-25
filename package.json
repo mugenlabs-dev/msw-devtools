@@ -1,36 +1,40 @@
 {
-  "name": "msw-devtool",
+  "name": "msw-devtools-plugin",
   "private": true,
-  "packageManager": "pnpm@10.6.5",
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=10.0.0"
-  },
   "scripts": {
     "build": "pnpm --filter ./packages/core run build",
     "dev": "pnpm --filter ./packages/core run dev",
     "dev:demo": "pnpm --filter demo run dev",
-    "typecheck": "pnpm -r run typecheck",
+    "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit",
     "clean": "pnpm -r run clean",
     "test": "vitest",
     "test:ci": "vitest run",
     "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "test:e2e": "playwright test",
-    "format": "biome check --write ."
+    "changeset": "changeset"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
+    "@changesets/cli": "^2.29.8",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/node": "^25.3.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@typescript/native-preview": "7.0.0-dev.20260223.1",
     "jsdom": "^28.1.0",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0",
     "ultracite": "^7.2.3",
     "vitest": "^4.0.18"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.6.5",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",

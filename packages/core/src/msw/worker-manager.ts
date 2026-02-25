@@ -1,72 +1,83 @@
 import type { SetupWorker } from "msw/browser";
-import { mockRegistry } from "../registry/registry";
-import { useMockStore } from "../store/store";
+
+import { mockRegistry } from "#/registry/registry";
+import { useMockStore } from "#/store/store";
+
 import { createDynamicHandler } from "./create-handler";
 import { setupOperationTracker } from "./operation-tracker";
 
 let worker: SetupWorker | null = null;
 let started = false;
 
-export type WorkerOptions = {
-	/** Custom path to the service worker script. Default: '/mockServiceWorker.js' */
-	serviceWorkerUrl?: string;
-	/** Suppress MSW console logging. Default: true */
-	quiet?: boolean;
-	/** Behavior for unhandled requests. Default: 'bypass' */
-	onUnhandledRequest?: "bypass" | "warn" | "error";
+export interface WorkerOptions {
+  /** Behavior for unhandled requests. Default: 'bypass' */
+  onUnhandledRequest?: "bypass" | "warn" | "error";
+  /** Suppress MSW console logging. Default: true */
+  quiet?: boolean;
+  /** Custom path to the service worker script. Default: '/mockServiceWorker.js' */
+  serviceWorkerUrl?: string;
+}
+
+const initializeWorker = async (options?: WorkerOptions): Promise<SetupWorker> => {
+  const { setupWorker } = await import("msw/browser");
+  const descriptors = mockRegistry.getAll();
+  const handlers = descriptors.map(createDynamicHandler);
+
+  const instance = setupWorker(...handlers);
+
+  await instance.start({
+    onUnhandledRequest: options?.onUnhandledRequest ?? "bypass",
+    quiet: options?.quiet ?? true,
+    serviceWorker: {
+      url: options?.serviceWorkerUrl ?? "/mockServiceWorker.js",
+    },
+  });
+
+  return instance;
 };
 
-export async function startWorker(
-	options?: WorkerOptions,
-): Promise<SetupWorker> {
-	if (started && worker) return worker;
+const syncAndTrack = (instance: SetupWorker): void => {
+  const descriptors = mockRegistry.getAll();
+  useMockStore.getState().syncWithRegistry(descriptors.map((d) => d.operationName));
+  setupOperationTracker(instance);
+};
 
-	const { setupWorker } = await import("msw/browser");
+const activateWorker = (instance: SetupWorker): void => {
+  started = true;
+  useMockStore.getState().setWorkerStatus("active");
+  syncAndTrack(instance);
+};
 
-	const descriptors = mockRegistry.getAll();
-	const handlers = descriptors.map(createDynamicHandler);
+export const startWorker = async (options?: WorkerOptions): Promise<SetupWorker> => {
+  if (started && worker) {
+    return worker;
+  }
 
-	worker = setupWorker(...handlers);
+  try {
+    useMockStore.getState().setWorkerStatus("starting");
+    worker = await initializeWorker(options);
+    activateWorker(worker);
+  } catch (caughtError: unknown) {
+    useMockStore.getState().setWorkerStatus("error");
+    throw caughtError;
+  }
 
-	try {
-		useMockStore.getState().setWorkerStatus("starting");
+  return worker;
+};
 
-		await worker.start({
-			onUnhandledRequest: options?.onUnhandledRequest ?? "bypass",
-			serviceWorker: {
-				url: options?.serviceWorkerUrl ?? "/mockServiceWorker.js",
-			},
-			quiet: options?.quiet ?? true,
-		});
-
-		started = true;
-		useMockStore.getState().setWorkerStatus("active");
-
-		useMockStore
-			.getState()
-			.syncWithRegistry(descriptors.map((d) => d.operationName));
-
-		setupOperationTracker(worker);
-	} catch {
-		useMockStore.getState().setWorkerStatus("error");
-	}
-
-	return worker;
-}
-
-export function getWorker(): SetupWorker | null {
-	return worker;
-}
+/** @internal — Returns the current MSW worker instance. Not part of the public API. */
+export const getWorker = (): SetupWorker | null => worker;
 
 /**
- * Refresh handlers when registry changes.
+ * @internal — Refresh handlers when registry changes.
  * Called when new descriptors are registered after initial startup.
+ * Not part of the public API.
  */
-export function refreshHandlers(): void {
-	if (!worker) return;
-	const descriptors = mockRegistry.getAll();
-	worker.resetHandlers(...descriptors.map(createDynamicHandler));
-	useMockStore
-		.getState()
-		.syncWithRegistry(descriptors.map((d) => d.operationName));
-}
+export const refreshHandlers = (): void => {
+  if (!worker) {
+    return;
+  }
+  const descriptors = mockRegistry.getAll();
+  worker.resetHandlers(...descriptors.map(createDynamicHandler));
+  useMockStore.getState().syncWithRegistry(descriptors.map((d) => d.operationName));
+};

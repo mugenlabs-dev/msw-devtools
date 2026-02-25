@@ -1,0 +1,21 @@
+{
+  // Use Oxc for fix-all on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "always"
+  },
+
+  // Enable type-aware linting (tsgolint)
+  "oxc.typeAware": true,
+
+  // Optional: use oxfmt as the default formatter
+  "[javascript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "editor.formatOnSave": true
+
+  // Optional: if you previously used ESLint and don't want its inline errors anymore
+  // "eslint.enable": false
+}
