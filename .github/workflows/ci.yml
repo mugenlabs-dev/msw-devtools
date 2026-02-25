@@ -148,6 +148,9 @@ jobs:
     name: 🎭 E2E Tests
     needs: deploy
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
 
@@ -159,24 +162,6 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-
-      - name: Get Playwright version
-        id: pw-version
-        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright browsers
-        id: pw-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ steps.pw-version.outputs.version }}
-
-      - name: Install Playwright system deps
-        run: pnpm exec playwright install-deps chromium
-
-      - name: Install Playwright browsers
-        if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install chromium
 
       - name: Run E2E tests against GitHub Pages
         run: pnpm test:e2e
