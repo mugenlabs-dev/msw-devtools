@@ -182,9 +182,22 @@ const mountAuroraScene = (
   window.addEventListener("resize", resize);
   ctn.append(gl.canvas);
 
-  // Cache converted color stops to avoid allocating new Color objects every frame
-  let cachedStopsKey = "";
-  let cachedStopsValue: number[][] = [];
+  // Transition duration in ms — matches the CSS `transition-colors duration-300`
+  const LERP_DURATION = 300;
+
+  // Current interpolated values (start at the initial uniform values)
+  let currentStops: number[][] = program.uniforms.uColorStops.value as number[][];
+  let targetStops: number[][] = currentStops;
+  let currentLightMode: number = program.uniforms.uLightMode.value as number;
+  let targetLightMode: number = currentLightMode;
+
+  let transitionStart = 0;
+  let cachedStopsKey = program.uniforms.uColorStops.value.toString();
+
+  const lerpChannel = (a: number, b: number, t: number) => a + (b - a) * t;
+
+  const lerpStops = (from: number[][], to: number[][], t: number): number[][] =>
+    from.map((stop, i) => stop.map((ch, j) => lerpChannel(ch, to[i][j], t)));
 
   let animateId = 0;
   const update = (t: number) => {
@@ -193,14 +206,28 @@ const mountAuroraScene = (
     program.uniforms.uTime.value = t * 0.01 * p.speed * 0.1;
     program.uniforms.uAmplitude.value = p.amplitude;
     program.uniforms.uBlend.value = p.blend;
-    program.uniforms.uLightMode.value = p.lightMode ? 1 : 0;
 
+    // Detect color stop or lightMode changes and start a transition
     const stopsKey = p.colorStops.join();
-    if (stopsKey !== cachedStopsKey) {
+    const newLightMode = p.lightMode ? 1 : 0;
+
+    if (stopsKey !== cachedStopsKey || newLightMode !== targetLightMode) {
       cachedStopsKey = stopsKey;
-      cachedStopsValue = colorStopsToArray(p.colorStops);
+      // Snapshot current interpolated values as the new "from"
+      currentStops = program.uniforms.uColorStops.value as number[][];
+      currentLightMode = program.uniforms.uLightMode.value as number;
+      targetStops = colorStopsToArray(p.colorStops);
+      targetLightMode = newLightMode;
+      transitionStart = t;
     }
-    program.uniforms.uColorStops.value = cachedStopsValue;
+
+    const elapsed = t - transitionStart;
+    const progress = Math.min(elapsed / LERP_DURATION, 1);
+    // Ease-out curve for a smooth deceleration
+    const eased = 1 - (1 - progress) ** 2;
+
+    program.uniforms.uColorStops.value = lerpStops(currentStops, targetStops, eased);
+    program.uniforms.uLightMode.value = lerpChannel(currentLightMode, targetLightMode, eased);
 
     renderer.render({ scene: mesh });
   };
