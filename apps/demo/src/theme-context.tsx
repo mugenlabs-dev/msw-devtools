@@ -207,10 +207,9 @@ const themeVars: Record<Theme, Record<string, string>> = {
 
 const applyThemeVars = (theme: Theme) => {
   const vars = themeVars[theme];
-  const cssText = Object.entries(vars)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join("; ");
-  document.documentElement.style.cssText = cssText;
+  for (const [key, value] of Object.entries(vars)) {
+    document.documentElement.style.setProperty(key, value);
+  }
   document.documentElement.dataset.theme = theme;
 };
 
