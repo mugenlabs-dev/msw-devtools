@@ -25,10 +25,7 @@ export default defineConfig({
         plugins: [storybookTest({ configDir: "./packages/core/.storybook" })],
         optimizeDeps: {
           include: [
-            "@storybook/addon-vitest/internal/setup-file",
-            "@storybook/addon-vitest/internal/global-setup",
             "@storybook/addon-vitest/internal/test-utils",
-            "react-dom/test-utils",
           ],
         },
         test: {
