@@ -41,19 +41,18 @@ const applyOverrides = async (
   config: OperationMockConfig
 ): Promise<Response> => {
   const hasJsonOverride = config.customJsonOverride != null && config.customJsonOverride !== "";
-  const hasStatusOverride = config.statusCode != null;
   const hasHeaderOverride = config.customHeaders != null && config.customHeaders !== "";
 
   // If nothing to override, return as-is
-  if (!(hasJsonOverride || hasStatusOverride || hasHeaderOverride)) {
+  if (!(hasJsonOverride || config.statusCode != null || hasHeaderOverride)) {
     return original;
   }
 
   // Read original body if needed
   let body: unknown;
-  if (hasJsonOverride) {
+  if (config.customJsonOverride != null && config.customJsonOverride !== "") {
     try {
-      body = JSON.parse(config.customJsonOverride!);
+      body = JSON.parse(config.customJsonOverride);
     } catch {
       body = await original
         .clone()
@@ -75,9 +74,9 @@ const applyOverrides = async (
   original.headers.forEach((value, key) => {
     headers[key] = value;
   });
-  if (hasHeaderOverride) {
+  if (config.customHeaders != null && config.customHeaders !== "") {
     try {
-      headers = JSON.parse(config.customHeaders!) as Record<string, string>;
+      headers = JSON.parse(config.customHeaders) as Record<string, string>;
     } catch {
       // Invalid JSON — keep original headers
     }
