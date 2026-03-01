@@ -5,7 +5,11 @@
     "./node_modules/ultracite/config/biome/react/biome.jsonc"
   ],
   "files": {
-    "includes": ["!!**/routeTree.gen.ts", "!!**/mockServiceWorker.js"]
+    "includes": [
+      "!!**/routeTree.gen.ts",
+      "!!**/mockServiceWorker.js",
+      "!!**/storybook-static"
+    ]
   },
   "formatter": {
     "lineWidth": 100

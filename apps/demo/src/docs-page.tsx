@@ -4,6 +4,7 @@ import { SidebarNav } from "./docs/components/sidebar-nav";
 import { AdapterSection } from "./docs/sections/adapter-section";
 import { ApiReferenceSection } from "./docs/sections/api-reference-section";
 import { ExistingHandlersSection } from "./docs/sections/existing-handlers-section";
+import { FeaturesSection } from "./docs/sections/features-section";
 import { HeroSection } from "./docs/sections/hero-section";
 import { InstallationSection } from "./docs/sections/installation-section";
 import { QuickStartSection } from "./docs/sections/quick-start-section";
@@ -124,6 +125,7 @@ export const DocsPage = () => {
   return (
     <div className="font-sans text-text-secondary transition-colors duration-300">
       <HeroSection />
+      <FeaturesSection />
 
       <div className="mx-auto flex max-w-[1000px] gap-12 px-6 pb-40">
         {/* Sidebar — hidden below 1200px via CSS media query */}

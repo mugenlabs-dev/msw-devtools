@@ -15,10 +15,10 @@ concurrency:
 
 jobs:
   # ─────────────────────────────────────────────
-  # Job 1: Lint & Format (Biome)
+  # Job 1: Lint, Format & Unit Tests
   # ─────────────────────────────────────────────
-  lint:
-    name: 🔍 Lint & Format
+  check:
+    name: 🔍 Lint & Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,56 +35,50 @@ jobs:
       - name: Lint & Format
         run: pnpm lint
 
-  # ─────────────────────────────────────────────
-  # Job 1b: Typecheck
-  # ─────────────────────────────────────────────
-  typecheck:
-    name: 🧠 Typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Build packages (for type info)
-        run: pnpm build
-
-      - name: Typecheck
-        run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
-
-  # ─────────────────────────────────────────────
-  # Job 2: Unit tests
-  # ─────────────────────────────────────────────
-  test:
-    name: 🧪 Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
       - name: Run unit tests
         run: pnpm test:ci
 
   # ─────────────────────────────────────────────
-  # Job 3: Build packages + demo
+  # Job 2: Storybook interaction tests
+  # ─────────────────────────────────────────────
+  storybook:
+    name: 📖 Storybook Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright deps (cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Run Storybook tests
+        run: pnpm test-storybook
+
+  # ─────────────────────────────────────────────
+  # Job 3: Build, Typecheck & Deploy artifacts
   # ─────────────────────────────────────────────
   build:
-    name: 📦 Build
+    name: 📦 Build & Typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,6 +94,9 @@ jobs:
 
       - name: Build all packages
         run: pnpm build
+
+      - name: Typecheck
+        run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
       - name: Build demo for GitHub Pages
         run: pnpm --filter demo run build
@@ -129,7 +126,7 @@ jobs:
   # ─────────────────────────────────────────────
   deploy:
     name: 🚀 Deploy
-    needs: [lint, typecheck, test, build]
+    needs: [check, storybook, build]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
