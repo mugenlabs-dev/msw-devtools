@@ -53,6 +53,12 @@ const handleLibPillLeave = (e: React.MouseEvent<HTMLSpanElement>) => {
 };
 
 // ---------------------------------------------------------------------------
+// Aurora color stop constants (stable references to avoid re-renders)
+// ---------------------------------------------------------------------------
+const AURORA_DARK: [string, string, string] = ["#3D2D6B", "#5F4B8B", "#7B68AE"];
+const AURORA_LIGHT: [string, string, string] = ["#d4c0ff", "#b8a0e8", "#e0d0ff"];
+
+// ---------------------------------------------------------------------------
 // Hero Section
 // ---------------------------------------------------------------------------
 export const HeroSection = () => {
@@ -63,9 +69,7 @@ export const HeroSection = () => {
       <Aurora
         amplitude={1.2}
         blend={0.6}
-        colorStops={
-          theme === "dark" ? ["#3D2D6B", "#5F4B8B", "#7B68AE"] : ["#d4c0ff", "#b8a0e8", "#e0d0ff"]
-        }
+        colorStops={theme === "dark" ? AURORA_DARK : AURORA_LIGHT}
         lightMode={theme === "light"}
         speed={0.4}
       />
