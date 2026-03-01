@@ -53,7 +53,7 @@ const applyOverrides = async (
   let body: unknown;
   if (hasJsonOverride) {
     try {
-      body = JSON.parse(config.customJsonOverride as string);
+      body = JSON.parse(config.customJsonOverride!);
     } catch {
       body = await original
         .clone()
@@ -77,7 +77,7 @@ const applyOverrides = async (
   });
   if (hasHeaderOverride) {
     try {
-      headers = JSON.parse(config.customHeaders as string) as Record<string, string>;
+      headers = JSON.parse(config.customHeaders!) as Record<string, string>;
     } catch {
       // Invalid JSON — keep original headers
     }

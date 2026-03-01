@@ -9,7 +9,7 @@ import type {
   SortOption,
 } from "./types";
 
-const defaultConfig: OperationMockConfig = {
+export const defaultConfig: OperationMockConfig = {
   activeVariantId: "variant-0",
   customHeaders: null,
   customJsonOverride: null,
@@ -17,6 +17,20 @@ const defaultConfig: OperationMockConfig = {
   enabled: false,
   errorOverride: null,
   statusCode: null,
+};
+
+/** Set all operations' enabled flag to the given value. */
+const setAllEnabled = (
+  set: (fn: (state: MockStoreState) => Partial<MockStoreState>) => void,
+  enabled: boolean
+): void => {
+  set((state) => {
+    const operations = { ...state.operations };
+    for (const key of Object.keys(operations)) {
+      operations[key] = { ...operations[key], enabled };
+    }
+    return { operations };
+  });
 };
 
 /** Update a single operation's config fields within the store. */
@@ -49,33 +63,22 @@ export const useMockStore = create<MockStoreState>()(
         },
 
         collapsedGroups: new Set<string>(),
-        disableAll: () => {
-          set((state) => {
-            const operations = { ...state.operations };
-            for (const key of Object.keys(operations)) {
-              operations[key] = { ...operations[key], enabled: false };
-            }
-            return { operations };
-          });
-        },
-        enableAll: () => {
-          set((state) => {
-            const operations = { ...state.operations };
-            for (const key of Object.keys(operations)) {
-              operations[key] = { ...operations[key], enabled: true };
-            }
-            return { operations };
-          });
-        },
+        disableAll: () => setAllEnabled(set, false),
+        enableAll: () => setAllEnabled(set, true),
 
         filter: "all" as FilterOption,
 
         isGrouped: true,
 
         markOperationSeen: (operationName) => {
-          set((state) => ({
-            seenOperations: new Set([...state.seenOperations, operationName]),
-          }));
+          set((state) => {
+            if (state.seenOperations.has(operationName)) {
+              return state;
+            }
+            const next = new Set(state.seenOperations);
+            next.add(operationName);
+            return { seenOperations: next };
+          });
         },
 
         operations: {},
@@ -157,6 +160,7 @@ export const useMockStore = create<MockStoreState>()(
         syncWithRegistry: (operationNames) => {
           set((state) => {
             const operations = { ...state.operations };
+            const nameSet = new Set(operationNames);
             for (const name of operationNames) {
               if (name in operations) {
                 // Ensure existing persisted configs have new fields with defaults
@@ -169,7 +173,7 @@ export const useMockStore = create<MockStoreState>()(
               }
             }
             for (const key of Object.keys(operations)) {
-              if (!operationNames.includes(key)) {
+              if (!nameSet.has(key)) {
                 Reflect.deleteProperty(operations, key);
               }
             }

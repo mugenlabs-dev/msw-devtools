@@ -132,29 +132,31 @@ const getPrimaryHandler = (variants: HandlerVariant[]): HttpHandler | GraphQLHan
 const eagerCaptureDefaultResponses = async (
   descriptors: MockOperationDescriptor[]
 ): Promise<void> => {
-  for (const descriptor of descriptors) {
-    const variant = descriptor.variants[0];
-    if (!variant) {
-      continue;
-    }
-    try {
-      const resolver = (
-        variant.handler as unknown as {
-          resolver: (info: unknown) => Promise<Response>;
-        }
-      ).resolver;
-      const response = await resolver({});
-      if (response) {
-        const cloned = response.clone();
-        const body = await cloned.json();
-        useMockStore
-          .getState()
-          .setCapturedResponse(descriptor.operationName, JSON.stringify(body, null, 2));
+  await Promise.all(
+    descriptors.map(async (descriptor) => {
+      const variant = descriptor.variants[0];
+      if (!variant) {
+        return;
       }
-    } catch {
-      // Handler may require request context — skip silently
-    }
-  }
+      try {
+        const resolver = (
+          variant.handler as unknown as {
+            resolver: (info: unknown) => Promise<Response>;
+          }
+        ).resolver;
+        const response = await resolver({});
+        if (response) {
+          const cloned = response.clone();
+          const body = await cloned.json();
+          useMockStore
+            .getState()
+            .setCapturedResponse(descriptor.operationName, JSON.stringify(body, null, 2));
+        }
+      } catch {
+        // Handler may require request context — skip silently
+      }
+    })
+  );
 };
 
 // ---------------------------------------------------------------------------

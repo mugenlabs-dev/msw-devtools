@@ -31,9 +31,9 @@ export const OperationList = ({ selectedOperation, onSelectOperation }: Operatio
     [descriptors, store.operations, store.seenOperations, listState.filter, listState.sort]
   );
 
-  const enabledCount = Object.values(store.operations).reduce(
-    (count, op) => count + (op.enabled ? 1 : 0),
-    0
+  const enabledCount = useMemo(
+    () => Object.values(store.operations).reduce((count, op) => count + (op.enabled ? 1 : 0), 0),
+    [store.operations]
   );
   const status = statusConfig[store.workerStatus];
 

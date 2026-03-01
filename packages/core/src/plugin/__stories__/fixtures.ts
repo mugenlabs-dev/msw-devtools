@@ -5,6 +5,7 @@ import type {
   MockOperationDescriptor,
   RestMockDescriptor,
 } from "#/registry/types";
+import { defaultConfig } from "#/store/store";
 import type { OperationMockConfig } from "#/store/types";
 
 // ---------------------------------------------------------------------------
@@ -132,15 +133,7 @@ export const allDescriptors: MockOperationDescriptor[] = [
 // Pre-built OperationMockConfig variants
 // ---------------------------------------------------------------------------
 
-export const defaultConfig: OperationMockConfig = {
-  activeVariantId: "variant-0",
-  customHeaders: null,
-  customJsonOverride: null,
-  delay: 0,
-  enabled: false,
-  errorOverride: null,
-  statusCode: null,
-};
+export { defaultConfig };
 
 export const enabledConfig: OperationMockConfig = {
   ...defaultConfig,

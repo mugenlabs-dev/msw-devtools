@@ -44,7 +44,7 @@ export const OperationDetailHeader = ({
         background: config.enabled ? theme.colors.success : theme.colors.toggleOff,
         border: "none",
         borderRadius: theme.radius.lg,
-        color: config.enabled ? theme.colors.black : "#ccc",
+        color: config.enabled ? theme.colors.black : theme.colors.textDisabled,
         cursor: "pointer",
         fontSize: theme.fontSize.base,
         fontWeight: 500,
