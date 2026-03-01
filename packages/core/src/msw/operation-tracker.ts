@@ -78,10 +78,13 @@ const tryRestMatch = (request: Request): void => {
 // SPA navigation detection — auto-clear seen operations on route change
 // ---------------------------------------------------------------------------
 
+let navigationListenerActive = false;
+
 const setupNavigationListener = (): void => {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || navigationListenerActive) {
     return;
   }
+  navigationListenerActive = true;
 
   const clearSeen = (): void => {
     useMockStore.getState().clearSeenOperations();

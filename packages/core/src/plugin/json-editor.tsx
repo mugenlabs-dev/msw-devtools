@@ -99,7 +99,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
                 background: theme.colors.surfaceHover,
                 border: `1px solid ${theme.colors.borderInput}`,
                 borderRadius: theme.radius.md,
-                color: "#ccc",
+                color: theme.colors.textDisabled,
                 cursor: "pointer",
                 fontSize: theme.fontSize.md,
                 padding: `${theme.spacing.xs} ${theme.spacing.lg}`,

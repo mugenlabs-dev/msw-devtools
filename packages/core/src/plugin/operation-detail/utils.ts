@@ -6,11 +6,11 @@ import type { DetailDerivedState } from "./types";
 
 export const getTypeBadge = (descriptor: MockOperationDescriptor) => {
   if (descriptor.type === "graphql") {
-    const opType = descriptor.operationType as string;
+    const opType = descriptor.operationType;
     const colors = opType === "query" ? theme.colors.gqlQuery : theme.colors.gqlMutation;
     return { label: opType, ...colors };
   }
-  const method = (descriptor.method as string).toUpperCase();
+  const method = descriptor.method.toUpperCase();
   const colors: Record<string, { bg: string; color: string }> = {
     DELETE: theme.colors.methodDelete,
     GET: theme.colors.methodGet,
@@ -18,7 +18,7 @@ export const getTypeBadge = (descriptor: MockOperationDescriptor) => {
     POST: theme.colors.methodPost,
     PUT: theme.colors.methodPut,
   };
-  const c = colors[method] ?? { bg: theme.colors.border, color: "#ccc" };
+  const c = colors[method] ?? { bg: theme.colors.border, color: theme.colors.textDisabled };
   return { label: `${method} ${descriptor.path}`, ...c };
 };
 
