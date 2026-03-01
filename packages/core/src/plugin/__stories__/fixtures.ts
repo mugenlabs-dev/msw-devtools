@@ -5,7 +5,6 @@ import type {
   MockOperationDescriptor,
   RestMockDescriptor,
 } from "#/registry/types";
-import { defaultConfig } from "#/store/store";
 import type { OperationMockConfig } from "#/store/types";
 
 // ---------------------------------------------------------------------------
@@ -133,7 +132,7 @@ export const allDescriptors: MockOperationDescriptor[] = [
 // Pre-built OperationMockConfig variants
 // ---------------------------------------------------------------------------
 
-export { defaultConfig };
+export { defaultConfig } from "#/store/store";
 
 export const enabledConfig: OperationMockConfig = {
   ...defaultConfig,
