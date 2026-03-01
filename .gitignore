@@ -11,3 +11,4 @@ playwright-report/
 .playwright-mcp/
 app.config.timestamp_*
 .claude/settings.local.json
+storybook-static/

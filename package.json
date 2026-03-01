@@ -7,12 +7,15 @@
     "dev:demo": "pnpm --filter demo run dev",
     "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit",
     "clean": "pnpm -r run clean",
-    "test": "vitest",
-    "test:ci": "vitest run",
+    "test": "vitest --project=unit",
+    "test:ci": "vitest run --project=unit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test:e2e": "playwright test",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "storybook": "pnpm --filter ./packages/core run storybook",
+    "build-storybook": "pnpm --filter ./packages/core run build-storybook",
+    "test-storybook": "vitest run --project=storybook"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
@@ -24,6 +27,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@typescript/native-preview": "7.0.0-dev.20260223.1",
+    "@vitest/browser": "^4.0.18",
+    "@vitest/browser-playwright": "^4.0.18",
     "jsdom": "^28.1.0",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0",
