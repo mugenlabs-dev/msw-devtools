@@ -265,12 +265,9 @@ export const Aurora = ({
     }
 
     const { geometry, gl, renderer } = setupGlContext();
-    const program = createAuroraProgram(gl, ctn, { amplitude, blend, colorStops, lightMode });
+    const program = createAuroraProgram(gl, ctn, propsRef.current);
 
     return mountAuroraScene(ctn, renderer, gl, geometry, program, propsRef);
-    // All prop updates are handled at runtime via propsRef inside the
-    // animation loop, so the effect only needs to run once on mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

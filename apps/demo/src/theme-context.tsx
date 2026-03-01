@@ -104,22 +104,36 @@ const playDarkModeSound = (ctx: AudioContext, now: number) => {
 };
 
 // Inspired by joshwcomeau.com — different tones for each direction
-const playLightSwitchSound = (targetTheme: Theme) => {
+let sharedAudioCtx: AudioContext | null = null;
+
+const getAudioContext = (): AudioContext | null => {
   try {
-    const ctx = new AudioContext();
-    const now = ctx.currentTime;
-
-    if (targetTheme === "light") {
-      playLightModeSound(ctx, now);
-    } else {
-      playDarkModeSound(ctx, now);
+    if (sharedAudioCtx == null || sharedAudioCtx.state === "closed") {
+      sharedAudioCtx = new AudioContext();
     }
-
-    setTimeout(() => {
-      void ctx.close();
-    }, 300);
+    return sharedAudioCtx;
   } catch {
-    // AudioContext not available, silently skip
+    return null;
+  }
+};
+
+const playLightSwitchSound = (targetTheme: Theme) => {
+  const ctx = getAudioContext();
+  if (ctx == null) {
+    return;
+  }
+
+  // Resume if suspended (browsers suspend until user gesture)
+  if (ctx.state === "suspended") {
+    void ctx.resume();
+  }
+
+  const now = ctx.currentTime;
+
+  if (targetTheme === "light") {
+    playLightModeSound(ctx, now);
+  } else {
+    playDarkModeSound(ctx, now);
   }
 };
 
@@ -193,9 +207,10 @@ const themeVars: Record<Theme, Record<string, string>> = {
 
 const applyThemeVars = (theme: Theme) => {
   const vars = themeVars[theme];
-  for (const [key, value] of Object.entries(vars)) {
-    document.documentElement.style.setProperty(key, value);
-  }
+  const cssText = Object.entries(vars)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("; ");
+  document.documentElement.style.cssText = cssText;
   document.documentElement.dataset.theme = theme;
 };
 
