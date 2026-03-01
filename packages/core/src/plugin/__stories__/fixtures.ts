@@ -132,7 +132,15 @@ export const allDescriptors: MockOperationDescriptor[] = [
 // Pre-built OperationMockConfig variants
 // ---------------------------------------------------------------------------
 
-export { defaultConfig } from "#/store/store";
+export const defaultConfig: OperationMockConfig = {
+  activeVariantId: "variant-0",
+  customHeaders: null,
+  customJsonOverride: null,
+  delay: 0,
+  enabled: false,
+  errorOverride: null,
+  statusCode: null,
+};
 
 export const enabledConfig: OperationMockConfig = {
   ...defaultConfig,
