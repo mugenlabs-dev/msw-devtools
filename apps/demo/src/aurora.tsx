@@ -192,7 +192,7 @@ const mountAuroraScene = (
   let targetLightMode: number = currentLightMode;
 
   let transitionStart = 0;
-  let cachedStopsKey = program.uniforms.uColorStops.value.toString();
+  let cachedStopsKey = [propsRef.current.colorStops[0], propsRef.current.colorStops[1], propsRef.current.colorStops[2]];
 
   const lerpChannel = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -200,6 +200,8 @@ const mountAuroraScene = (
     from.map((stop, i) => stop.map((ch, j) => lerpChannel(ch, to[i][j], t)));
 
   let animateId = 0;
+  let isTransitioning = false;
+
   const update = (t: number) => {
     animateId = requestAnimationFrame(update);
     const p = propsRef.current;
@@ -208,26 +210,39 @@ const mountAuroraScene = (
     program.uniforms.uBlend.value = p.blend;
 
     // Detect color stop or lightMode changes and start a transition
-    const stopsKey = p.colorStops.join();
     const newLightMode = p.lightMode ? 1 : 0;
+    let stopsChanged = newLightMode !== targetLightMode;
 
-    if (stopsKey !== cachedStopsKey || newLightMode !== targetLightMode) {
-      cachedStopsKey = stopsKey;
+    if (!stopsChanged) {
+      const stops = p.colorStops;
+      const cached = cachedStopsKey;
+      stopsChanged = stops[0] !== cached[0] || stops[1] !== cached[1] || stops[2] !== cached[2];
+    }
+
+    if (stopsChanged) {
+      cachedStopsKey = [p.colorStops[0], p.colorStops[1], p.colorStops[2]];
       // Snapshot current interpolated values as the new "from"
       currentStops = program.uniforms.uColorStops.value as number[][];
       currentLightMode = program.uniforms.uLightMode.value as number;
       targetStops = colorStopsToArray(p.colorStops);
       targetLightMode = newLightMode;
       transitionStart = t;
+      isTransitioning = true;
     }
 
-    const elapsed = t - transitionStart;
-    const progress = Math.min(elapsed / LERP_DURATION, 1);
-    // Ease-out curve for a smooth deceleration
-    const eased = 1 - (1 - progress) ** 2;
+    if (isTransitioning) {
+      const elapsed = t - transitionStart;
+      const progress = Math.min(elapsed / LERP_DURATION, 1);
+      // Ease-out curve for a smooth deceleration
+      const eased = 1 - (1 - progress) ** 2;
 
-    program.uniforms.uColorStops.value = lerpStops(currentStops, targetStops, eased);
-    program.uniforms.uLightMode.value = lerpChannel(currentLightMode, targetLightMode, eased);
+      program.uniforms.uColorStops.value = lerpStops(currentStops, targetStops, eased);
+      program.uniforms.uLightMode.value = lerpChannel(currentLightMode, targetLightMode, eased);
+
+      if (progress >= 1) {
+        isTransitioning = false;
+      }
+    }
 
     renderer.render({ scene: mesh });
   };
@@ -235,9 +250,20 @@ const mountAuroraScene = (
   animateId = requestAnimationFrame(update);
   resize();
 
+  const onVisibilityChange = () => {
+    if (document.hidden) {
+      cancelAnimationFrame(animateId);
+      animateId = 0;
+    } else if (animateId === 0) {
+      animateId = requestAnimationFrame(update);
+    }
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
   return () => {
     cancelAnimationFrame(animateId);
     window.removeEventListener("resize", resize);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
     if (gl.canvas.parentNode) {
       gl.canvas.remove();
     }
