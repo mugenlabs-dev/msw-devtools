@@ -90,12 +90,14 @@ function App() {
       <CodeBlock lang="typescript">
         {`import { registerAdapter } from "msw-devtools-plugin";
 import { createTanStackQueryAdapter } from "msw-devtools-plugin/adapters/tanstack-query";
+import { createRtkQueryAdapter } from "msw-devtools-plugin/adapters/rtk-query";
 import { createUrqlAdapter } from "msw-devtools-plugin/adapters/urql";
 import { createApolloAdapter } from "msw-devtools-plugin/adapters/apollo";
 import { createAxiosAdapter } from "msw-devtools-plugin/adapters/axios";
 
 // Pick the adapters matching your stack:
 registerAdapter(createTanStackQueryAdapter(queryClient));
+registerAdapter(createRtkQueryAdapter(store, pokemonApi));
 registerAdapter(createUrqlAdapter());
 registerAdapter(createApolloAdapter(apolloClient));
 registerAdapter(createAxiosAdapter());`}

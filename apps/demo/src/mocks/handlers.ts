@@ -399,6 +399,91 @@ export const getAggronEmptyHandler = graphql.query("GetAggron", () =>
 );
 
 // ---------------------------------------------------------------------------
+// RTK Query page — 3 REST + 3 GraphQL
+// ---------------------------------------------------------------------------
+
+/** Infernape — REST */
+export const getInfernapeHandler = http.get("https://pokeapi.co/api/v2/pokemon/392", () =>
+  HttpResponse.json(
+    restPokemonResponse({
+      height: 12,
+      id: 392,
+      name: "infernape",
+      types: ["fire", "fighting"],
+      weight: 550,
+    })
+  )
+);
+
+/** Weavile — REST */
+export const getWeavileHandler = http.get("https://pokeapi.co/api/v2/pokemon/461", () =>
+  HttpResponse.json(
+    restPokemonResponse({
+      height: 11,
+      id: 461,
+      name: "weavile",
+      types: ["dark", "ice"],
+      weight: 340,
+    })
+  )
+);
+
+/** Zoroark — REST */
+export const getZoroarkHandler = http.get("https://pokeapi.co/api/v2/pokemon/571", () =>
+  HttpResponse.json(
+    restPokemonResponse({ height: 16, id: 571, name: "zoroark", types: ["dark"], weight: 811 })
+  )
+);
+
+/** Volcarona — GraphQL */
+export const getVolcaronaHandler = graphql.query("GetVolcarona", () =>
+  HttpResponse.json(
+    gqlPokemonResponse({
+      height: 16,
+      id: 637,
+      name: "volcarona",
+      types: ["bug", "fire"],
+      weight: 460,
+    })
+  )
+);
+export const getVolcaronaEmptyHandler = graphql.query("GetVolcarona", () =>
+  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+);
+
+/** Hydreigon — GraphQL */
+export const getHydreigonHandler = graphql.query("GetHydreigon", () =>
+  HttpResponse.json(
+    gqlPokemonResponse({
+      height: 18,
+      id: 635,
+      name: "hydreigon",
+      types: ["dark", "dragon"],
+      weight: 1600,
+    })
+  )
+);
+export const getHydreigonEmptyHandler = graphql.query("GetHydreigon", () =>
+  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+);
+
+/** Chandelure — GraphQL */
+export const getChandelureHandler = graphql.query("GetChandelure", () =>
+  HttpResponse.json(
+    gqlPokemonResponse({
+      height: 10,
+      id: 609,
+      name: "chandelure",
+      types: ["ghost", "fire"],
+      weight: 343,
+    })
+  )
+);
+export const getChandelureEmptyHandler = graphql.query("GetChandelure", () =>
+  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+);
+
+// ---------------------------------------------------------------------------
 // Fetch + Axios page — all REST
 // ---------------------------------------------------------------------------
 

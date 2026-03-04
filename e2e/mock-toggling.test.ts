@@ -19,15 +19,15 @@ test.describe("Mock Toggling", () => {
 
   test("All On enables all mocks", async ({ page }) => {
     await page.locator("button").filter({ hasText: "All Off" }).click();
-    await expect(page.locator("text=0/30 active").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=0/36 active").first()).toBeVisible({ timeout: 5000 });
 
     await page.locator("button").filter({ hasText: "All On" }).click();
-    await expect(page.locator("text=30/30 active").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=36/36 active").first()).toBeVisible({ timeout: 5000 });
   });
 
   test("All Off disables all mocks", async ({ page }) => {
     await page.locator("button").filter({ hasText: "All Off" }).click();
-    await expect(page.locator("text=0/30 active").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=0/36 active").first()).toBeVisible({ timeout: 5000 });
   });
 
   test("individual operation toggle via row switch", async ({ page }) => {
@@ -41,12 +41,12 @@ test.describe("Mock Toggling", () => {
     // Disable
     await rowToggle.click();
     await expect(rowToggle).toHaveAttribute("aria-pressed", "false");
-    await expect(page.locator("text=29/30 active").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=35/36 active").first()).toBeVisible({ timeout: 5000 });
 
     // Re-enable
     await rowToggle.click();
     await expect(rowToggle).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator("text=30/30 active").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("text=36/36 active").first()).toBeVisible({ timeout: 5000 });
   });
 
   test("Clear seen button removes LIVE badges", async ({ page }) => {

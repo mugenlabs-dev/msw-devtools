@@ -35,7 +35,7 @@ const FEATURES = [
   },
   {
     description:
-      "Register an adapter for your data-fetching library (TanStack Query, SWR, Apollo, URQL) and every mock change automatically invalidates the cache — your UI re-renders with fresh data without a page reload.",
+      "Register an adapter for your data-fetching library (TanStack Query, RTK Query, SWR, Apollo, URQL) and every mock change automatically invalidates the cache — your UI re-renders with fresh data without a page reload.",
     icon: <RefreshCw size={18} />,
     title: "Auto Refetch",
   },
