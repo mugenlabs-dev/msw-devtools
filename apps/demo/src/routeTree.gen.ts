@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlaygroundIndexRouteImport } from './routes/playground/index'
 import { Route as PlaygroundUrqlRouteImport } from './routes/playground/urql'
 import { Route as PlaygroundSwrRouteImport } from './routes/playground/swr'
+import { Route as PlaygroundRtkQueryRouteImport } from './routes/playground/rtk-query'
 import { Route as PlaygroundQueryRouteImport } from './routes/playground/query'
 import { Route as PlaygroundFetchRouteImport } from './routes/playground/fetch'
 import { Route as PlaygroundApolloRouteImport } from './routes/playground/apollo'
@@ -43,6 +44,11 @@ const PlaygroundSwrRoute = PlaygroundSwrRouteImport.update({
   path: '/swr',
   getParentRoute: () => PlaygroundRouteRoute,
 } as any)
+const PlaygroundRtkQueryRoute = PlaygroundRtkQueryRouteImport.update({
+  id: '/rtk-query',
+  path: '/rtk-query',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
 const PlaygroundQueryRoute = PlaygroundQueryRouteImport.update({
   id: '/query',
   path: '/query',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/playground/apollo': typeof PlaygroundApolloRoute
   '/playground/fetch': typeof PlaygroundFetchRoute
   '/playground/query': typeof PlaygroundQueryRoute
+  '/playground/rtk-query': typeof PlaygroundRtkQueryRoute
   '/playground/swr': typeof PlaygroundSwrRoute
   '/playground/urql': typeof PlaygroundUrqlRoute
   '/playground/': typeof PlaygroundIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/playground/apollo': typeof PlaygroundApolloRoute
   '/playground/fetch': typeof PlaygroundFetchRoute
   '/playground/query': typeof PlaygroundQueryRoute
+  '/playground/rtk-query': typeof PlaygroundRtkQueryRoute
   '/playground/swr': typeof PlaygroundSwrRoute
   '/playground/urql': typeof PlaygroundUrqlRoute
   '/playground': typeof PlaygroundIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/playground/apollo': typeof PlaygroundApolloRoute
   '/playground/fetch': typeof PlaygroundFetchRoute
   '/playground/query': typeof PlaygroundQueryRoute
+  '/playground/rtk-query': typeof PlaygroundRtkQueryRoute
   '/playground/swr': typeof PlaygroundSwrRoute
   '/playground/urql': typeof PlaygroundUrqlRoute
   '/playground/': typeof PlaygroundIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/playground/apollo'
     | '/playground/fetch'
     | '/playground/query'
+    | '/playground/rtk-query'
     | '/playground/swr'
     | '/playground/urql'
     | '/playground/'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/playground/apollo'
     | '/playground/fetch'
     | '/playground/query'
+    | '/playground/rtk-query'
     | '/playground/swr'
     | '/playground/urql'
     | '/playground'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/playground/apollo'
     | '/playground/fetch'
     | '/playground/query'
+    | '/playground/rtk-query'
     | '/playground/swr'
     | '/playground/urql'
     | '/playground/'
@@ -163,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaygroundSwrRouteImport
       parentRoute: typeof PlaygroundRouteRoute
     }
+    '/playground/rtk-query': {
+      id: '/playground/rtk-query'
+      path: '/rtk-query'
+      fullPath: '/playground/rtk-query'
+      preLoaderRoute: typeof PlaygroundRtkQueryRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
     '/playground/query': {
       id: '/playground/query'
       path: '/query'
@@ -191,6 +210,7 @@ interface PlaygroundRouteRouteChildren {
   PlaygroundApolloRoute: typeof PlaygroundApolloRoute
   PlaygroundFetchRoute: typeof PlaygroundFetchRoute
   PlaygroundQueryRoute: typeof PlaygroundQueryRoute
+  PlaygroundRtkQueryRoute: typeof PlaygroundRtkQueryRoute
   PlaygroundSwrRoute: typeof PlaygroundSwrRoute
   PlaygroundUrqlRoute: typeof PlaygroundUrqlRoute
   PlaygroundIndexRoute: typeof PlaygroundIndexRoute
@@ -200,6 +220,7 @@ const PlaygroundRouteRouteChildren: PlaygroundRouteRouteChildren = {
   PlaygroundApolloRoute: PlaygroundApolloRoute,
   PlaygroundFetchRoute: PlaygroundFetchRoute,
   PlaygroundQueryRoute: PlaygroundQueryRoute,
+  PlaygroundRtkQueryRoute: PlaygroundRtkQueryRoute,
   PlaygroundSwrRoute: PlaygroundSwrRoute,
   PlaygroundUrqlRoute: PlaygroundUrqlRoute,
   PlaygroundIndexRoute: PlaygroundIndexRoute,

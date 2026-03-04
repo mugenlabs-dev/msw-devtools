@@ -29,6 +29,7 @@ const FeaturePill = ({ icon, label }: { icon: ReactNode; label: string }) => (
 const LIBRARY_BRANDS: Record<string, { accent: string; hoverBg: string }> = {
   "Apollo Client": { accent: "#311C87", hoverBg: "rgba(49,28,135,0.12)" },
   Axios: { accent: "#5A29E4", hoverBg: "rgba(90,41,228,0.12)" },
+  "RTK Query": { accent: "#764ABC", hoverBg: "rgba(118,74,188,0.12)" },
   SWR: { accent: "#fff", hoverBg: "rgba(255,255,255,0.06)" },
   "TanStack Query": { accent: "#EF4444", hoverBg: "rgba(239,68,68,0.12)" },
   URQL: { accent: "#6C63FF", hoverBg: "rgba(108,99,255,0.12)" },
@@ -129,29 +130,31 @@ export const HeroSection = () => {
         <div className="mb-2">
           <p className="mb-3 text-[13px] text-text-dimmed">Works with</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["TanStack Query", "URQL", "Apollo Client", "SWR", "Axios", "fetch"].map((lib) => (
-              // biome-ignore lint/a11y/noStaticElementInteractions: cosmetic hover effects only
-              <span
-                data-lib={lib}
-                key={lib}
-                onMouseEnter={handleLibPillEnter}
-                onMouseLeave={handleLibPillLeave}
-                role="presentation"
-                style={{
-                  background: "var(--pill-bg)",
-                  border: "1px solid var(--border-primary)",
-                  borderRadius: 20,
-                  color: "var(--pill-color)",
-                  cursor: "default",
-                  fontSize: 13,
-                  fontWeight: 500,
-                  padding: "6px 14px",
-                  transition: "background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s",
-                }}
-              >
-                {lib}
-              </span>
-            ))}
+            {["TanStack Query", "RTK Query", "URQL", "Apollo Client", "SWR", "Axios", "fetch"].map(
+              (lib) => (
+                // biome-ignore lint/a11y/noStaticElementInteractions: cosmetic hover effects only
+                <span
+                  data-lib={lib}
+                  key={lib}
+                  onMouseEnter={handleLibPillEnter}
+                  onMouseLeave={handleLibPillLeave}
+                  role="presentation"
+                  style={{
+                    background: "var(--pill-bg)",
+                    border: "1px solid var(--border-primary)",
+                    borderRadius: 20,
+                    color: "var(--pill-color)",
+                    cursor: "default",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    padding: "6px 14px",
+                    transition: "background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s",
+                  }}
+                >
+                  {lib}
+                </span>
+              )
+            )}
           </div>
         </div>
       </div>

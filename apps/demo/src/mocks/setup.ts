@@ -13,6 +13,9 @@ import {
   getArcanineHandler,
   // SWR page — 3 REST + 3 GraphQL
   getBlazikenHandler,
+  // RTK Query page — 3 REST + 3 GraphQL
+  getChandelureEmptyHandler,
+  getChandelureHandler,
   // TanStack Query page — 3 REST + 3 GraphQL
   getCharizardHandler,
   // Fetch + Axios page — all REST
@@ -28,6 +31,9 @@ import {
   getGengarHandler,
   getHeracrossEmptyHandler,
   getHeracrossHandler,
+  getHydreigonEmptyHandler,
+  getHydreigonHandler,
+  getInfernapeHandler,
   getLaprasEmptyHandler,
   getLaprasHandler,
   getLucarioHandler,
@@ -54,6 +60,10 @@ import {
   getTogekissHandler,
   getTyranitarHandler,
   getUmbreonHandler,
+  getVolcaronaEmptyHandler,
+  getVolcaronaHandler,
+  getWeavileHandler,
+  getZoroarkHandler,
 } from "./handlers";
 
 // ---------------------------------------------------------------------------
@@ -189,6 +199,40 @@ registerGraphqlMocks(
   {
     group: "Apollo",
     variants: [getAggronHandler, { handler: getAggronEmptyHandler, label: "Not Found (empty)" }],
+  }
+);
+
+// ---------------------------------------------------------------------------
+// RTK Query page
+// ---------------------------------------------------------------------------
+
+registerRestMocks(
+  { group: "RTK Query", handler: getInfernapeHandler, operationName: "GET Infernape" },
+  { group: "RTK Query", handler: getWeavileHandler, operationName: "GET Weavile" },
+  { group: "RTK Query", handler: getZoroarkHandler, operationName: "GET Zoroark" }
+);
+
+registerGraphqlMocks(
+  {
+    group: "RTK Query",
+    variants: [
+      getVolcaronaHandler,
+      { handler: getVolcaronaEmptyHandler, label: "Not Found (empty)" },
+    ],
+  },
+  {
+    group: "RTK Query",
+    variants: [
+      getHydreigonHandler,
+      { handler: getHydreigonEmptyHandler, label: "Not Found (empty)" },
+    ],
+  },
+  {
+    group: "RTK Query",
+    variants: [
+      getChandelureHandler,
+      { handler: getChandelureEmptyHandler, label: "Not Found (empty)" },
+    ],
   }
 );
 

@@ -57,6 +57,10 @@
     "./adapters/axios": {
       "types": "./dist/adapters/axios.d.ts",
       "import": "./dist/adapters/axios.mjs"
+    },
+    "./adapters/rtk-query": {
+      "types": "./dist/adapters/rtk-query.d.ts",
+      "import": "./dist/adapters/rtk-query.mjs"
     }
   },
   "publishConfig": {

@@ -10,6 +10,7 @@
   "dependencies": {
     "@apollo/client": "^3.13.8",
     "@base-ui/react": "^1.2.0",
+    "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/pacer": "^0.19.0",
     "@tanstack/react-devtools": "^0.9.6",
@@ -26,6 +27,7 @@
     "ogl": "^1.0.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
     "shiki": "^3.22.0",
     "swr": "^2.3.3",
     "tailwind-variants": "^3.2.2",

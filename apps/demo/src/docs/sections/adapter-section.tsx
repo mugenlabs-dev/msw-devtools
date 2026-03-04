@@ -20,6 +20,8 @@ export const AdapterSection = () => (
     <p className={prose}>
       Invalidates all queries via{" "}
       <code className={inlineCode}>queryClient.invalidateQueries()</code> when mock config changes.
+      Only queries with active subscriptions (i.e., components currently mounted and observing them)
+      are refetched.
     </p>
     <div className="!mb-0">
       <CodeBlock lang="typescript">
@@ -37,8 +39,11 @@ registerAdapter(createTanStackQueryAdapter(queryClient));`}
         <code className={inlineCode}>CustomEvent</code> is dispatched on the window. The TanStack
         Query adapter listens for this event and calls{" "}
         <code className={inlineCode}>queryClient.invalidateQueries()</code>, which marks every query
-        in the cache as stale. React Query then automatically refetches all active (mounted)
-        queries, picking up the new mock responses from MSW.
+        in the cache as stale. React Query then automatically refetches only queries that have
+        active subscriptions &mdash; that is, queries being observed by at least one mounted
+        component. Inactive queries (those with no observers) are marked stale but not refetched
+        until a component subscribes to them again. This keeps network usage efficient while
+        ensuring every visible piece of data reflects the latest mock configuration.
       </p>
     </Accordion>
     <div className="mb-6" />
@@ -107,6 +112,51 @@ registerAdapter(createApolloAdapter(apolloClient));`}
     </Accordion>
     <div className="mb-6" />
 
+    {/* RTK Query */}
+    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">RTK Query</h3>
+    <p className={prose}>
+      Resets the API state via <code className={inlineCode}>api.util.resetApiState()</code> when
+      mock config changes. Only endpoints with active subscriptions (i.e., components currently
+      mounted and using the generated hooks) are refetched.
+    </p>
+    <div className="!mb-0">
+      <CodeBlock lang="typescript">
+        {`import { configureStore } from "@reduxjs/toolkit";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { registerAdapter } from "msw-devtools-plugin";
+import { createRtkQueryAdapter } from "msw-devtools-plugin/adapters/rtk-query";
+
+const pokemonApi = createApi({
+  baseQuery: fetchBaseQuery(),
+  endpoints: (builder) => ({
+    getPokemon: builder.query({ query: (id) => \`/api/pokemon/\${id}\` }),
+  }),
+});
+
+const store = configureStore({
+  reducer: { [pokemonApi.reducerPath]: pokemonApi.reducer },
+  middleware: (gDM) => gDM().concat(pokemonApi.middleware),
+});
+
+// Pass the store and the RTK Query API instance
+registerAdapter(createRtkQueryAdapter(store, pokemonApi));`}
+      </CodeBlock>
+    </div>
+    <Accordion title="How it works">
+      <p className={`${prose} !m-0`}>
+        The RTK Query adapter listens for mock update events and dispatches{" "}
+        <code className={inlineCode}>api.util.resetApiState()</code>, which clears all cached data
+        and resets every endpoint to its uninitialized state. RTK Query then automatically refetches
+        only endpoints that have active subscriptions &mdash; that is, endpoints being used by at
+        least one mounted component via the generated hooks (e.g.,{" "}
+        <code className={inlineCode}>useGetPokemonQuery</code>). Endpoints without active
+        subscriptions are simply cleared and will fetch fresh data when a component subscribes to
+        them again. This ensures every visible piece of data reflects the latest mock configuration
+        without triggering unnecessary network requests.
+      </p>
+    </Accordion>
+    <div className="mb-6" />
+
     {/* SWR */}
     <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">SWR</h3>
     <p className={prose}>
@@ -151,10 +201,10 @@ function SetupAdapter() {
       <Info className="mt-0.5 shrink-0 text-accent-blue" size={16} />
       <p className="m-0 text-[13px] text-text-secondary leading-relaxed">
         <strong>Consider using a server-state library instead.</strong> Libraries like TanStack
-        Query, SWR, or Apollo provide built-in caching, deduplication, and automatic refetching —
-        making the integration with msw-devtool seamless and zero-config. The Axios/fetch adapter
-        requires manual <code className={inlineCode}>useMockRefetch</code> wiring in every
-        component, which adds boilerplate and is harder to maintain.
+        Query, RTK Query, SWR, or Apollo provide built-in caching, deduplication, and automatic
+        refetching — making the integration with msw-devtool seamless and zero-config. The
+        Axios/fetch adapter requires manual <code className={inlineCode}>useMockRefetch</code>{" "}
+        wiring in every component, which adds boilerplate and is harder to maintain.
       </p>
     </div>
     <p className={prose}>

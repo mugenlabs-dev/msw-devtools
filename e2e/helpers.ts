@@ -25,6 +25,13 @@ export const ALL_OPERATION_NAMES = [
   "GetArcanine",
   "GetSteelix",
   "GetHeracross",
+  // RTK Query page — 3 REST + 3 GraphQL
+  "GET Infernape",
+  "GET Weavile",
+  "GET Zoroark",
+  "GetVolcarona",
+  "GetHydreigon",
+  "GetChandelure",
   // Apollo page — all GraphQL
   "GetRayquaza",
   "GetMetagross",
@@ -45,6 +52,14 @@ export const ALL_OPERATION_NAMES = [
 export const PAGE_OPERATIONS: Record<string, string[]> = {
   apollo: ["GetRayquaza", "GetMetagross", "GetMilotic", "GetAbsol", "GetFlygon", "GetAggron"],
   fetch: ["GET Mimikyu", "GET Umbreon", "GET Espeon", "GET Sylveon", "GET Mewtwo", "GET Dragonite"],
+  "rtk-query": [
+    "GET Infernape",
+    "GET Weavile",
+    "GET Zoroark",
+    "GetVolcarona",
+    "GetHydreigon",
+    "GetChandelure",
+  ],
   query: [
     "GET Charizard",
     "GET Gengar",

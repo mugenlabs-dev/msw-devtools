@@ -111,6 +111,24 @@ test.describe("LIVE badges per playground page", () => {
     }
   });
 
+  test("rtk-query page operations are detected as LIVE", async ({ page }) => {
+    await page.goto("./playground/rtk-query");
+    await waitForDemoReady(page);
+    await openDevToolsPanel(page);
+    await waitForLiveBadges(page, 6);
+
+    await page.locator("button").filter({ hasText: LIVE_FILTER_REGEX }).first().click();
+    await waitForOperationCount(page, 6);
+
+    const opTexts = await getVisibleOperationTexts(page);
+    const combined = opTexts.join(" ");
+
+    expect(opTexts).toHaveLength(6);
+    for (const op of PAGE_OPERATIONS["rtk-query"]) {
+      expect(combined).toContain(op);
+    }
+  });
+
   test("apollo page operations are detected as LIVE", async ({ page }) => {
     await page.goto("./playground/apollo");
     await waitForDemoReady(page);

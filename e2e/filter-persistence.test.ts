@@ -20,7 +20,7 @@ test.describe("Filter & Sort Persistence", () => {
       .filter({ hasText: /^rest$/i })
       .first()
       .click();
-    await waitForOperationCount(page, 12);
+    await waitForOperationCount(page, 15);
 
     // Set sort to "a-z"
     await page.locator("select").first().selectOption("a-z");
@@ -37,7 +37,7 @@ test.describe("Filter & Sort Persistence", () => {
     await openDevToolsPanel(page);
 
     // Verify filter is still "rest" — only REST operations visible
-    await waitForOperationCount(page, 12);
+    await waitForOperationCount(page, 15);
     const opTextsAfter = await page.locator("[data-testid='operation-row']").allTextContents();
     const combinedTextAfter = opTextsAfter.join(" ");
     expect(combinedTextAfter).toContain("GET Gengar");

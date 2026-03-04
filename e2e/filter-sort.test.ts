@@ -52,12 +52,12 @@ test.describe("Filter & Sort", () => {
 
   test("REST filter shows only REST operations", async ({ page }) => {
     await page.locator("button").filter({ hasText: REST_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 12);
+    await waitForOperationCount(page, 15);
 
     const opTexts = await page.locator("[data-testid='operation-row']").allTextContents();
     const combinedText = opTexts.join(" ");
 
-    expect(opTexts).toHaveLength(12);
+    expect(opTexts).toHaveLength(15);
     expect(combinedText).toContain("GET Gengar");
     expect(combinedText).toContain("GET Charizard");
     expect(combinedText).toContain("GET Tyranitar");
@@ -72,12 +72,12 @@ test.describe("Filter & Sort", () => {
 
   test("GraphQL filter shows only GraphQL operations", async ({ page }) => {
     await page.locator("button").filter({ hasText: GRAPHQL_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 18);
+    await waitForOperationCount(page, 21);
 
     const opTexts = await page.locator("[data-testid='operation-row']").allTextContents();
     const combinedText = opTexts.join(" ");
 
-    expect(opTexts).toHaveLength(18);
+    expect(opTexts).toHaveLength(21);
     expect(combinedText).toContain("GetSnorlax");
     expect(combinedText).toContain("GetPancham");
     expect(combinedText).toContain("GetSalamence");
@@ -108,10 +108,10 @@ test.describe("Filter & Sort", () => {
 
   test("Enabled filter shows only enabled operations", async ({ page }) => {
     await page.locator("button").filter({ hasText: ENABLED_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 30);
+    await waitForOperationCount(page, 36);
 
     const opTexts = await page.locator("[data-testid='operation-row']").allTextContents();
-    expect(opTexts).toHaveLength(30);
+    expect(opTexts).toHaveLength(36);
 
     const combinedText = opTexts.join(" ");
     expect(combinedText).toContain("GetSnorlax");
@@ -123,11 +123,11 @@ test.describe("Filter & Sort", () => {
   test("A-Z sort orders operations alphabetically", async ({ page }) => {
     await page.locator("[data-testid='group-toggle']").click();
     // Wait for grouping to toggle off — row count stays at 30
-    await waitForOperationCount(page, 30);
+    await waitForOperationCount(page, 36);
 
     await page.locator("select").first().selectOption("a-z");
     // Wait for sort to apply — still 30 rows, just reordered
-    await waitForOperationCount(page, 30);
+    await waitForOperationCount(page, 36);
 
     const texts = await collectOperationTexts(page);
 
@@ -138,10 +138,10 @@ test.describe("Filter & Sort", () => {
 
   test("Z-A sort orders operations in reverse", async ({ page }) => {
     await page.locator("[data-testid='group-toggle']").click();
-    await waitForOperationCount(page, 30);
+    await waitForOperationCount(page, 36);
 
     await page.locator("select").first().selectOption("z-a");
-    await waitForOperationCount(page, 30);
+    await waitForOperationCount(page, 36);
 
     const texts = await collectOperationTexts(page);
 
@@ -152,13 +152,13 @@ test.describe("Filter & Sort", () => {
 
   test("switching back to All filter shows all operations", async ({ page }) => {
     await page.locator("button").filter({ hasText: REST_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 12);
+    await waitForOperationCount(page, 15);
 
     await page.locator("button").filter({ hasText: ALL_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 30);
+    await waitForOperationCount(page, 36);
 
     const opTexts = await page.locator("[data-testid='operation-row']").allTextContents();
-    expect(opTexts).toHaveLength(30);
+    expect(opTexts).toHaveLength(36);
 
     const combinedText = opTexts.join(" ");
     expect(combinedText).toContain("GetSnorlax");

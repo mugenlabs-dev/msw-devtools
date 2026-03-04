@@ -192,7 +192,11 @@ const mountAuroraScene = (
   let targetLightMode: number = currentLightMode;
 
   let transitionStart = 0;
-  let cachedStopsKey = [propsRef.current.colorStops[0], propsRef.current.colorStops[1], propsRef.current.colorStops[2]];
+  let cachedStopsKey = [
+    propsRef.current.colorStops[0],
+    propsRef.current.colorStops[1],
+    propsRef.current.colorStops[2],
+  ];
 
   const lerpChannel = (a: number, b: number, t: number) => a + (b - a) * t;
 

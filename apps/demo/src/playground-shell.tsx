@@ -9,6 +9,7 @@ const PLAYGROUND_TABS = [
   { label: "TanStack Query", to: "/playground/query" },
   { label: "SWR", to: "/playground/swr" },
   { label: "URQL", to: "/playground/urql" },
+  { label: "RTK Query", to: "/playground/rtk-query" },
   { label: "Apollo", to: "/playground/apollo" },
   { label: "Fetch + Axios", to: "/playground/fetch" },
 ] as const;
