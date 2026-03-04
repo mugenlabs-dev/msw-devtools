@@ -15,10 +15,7 @@ interface ReduxStore {
  * When mock configuration changes, it resets the API state to trigger refetches
  * for all active subscriptions.
  */
-export const createRtkQueryAdapter = (
-  store: ReduxStore,
-  api: RtkQueryApi
-): MswDevToolAdapter => ({
+export const createRtkQueryAdapter = (store: ReduxStore, api: RtkQueryApi): MswDevToolAdapter => ({
   id: "rtk-query",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
     store.dispatch(api.util.resetApiState());
