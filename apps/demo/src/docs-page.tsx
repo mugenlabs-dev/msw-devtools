@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { SidebarNav } from "./docs/components/sidebar-nav";
+import { PmProvider } from "./docs/pm-context";
 import { AdapterSection } from "./docs/sections/adapter-section";
 import { ApiReferenceSection } from "./docs/sections/api-reference-section";
 import { ExistingHandlersSection } from "./docs/sections/existing-handlers-section";
@@ -123,27 +124,29 @@ export const DocsPage = () => {
   }, []);
 
   return (
-    <div className="font-sans text-text-secondary transition-colors duration-300">
-      <HeroSection />
-      <FeaturesSection />
+    <PmProvider>
+      <div className="font-sans text-text-secondary transition-colors duration-300">
+        <HeroSection />
+        <FeaturesSection />
 
-      <div className="mx-auto flex max-w-[1000px] gap-12 px-6 pb-40">
-        {/* Sidebar — hidden below 1200px via CSS media query */}
-        <aside className="docs-sidebar w-[200px] shrink-0">
-          <SidebarNav />
-        </aside>
+        <div className="mx-auto flex max-w-[1000px] gap-12 px-6 pb-40">
+          {/* Sidebar — hidden below 1200px via CSS media query */}
+          <aside className="docs-sidebar w-[200px] shrink-0">
+            <SidebarNav />
+          </aside>
 
-        {/* Main content */}
-        <div className="min-w-0 max-w-[720px] flex-1">
-          <InstallationSection />
-          <QuickStartSection />
-          <AdapterSection />
-          <ExistingHandlersSection />
-          <ApiReferenceSection />
+          {/* Main content */}
+          <div className="min-w-0 max-w-[720px] flex-1">
+            <InstallationSection />
+            <QuickStartSection />
+            <AdapterSection />
+            <ExistingHandlersSection />
+            <ApiReferenceSection />
+          </div>
         </div>
-      </div>
 
-      <FloatingButtons />
-    </div>
+        <FloatingButtons />
+      </div>
+    </PmProvider>
   );
 };
