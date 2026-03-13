@@ -10,6 +10,7 @@
   "dependencies": {
     "@apollo/client": "^3.13.8",
     "@base-ui/react": "^1.2.0",
+    "@icons-pack/react-simple-icons": "^13.12.0",
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/pacer": "^0.19.0",
