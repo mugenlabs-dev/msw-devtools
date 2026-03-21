@@ -10,9 +10,6 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Aurora } from "../../aurora";
-import { useTheme } from "../../theme-context";
-
 // ---------------------------------------------------------------------------
 // Feature pill — compact feature badge for the hero area
 // ---------------------------------------------------------------------------
@@ -54,43 +51,25 @@ const handleLibPillLeave = (e: React.MouseEvent<HTMLSpanElement>) => {
 };
 
 // ---------------------------------------------------------------------------
-// Aurora color stop constants (stable references to avoid re-renders)
-// ---------------------------------------------------------------------------
-const AURORA_DARK: [string, string, string] = ["#3D2D6B", "#5F4B8B", "#7B68AE"];
-const AURORA_LIGHT: [string, string, string] = ["#d4c0ff", "#b8a0e8", "#e0d0ff"];
-
-// ---------------------------------------------------------------------------
 // Hero Section
 // ---------------------------------------------------------------------------
 export const HeroSection = () => {
-  const { theme } = useTheme();
-
   return (
     <section className="!mb-0 relative overflow-hidden px-6 pt-[60px] pb-16 text-center">
-      <Aurora
-        amplitude={1.2}
-        blend={0.6}
-        colorStops={theme === "dark" ? AURORA_DARK : AURORA_LIGHT}
-        lightMode={theme === "light"}
-        speed={0.4}
-      />
-      {/* gradient overlay to fade the aurora's dark edge into the page bg */}
-      <div
-        className="pointer-events-none absolute inset-0 z-[1]"
-        style={{
-          background:
-            theme === "dark"
-              ? "linear-gradient(to bottom, transparent 0%, transparent 30%, var(--bg-primary) 95%)"
-              : "linear-gradient(to bottom, rgba(248,248,248,0.3) 0%, rgba(248,248,248,0.6) 25%, var(--bg-primary) 70%)",
-        }}
-      />
+      {/* Subtle gradient orbs background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-[#5F4B8B]/[0.07] blur-[100px]" />
+        <div className="absolute top-[10%] right-[-10%] h-[400px] w-[400px] rounded-full bg-[#7B68AE]/[0.05] blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[30%] h-[350px] w-[350px] rounded-full bg-[#3D2D6B]/[0.06] blur-[100px]" />
+      </div>
+
       <div className="relative z-[2] mx-auto max-w-[720px]">
         <div className="mb-6 flex justify-center">
           <img
             alt="msw-devtool logo"
             className="h-24 w-24 rounded-[20px]"
             height={96}
-            src={`${import.meta.env.BASE_URL}logo.svg`}
+            src={`${import.meta.env.BASE_URL}logo.png`}
             width={96}
           />
         </div>

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3001",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -25,7 +25,7 @@
     "motion": "^12.34.3",
     "msw": "^2.8.4",
     "msw-devtools-plugin": "workspace:*",
-    "ogl": "^1.0.11",
+
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",

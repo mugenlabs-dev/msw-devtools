@@ -76,9 +76,9 @@ export const Route = createRootRoute({
   head: () => ({
     links: [
       {
-        href: `${import.meta.env.BASE_URL}favicon.svg`,
+        href: `${import.meta.env.BASE_URL}favicon.png`,
         rel: "icon",
-        type: "image/svg+xml",
+        type: "image/png",
       },
       { href: SITE_URL, rel: "canonical" },
     ],
