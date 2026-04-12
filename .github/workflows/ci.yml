@@ -121,13 +121,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -g vercel
 
-      - name: Build core package
-        run: pnpm build
-
       - run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
       - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy preview (prod build, no domain alias)
+      - name: Deploy preview (skip production alias)
         id: deploy
         run: |
           url=$(vercel deploy --prebuilt --prod --skip-domain --token=${{ secrets.VERCEL_TOKEN }})
