@@ -11,6 +11,12 @@ export default defineConfig({
   testDir: "./e2e",
   use: {
     baseURL,
+    extraHTTPHeaders: process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+      ? {
+          "x-vercel-protection-bypass":
+            process.env.VERCEL_AUTOMATION_BYPASS_SECRET,
+        }
+      : {},
     trace: "on-first-retry",
   },
   workers: process.env.CI !== undefined ? 4 : undefined,
