@@ -1,5 +1,5 @@
 {
-  "name": "msw-devtools-plugin",
+  "name": "@mugenlabs/msw-devtools",
   "version": "0.4.0",
   "description": "A TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser",
   "keywords": [

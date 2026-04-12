@@ -45,12 +45,12 @@ export const FeaturesSection = () => (
   <section className="px-6 py-20">
     <div className="mx-auto max-w-[720px]">
       <h2 className="mb-4 text-center font-extrabold text-[28px] text-text-primary tracking-tight transition-colors duration-300">
-        Why msw-devtool?
+        Why @mugenlabs/msw-devtools?
       </h2>
       <p className="mx-auto mb-12 max-w-[540px] text-center text-base text-text-muted leading-relaxed transition-colors duration-300">
         Tired of commenting out handlers, hard-coding error responses, and refreshing the page every
-        time you need a different mock? msw-devtool lets you toggle, swap, and override any MSW mock
-        on the fly — right from the browser, without touching your code.
+        time you need a different mock? @mugenlabs/msw-devtools lets you toggle, swap, and override
+        any MSW mock on the fly — right from the browser, without touching your code.
       </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -1,4 +1,4 @@
-import { useMockRefetch } from "msw-devtools-plugin";
+import { useMockRefetch } from "@mugenlabs/msw-devtools";
 import { useCallback, useEffect, useState } from "react";
 
 import type { PokemonData } from "./pokemon-card";

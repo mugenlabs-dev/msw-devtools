@@ -1,5 +1,5 @@
 {
-  "name": "msw-devtools-plugin",
+  "name": "@mugenlabs/msw-devtools",
   "private": true,
   "scripts": {
     "build": "pnpm --filter ./packages/core run build",

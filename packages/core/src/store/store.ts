@@ -222,7 +222,7 @@ export const useMockStore = create<MockStoreState>()(
             sort: persistedState?.sort ?? current.sort,
           };
         },
-        name: "msw-devtool-store",
+        name: "msw-devtools-store",
         partialize: (state) => ({
           collapsedGroups: [...state.collapsedGroups],
           filter: state.filter,

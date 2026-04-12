@@ -114,13 +114,13 @@ const extractVariants = <H extends HttpHandler | GraphQLHandler>(def: {
   if (def.handler) {
     return [normaliseVariant(def.handler, 0)];
   }
-  throw new Error("msw-devtool: registerMock requires either `handler` or `variants`.");
+  throw new Error("msw-devtools: registerMock requires either `handler` or `variants`.");
 };
 
 /** Get the primary (first) handler for introspection. */
 const getPrimaryHandler = (variants: HandlerVariant[]): HttpHandler | GraphQLHandler => {
   if (variants.length === 0) {
-    throw new Error("msw-devtool: at least one handler variant is required.");
+    throw new Error("msw-devtools: at least one handler variant is required.");
   }
   return variants[0].handler;
 };

@@ -52,11 +52,12 @@ export const PlaygroundPageShell = ({ children }: { children: ReactNode }) => {
       <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
       <div className="mb-8 text-center">
         <h1 className="m-0 mb-2 font-bold text-[28px] text-text-primary transition-colors duration-300">
-          msw-devtool Playground
+          @mugenlabs/msw-devtools Playground
         </h1>
         <p className="m-0 mb-6 text-sm text-text-muted">
-          Each page demonstrates a different data-fetching library integrated with msw-devtool.
-          Toggle mocks in the DevTools panel below to see responses change in real-time.
+          Each page demonstrates a different data-fetching library integrated with
+          @mugenlabs/msw-devtools. Toggle mocks in the DevTools panel below to see responses change
+          in real-time.
         </p>
         <PlaygroundTabs />
       </div>

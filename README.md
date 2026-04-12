@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="apps/demo/public/logo-readme.svg" width="128" height="128" alt="msw-devtool logo" />
+  <img src="apps/demo/public/logo-readme.svg" width="128" height="128" alt="msw-devtools logo" />
 </p>
 
-# msw-devtool
+# @mugenlabs/msw-devtools
 
 A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](https://mswjs.io/) (Mock Service Worker) mocks in the browser. Register your existing MSW handlers, then toggle, customize, and inspect them from a visual panel -- no changes to your handler code required.
 
 > **Note:** This project is a work in progress -- the API has not been finalised yet, which is why we haven't reached 1.0.0. Expect breaking changes between minor versions.
 
 <p align="center">
-  <img src="screenshot.png" alt="msw-devtool plugin UI showing operations list with LIVE badges, variant selector, and response editor" />
+  <img src="screenshot.png" alt="msw-devtools plugin UI showing operations list with LIVE badges, variant selector, and response editor" />
 </p>
 
 ## Features
@@ -28,17 +28,17 @@ Everything ships in a single package. Adapters are available via subpath exports
 
 | Import path                           | Description                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------------- |
-| `msw-devtools-plugin`                         | Registry, store, MSW integration, React UI plugin, adapter system           |
-| `msw-devtools-plugin/adapters/tanstack-query` | Auto-refetch via query invalidation                                         |
-| `msw-devtools-plugin/adapters/urql`           | Auto-refetch via custom exchange                                            |
-| `msw-devtools-plugin/adapters/swr`            | Auto-refetch via global mutate                                              |
-| `msw-devtools-plugin/adapters/apollo`         | Auto-refetch via refetchQueries                                             |
-| `msw-devtools-plugin/adapters/axios`          | Registration marker for Axios users (use `useMockRefetch` for live updates) |
+| `@mugenlabs/msw-devtools`                         | Registry, store, MSW integration, React UI plugin, adapter system           |
+| `@mugenlabs/msw-devtools/adapters/tanstack-query` | Auto-refetch via query invalidation                                         |
+| `@mugenlabs/msw-devtools/adapters/urql`           | Auto-refetch via custom exchange                                            |
+| `@mugenlabs/msw-devtools/adapters/swr`            | Auto-refetch via global mutate                                              |
+| `@mugenlabs/msw-devtools/adapters/apollo`         | Auto-refetch via refetchQueries                                             |
+| `@mugenlabs/msw-devtools/adapters/axios`          | Registration marker for Axios users (use `useMockRefetch` for live updates) |
 
 ## Installation
 
 ```bash
-npm install msw-devtools-plugin
+npm install @mugenlabs/msw-devtools
 ```
 
 ### Peer dependencies
@@ -64,7 +64,7 @@ Use `registerRestMocks` and `registerGraphqlMocks` to register your existing MSW
 
 ```ts
 // mocks/setup.ts
-import { registerRestMocks, registerGraphqlMocks } from "msw-devtools-plugin";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 import { http, HttpResponse, graphql } from "msw";
 
 // REST -- pass your HttpHandler directly
@@ -95,7 +95,7 @@ registerGraphqlMocks({
 ```tsx
 // App.tsx
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createMswDevToolsPlugin } from "msw-devtools-plugin";
+import { createMswDevToolsPlugin } from "@mugenlabs/msw-devtools";
 import "./mocks/setup";
 
 function App() {
@@ -113,7 +113,7 @@ The MSW service worker starts automatically when the plugin mounts.
 > **Custom worker options:** If you need to customise the worker (e.g. a different `serviceWorkerUrl`), call `startWorker()` before the plugin mounts. The plugin detects an already-running worker and skips auto-start.
 >
 > ```ts
-> import { startWorker } from "msw-devtools-plugin";
+> import { startWorker } from "@mugenlabs/msw-devtools";
 > void startWorker({ serviceWorkerUrl: "/custom-path/mockServiceWorker.js" });
 > ```
 
@@ -124,8 +124,8 @@ Adapters automatically refetch/revalidate queries when you change mock configura
 **TanStack Query:**
 
 ```ts
-import { registerAdapter } from "msw-devtools-plugin";
-import { createTanStackQueryAdapter } from "msw-devtools-plugin/adapters/tanstack-query";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createTanStackQueryAdapter } from "@mugenlabs/msw-devtools/adapters/tanstack-query";
 import { QueryClient } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
@@ -135,8 +135,8 @@ registerAdapter(createTanStackQueryAdapter(queryClient));
 **URQL:**
 
 ```ts
-import { registerAdapter } from "msw-devtools-plugin";
-import { createUrqlAdapter, mockRefetchExchange } from "msw-devtools-plugin/adapters/urql";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createUrqlAdapter, mockRefetchExchange } from "@mugenlabs/msw-devtools/adapters/urql";
 import { createClient, cacheExchange, fetchExchange } from "@urql/core";
 
 registerAdapter(createUrqlAdapter());
@@ -150,8 +150,8 @@ const client = createClient({
 **SWR:**
 
 ```ts
-import { registerAdapter } from "msw-devtools-plugin";
-import { createSwrAdapter } from "msw-devtools-plugin/adapters/swr";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 import { useSWRConfig } from "swr";
 
 function SetupAdapter() {
@@ -167,8 +167,8 @@ function SetupAdapter() {
 **Apollo Client:**
 
 ```ts
-import { registerAdapter } from "msw-devtools-plugin";
-import { createApolloAdapter } from "msw-devtools-plugin/adapters/apollo";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
 
 const apolloClient = new ApolloClient({ uri: "/graphql", cache: new InMemoryCache() });
 registerAdapter(createApolloAdapter(apolloClient));
@@ -179,14 +179,14 @@ registerAdapter(createApolloAdapter(apolloClient));
 Axios has no built-in query cache. Register the adapter as a marker and use `useMockRefetch` in your components:
 
 ```ts
-import { registerAdapter } from "msw-devtools-plugin";
-import { createAxiosAdapter } from "msw-devtools-plugin/adapters/axios";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
 
 registerAdapter(createAxiosAdapter());
 ```
 
 ```tsx
-import { useMockRefetch } from "msw-devtools-plugin";
+import { useMockRefetch } from "@mugenlabs/msw-devtools";
 
 function UserCard() {
   const { data, refetch } = useMyFetch("/api/users/1");
@@ -195,7 +195,7 @@ function UserCard() {
 }
 ```
 
-> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate seamlessly with `msw-devtools-plugin` without needing per-operation `useMockRefetch` calls.
+> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate seamlessly with `@mugenlabs/msw-devtools` without needing per-operation `useMockRefetch` calls.
 
 ## Handler Registration Patterns
 
@@ -234,7 +234,7 @@ registerGraphqlMocks({
 
 ## API Reference
 
-### Core Exports (`msw-devtools-plugin`)
+### Core Exports (`@mugenlabs/msw-devtools`)
 
 | Export | Description |
 | --- | --- |
@@ -254,12 +254,12 @@ registerGraphqlMocks({
 
 | Import path | Export | Description |
 | --- | --- | --- |
-| `msw-devtools-plugin/adapters/tanstack-query` | `createTanStackQueryAdapter(queryClient)` | TanStack Query adapter |
-| `msw-devtools-plugin/adapters/urql` | `createUrqlAdapter()` | URQL adapter |
-| `msw-devtools-plugin/adapters/urql` | `mockRefetchExchange` | URQL exchange for mock-triggered re-execution |
-| `msw-devtools-plugin/adapters/swr` | `createSwrAdapter(mutate)` | SWR adapter |
-| `msw-devtools-plugin/adapters/apollo` | `createApolloAdapter(apolloClient)` | Apollo Client adapter |
-| `msw-devtools-plugin/adapters/axios` | `createAxiosAdapter()` | Axios adapter (use with `useMockRefetch`) |
+| `@mugenlabs/msw-devtools/adapters/tanstack-query` | `createTanStackQueryAdapter(queryClient)` | TanStack Query adapter |
+| `@mugenlabs/msw-devtools/adapters/urql` | `createUrqlAdapter()` | URQL adapter |
+| `@mugenlabs/msw-devtools/adapters/urql` | `mockRefetchExchange` | URQL exchange for mock-triggered re-execution |
+| `@mugenlabs/msw-devtools/adapters/swr` | `createSwrAdapter(mutate)` | SWR adapter |
+| `@mugenlabs/msw-devtools/adapters/apollo` | `createApolloAdapter(apolloClient)` | Apollo Client adapter |
+| `@mugenlabs/msw-devtools/adapters/axios` | `createAxiosAdapter()` | Axios adapter (use with `useMockRefetch`) |
 
 ### Key Types
 

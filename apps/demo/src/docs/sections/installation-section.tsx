@@ -11,7 +11,7 @@ export const InstallationSection = () => (
     </SectionTitle>
     <p className={prose}>Install the core library:</p>
     <div className="mb-5">
-      <InstallBlock packages="msw-devtools-plugin" />
+      <InstallBlock packages="@mugenlabs/msw-devtools" />
     </div>
     <p className={prose}>
       This library renders inside{" "}

@@ -74,7 +74,7 @@ export const PAGE_OPERATIONS: Record<string, string[]> = {
 
 /**
  * Pre-enable all mocks via localStorage before the page loads.
- * The Zustand store persists under key "msw-devtool-store".
+ * The Zustand store persists under key "msw-devtools-store".
  * This ensures cards always show mock data instead of relying on real APIs.
  *
  * When `seedOnce` is true, localStorage is only set if not already present,
@@ -110,7 +110,7 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
 
   await page.addInitScript(
     ({ ops, onlyIfEmpty }) => {
-      if (onlyIfEmpty && localStorage.getItem("msw-devtool-store") !== null) {
+      if (onlyIfEmpty && localStorage.getItem("msw-devtools-store") !== null) {
         return;
       }
       const state = {
@@ -123,7 +123,7 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
         },
         version: 0,
       };
-      localStorage.setItem("msw-devtool-store", JSON.stringify(state));
+      localStorage.setItem("msw-devtools-store", JSON.stringify(state));
     },
     { onlyIfEmpty: seedOnce, ops: operations }
   );

@@ -232,8 +232,8 @@ const GET_EEVEE = gql\`
 const [result, reexecute] = useQuery({ query: GET_EEVEE });
 
 // Adapter — auto-refetches queries when mocks change
-import { registerAdapter } from "msw-devtools-plugin";
-import { createUrqlAdapter } from "msw-devtools-plugin/adapters/urql";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createUrqlAdapter } from "@mugenlabs/msw-devtools/adapters/urql";
 registerAdapter(createUrqlAdapter());`;
 
 // ---------------------------------------------------------------------------

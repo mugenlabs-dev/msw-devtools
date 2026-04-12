@@ -1,5 +1,5 @@
+import { useMockRefetch } from "@mugenlabs/msw-devtools";
 import axios from "axios";
-import { useMockRefetch } from "msw-devtools-plugin";
 import { useCallback, useEffect, useState } from "react";
 
 import { CodeBlock } from "../docs/components/code-block";
@@ -220,7 +220,7 @@ const data = await res.json();
 const { data } = await axios.get("https://pokeapi.co/api/v2/pokemon/700");
 
 // Hook for fetch — auto-refetches when mocks change
-import { useMockRefetch } from "msw-devtools-plugin";
+import { useMockRefetch } from "@mugenlabs/msw-devtools";
 useMockRefetch("GET Mimikyu", () => { void fetchData(); });`;
 
 // ---------------------------------------------------------------------------

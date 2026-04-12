@@ -1,4 +1,4 @@
-import { registerGraphqlMocks, registerRestMocks, startWorker } from "msw-devtools-plugin";
+import { registerGraphqlMocks, registerRestMocks, startWorker } from "@mugenlabs/msw-devtools";
 
 import {
   // Apollo page — all GraphQL

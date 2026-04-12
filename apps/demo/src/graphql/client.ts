@@ -1,5 +1,5 @@
+import { mockRefetchExchange } from "@mugenlabs/msw-devtools/adapters/urql";
 import { Client, cacheExchange, fetchExchange } from "@urql/core";
-import { mockRefetchExchange } from "msw-devtools-plugin/adapters/urql";
 
 export const urqlClient = new Client({
   exchanges: [cacheExchange, mockRefetchExchange, fetchExchange],

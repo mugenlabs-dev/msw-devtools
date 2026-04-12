@@ -11,6 +11,6 @@ export const createUrqlAdapter = (): MswDevToolAdapter => ({
   id: "urql",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
     // The mockRefetchExchange handles refetching by listening to
-    // the 'msw-devtool-mock-updated' CustomEvent directly.
+    // the 'msw-devtools-mock-updated' CustomEvent directly.
   },
 });

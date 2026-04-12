@@ -176,7 +176,7 @@ const TogekissCard = () => {
 // --- Code snippet ---
 
 const SWR_CODE = `// 1. Register REST + GraphQL handlers
-import { registerRestMocks, registerGraphqlMocks } from "msw-devtools-plugin";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 import { http, graphql, HttpResponse } from "msw";
 
 registerRestMocks(
@@ -205,8 +205,8 @@ const { data } = useSWR("gql|GetGardevoir", async () => {
 // 3. Adapter — auto-revalidates when mocks change
 // Must be registered inside a component with access to useSWRConfig
 import { useSWRConfig } from "swr";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createSwrAdapter } from "msw-devtools-plugin/adapters/swr";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 
 function SetupSwr() {
   const { mutate } = useSWRConfig();
