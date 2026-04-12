@@ -5,7 +5,7 @@ export const Route = createFileRoute("/playground")({
   component: PlaygroundLayout,
   head: () => ({
     meta: [{ content: "noindex", name: "robots" }],
-    title: "Playground — msw-devtool",
+    title: "Playground — @mugenlabs/msw-devtools",
   }),
   ssr: false,
 });

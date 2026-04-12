@@ -105,14 +105,14 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             to="/"
           >
             <img
-              alt="msw-devtool logo"
+              alt="msw-devtools logo"
               className="h-8 w-8 rounded-lg"
               height={32}
               src={`${import.meta.env.BASE_URL}logo.png`}
               width={32}
             />
             <span className="font-bold font-mono text-lg text-text-primary tracking-tight transition-colors duration-300">
-              msw-devtool
+              @mugenlabs/msw-devtools
             </span>
           </Link>
 

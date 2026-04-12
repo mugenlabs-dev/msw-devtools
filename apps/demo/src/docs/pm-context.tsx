@@ -3,7 +3,7 @@ import { createContext, type ReactNode, useCallback, useContext, useState } from
 export const packageManagers = ["npm", "yarn", "pnpm", "bun"] as const;
 export type PackageManager = (typeof packageManagers)[number];
 
-const STORAGE_KEY = "msw-devtool:pm";
+const STORAGE_KEY = "msw-devtools:pm";
 
 const readStoredPm = (): PackageManager => {
   try {

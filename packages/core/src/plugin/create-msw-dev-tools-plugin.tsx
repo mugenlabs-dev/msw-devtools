@@ -13,14 +13,14 @@ export interface MswDevToolsPluginOptions {
  * Usage:
  * ```tsx
  * import { TanStackDevtools } from '@tanstack/react-devtools'
- * import { createMswDevToolsPlugin } from 'msw-devtool'
+ * import { createMswDevToolsPlugin } from '@mugenlabs/msw-devtools'
  *
  * <TanStackDevtools plugins={[createMswDevToolsPlugin()]} />
  * ```
  */
 export const createMswDevToolsPlugin = (options?: MswDevToolsPluginOptions) => ({
   defaultOpen: options?.defaultOpen ?? true,
-  id: "msw-devtools-plugin",
+  id: "@mugenlabs/msw-devtools",
   name: options?.name ?? "MSW Mocks",
   render: <MswDevToolsPlugin />,
 });

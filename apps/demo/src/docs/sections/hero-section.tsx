@@ -66,7 +66,7 @@ export const HeroSection = () => {
       <div className="relative z-[2] mx-auto max-w-[720px]">
         <div className="mb-6 flex justify-center">
           <img
-            alt="msw-devtool logo"
+            alt="msw-devtools logo"
             className="h-24 w-24 rounded-[20px]"
             height={96}
             src={`${import.meta.env.BASE_URL}logo.png`}
@@ -74,7 +74,7 @@ export const HeroSection = () => {
           />
         </div>
         <h1 className="mt-0 mr-0 mb-4 ml-0 font-extrabold font-mono text-[40px] text-text-primary tracking-[-0.03em] transition-colors duration-300">
-          msw-devtool
+          @mugenlabs/msw-devtools
         </h1>
         <p className="mt-0 mr-0 mb-8 ml-0 text-lg text-text-muted leading-normal transition-colors duration-300">
           A TanStack DevTools plugin for managing MSW mocks.

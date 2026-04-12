@@ -24,7 +24,7 @@ export const QuickStartSection = () => (
     <div className="mb-7">
       <CodeBlock lang="typescript">
         {`import { http, HttpResponse, graphql } from "msw";
-import { registerRestMocks, registerGraphqlMocks } from "msw-devtools-plugin";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 
 // REST — pass your HttpHandler directly
 registerRestMocks(
@@ -61,7 +61,7 @@ registerGraphqlMocks(
       <CodeBlock lang="tsx">
         {`// App.tsx
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createMswDevToolsPlugin } from "msw-devtools-plugin";
+import { createMswDevToolsPlugin } from "@mugenlabs/msw-devtools";
 import "./mocks/setup"; // your registration calls
 
 function App() {
@@ -88,12 +88,12 @@ function App() {
     </p>
     <div className="!mb-0">
       <CodeBlock lang="typescript">
-        {`import { registerAdapter } from "msw-devtools-plugin";
-import { createTanStackQueryAdapter } from "msw-devtools-plugin/adapters/tanstack-query";
-import { createRtkQueryAdapter } from "msw-devtools-plugin/adapters/rtk-query";
-import { createUrqlAdapter } from "msw-devtools-plugin/adapters/urql";
-import { createApolloAdapter } from "msw-devtools-plugin/adapters/apollo";
-import { createAxiosAdapter } from "msw-devtools-plugin/adapters/axios";
+        {`import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createTanStackQueryAdapter } from "@mugenlabs/msw-devtools/adapters/tanstack-query";
+import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
+import { createUrqlAdapter } from "@mugenlabs/msw-devtools/adapters/urql";
+import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
+import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
 
 // Pick the adapters matching your stack:
 registerAdapter(createTanStackQueryAdapter(queryClient));

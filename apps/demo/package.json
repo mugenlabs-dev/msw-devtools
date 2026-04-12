@@ -24,7 +24,7 @@
     "lucide-react": "^0.575.0",
     "motion": "^12.34.3",
     "msw": "^2.8.4",
-    "msw-devtools-plugin": "workspace:*",
+    "@mugenlabs/msw-devtools": "workspace:*",
 
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

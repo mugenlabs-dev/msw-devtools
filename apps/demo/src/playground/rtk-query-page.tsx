@@ -1,7 +1,7 @@
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
 import { configureStore } from "@reduxjs/toolkit";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createRtkQueryAdapter } from "msw-devtools-plugin/adapters/rtk-query";
 import { useCallback, useEffect } from "react";
 import { Provider } from "react-redux";
 
@@ -238,8 +238,8 @@ const store = configureStore({
 });
 
 // 2. Register the adapter — pass the store and the API instance
-import { registerAdapter } from "msw-devtools-plugin";
-import { createRtkQueryAdapter } from "msw-devtools-plugin/adapters/rtk-query";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
 
 registerAdapter(createRtkQueryAdapter(store, pokemonApi));
 

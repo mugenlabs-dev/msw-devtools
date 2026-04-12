@@ -310,7 +310,7 @@ export const ApiReferenceSection = () => (
         <div className="mt-3">
           <CodeBlock lang="typescript">
             {`// Example: app deployed under a sub-path (e.g. GitHub Pages)
-import { startWorker } from "msw-devtools-plugin";
+import { startWorker } from "@mugenlabs/msw-devtools";
 
 void startWorker({
   serviceWorkerUrl: "/my-app/mockServiceWorker.js",

@@ -26,7 +26,7 @@ export const ExistingHandlersSection = () => (
     </p>
     <div className="mb-6">
       <CodeBlock lang="typescript">
-        {`import { registerRestMocks, registerGraphqlMocks } from "msw-devtools-plugin";
+        {`import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 
 // Your existing handlers — the same ones you use in tests
 import { getUserHandler, getProductsHandler } from "./mocks/handlers";
@@ -56,7 +56,7 @@ registerGraphqlMocks(
     </p>
     <div className="mb-6">
       <CodeBlock lang="typescript">
-        {`import { registerRestMocks } from "msw-devtools-plugin";
+        {`import { registerRestMocks } from "@mugenlabs/msw-devtools";
 import { http, HttpResponse } from "msw";
 
 registerRestMocks({

@@ -26,8 +26,8 @@ export const AdapterSection = () => (
     <div className="!mb-0">
       <CodeBlock lang="typescript">
         {`import { QueryClient } from "@tanstack/react-query";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createTanStackQueryAdapter } from "msw-devtools-plugin/adapters/tanstack-query";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createTanStackQueryAdapter } from "@mugenlabs/msw-devtools/adapters/tanstack-query";
 
 const queryClient = new QueryClient();
 registerAdapter(createTanStackQueryAdapter(queryClient));`}
@@ -58,8 +58,8 @@ registerAdapter(createTanStackQueryAdapter(queryClient));`}
     <div className="!mb-0">
       <CodeBlock lang="typescript">
         {`import { createClient, cacheExchange, fetchExchange } from "@urql/core";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createUrqlAdapter, mockRefetchExchange } from "msw-devtools-plugin/adapters/urql";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createUrqlAdapter, mockRefetchExchange } from "@mugenlabs/msw-devtools/adapters/urql";
 
 registerAdapter(createUrqlAdapter());
 
@@ -92,8 +92,8 @@ const client = createClient({
     <div className="!mb-0">
       <CodeBlock lang="typescript">
         {`import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createApolloAdapter } from "msw-devtools-plugin/adapters/apollo";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
 
 const apolloClient = new ApolloClient({ uri: "/graphql", cache: new InMemoryCache() });
 registerAdapter(createApolloAdapter(apolloClient));`}
@@ -123,8 +123,8 @@ registerAdapter(createApolloAdapter(apolloClient));`}
       <CodeBlock lang="typescript">
         {`import { configureStore } from "@reduxjs/toolkit";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createRtkQueryAdapter } from "msw-devtools-plugin/adapters/rtk-query";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
 
 const pokemonApi = createApi({
   baseQuery: fetchBaseQuery(),
@@ -165,8 +165,8 @@ registerAdapter(createRtkQueryAdapter(store, pokemonApi));`}
     <div className="!mb-0">
       <CodeBlock lang="tsx">
         {`import { useSWRConfig } from "swr";
-import { registerAdapter } from "msw-devtools-plugin";
-import { createSwrAdapter } from "msw-devtools-plugin/adapters/swr";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 
 function SetupAdapter() {
   const { mutate } = useSWRConfig();
@@ -202,8 +202,8 @@ function SetupAdapter() {
       <p className="m-0 text-[13px] text-text-secondary leading-relaxed">
         <strong>Consider using a server-state library instead.</strong> Libraries like TanStack
         Query, RTK Query, SWR, or Apollo provide built-in caching, deduplication, and automatic
-        refetching — making the integration with msw-devtool seamless and zero-config. The
-        Axios/fetch adapter requires manual <code className={inlineCode}>useMockRefetch</code>{" "}
+        refetching — making the integration with @mugenlabs/msw-devtools seamless and zero-config.
+        The Axios/fetch adapter requires manual <code className={inlineCode}>useMockRefetch</code>{" "}
         wiring in every component, which adds boilerplate and is harder to maintain.
       </p>
     </div>
@@ -214,9 +214,9 @@ function SetupAdapter() {
     </p>
     <div className="!mb-0">
       <CodeBlock lang="tsx">
-        {`import { registerAdapter } from "msw-devtools-plugin";
-import { createAxiosAdapter } from "msw-devtools-plugin/adapters/axios";
-import { useMockRefetch } from "msw-devtools-plugin";
+        {`import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
+import { useMockRefetch } from "@mugenlabs/msw-devtools";
 
 registerAdapter(createAxiosAdapter());
 

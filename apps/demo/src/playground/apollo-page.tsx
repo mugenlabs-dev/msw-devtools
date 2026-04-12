@@ -256,8 +256,8 @@ const GET_RAYQUAZA = gql\`
 const { data, loading, error, refetch } = useQuery(GET_RAYQUAZA);
 
 // Adapter — auto-refetches queries when mocks change
-import { registerAdapter } from "msw-devtools-plugin";
-import { createApolloAdapter } from "msw-devtools-plugin/adapters/apollo";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
 registerAdapter(createApolloAdapter(apolloClient));`;
 
 // ---------------------------------------------------------------------------

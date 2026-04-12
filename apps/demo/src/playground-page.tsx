@@ -1,12 +1,12 @@
 import { ApolloProvider } from "@apollo/client";
+import { createMswDevToolsPlugin, registerAdapter } from "@mugenlabs/msw-devtools";
+import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
+import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
+import { createTanStackQueryAdapter } from "@mugenlabs/msw-devtools/adapters/tanstack-query";
+import { createUrqlAdapter } from "@mugenlabs/msw-devtools/adapters/urql";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet } from "@tanstack/react-router";
-import { createMswDevToolsPlugin, registerAdapter } from "msw-devtools-plugin";
-import { createApolloAdapter } from "msw-devtools-plugin/adapters/apollo";
-import { createAxiosAdapter } from "msw-devtools-plugin/adapters/axios";
-import { createTanStackQueryAdapter } from "msw-devtools-plugin/adapters/tanstack-query";
-import { createUrqlAdapter } from "msw-devtools-plugin/adapters/urql";
 import { SWRConfig } from "swr";
 import { Provider as UrqlProvider } from "urql";
 

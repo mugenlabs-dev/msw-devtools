@@ -10,7 +10,7 @@ const SITE_DESCRIPTION =
 const RootComponent = () => (
   <html lang="en">
     <head>
-      <title>msw-devtool</title>
+      <title>@mugenlabs/msw-devtools</title>
       <HeadContent />
       <style
         // biome-ignore lint/security/noDangerouslySetInnerHtml: inline critical styles
@@ -51,7 +51,7 @@ const RootComponent = () => (
             applicationCategory: "DeveloperApplication",
             description: SITE_DESCRIPTION,
             license: "https://opensource.org/licenses/MIT",
-            name: "msw-devtools-plugin",
+            name: "@mugenlabs/msw-devtools",
             offers: { "@type": "Offer", price: "0" },
             operatingSystem: "Web",
             url: SITE_URL,
@@ -88,17 +88,17 @@ export const Route = createRootRoute({
       { content: SITE_DESCRIPTION, name: "description" },
       { content: "#0a0a0a", name: "theme-color" },
       // Open Graph
-      { content: "msw-devtools-plugin", property: "og:title" },
+      { content: "@mugenlabs/msw-devtools", property: "og:title" },
       { content: SITE_DESCRIPTION, property: "og:description" },
       { content: `${SITE_URL}og-image.png`, property: "og:image" },
       { content: "website", property: "og:type" },
       { content: SITE_URL, property: "og:url" },
       // Twitter Card
       { content: "summary_large_image", name: "twitter:card" },
-      { content: "msw-devtools-plugin", name: "twitter:title" },
+      { content: "@mugenlabs/msw-devtools", name: "twitter:title" },
       { content: SITE_DESCRIPTION, name: "twitter:description" },
       { content: `${SITE_URL}og-image.png`, name: "twitter:image" },
     ],
-    title: "msw-devtools-plugin",
+    title: "@mugenlabs/msw-devtools",
   }),
 });

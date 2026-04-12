@@ -2,7 +2,7 @@
  * Types-only entry point for consumers who need type imports
  * without pulling in runtime code.
  *
- * Usage: import type { MockOperationDescriptor } from "msw-devtools-plugin/types"
+ * Usage: import type { MockOperationDescriptor } from "@mugenlabs/msw-devtools/types"
  */
 export type { MockChangeType, MockUpdateEvent, MswDevToolAdapter } from "./adapter/types";
 export type { WorkerOptions } from "./msw/worker-manager";

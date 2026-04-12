@@ -215,7 +215,7 @@ const SnorlaxCard = () => {
 // ---------------------------------------------------------------------------
 
 const QUERY_CODE = `// 1. Register REST handlers — method + path auto-derived from handler
-import { registerRestMocks } from "msw-devtools-plugin";
+import { registerRestMocks } from "@mugenlabs/msw-devtools";
 import { http, HttpResponse } from "msw";
 
 registerRestMocks(
@@ -224,7 +224,7 @@ registerRestMocks(
 );
 
 // 2. Register GraphQL handlers — operationName auto-derived from handler
-import { registerGraphqlMocks } from "msw-devtools-plugin";
+import { registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 import { graphql } from "msw";
 
 registerGraphqlMocks(
@@ -252,8 +252,8 @@ const { data } = useQuery({
 });
 
 // 4. Adapter — auto-invalidates queries when mocks change
-import { registerAdapter } from "msw-devtools-plugin";
-import { createTanStackQueryAdapter } from "msw-devtools-plugin/adapters/tanstack-query";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createTanStackQueryAdapter } from "@mugenlabs/msw-devtools/adapters/tanstack-query";
 registerAdapter(createTanStackQueryAdapter(queryClient));`;
 
 // ---------------------------------------------------------------------------

@@ -14,13 +14,13 @@ describe("event-bus", () => {
   });
 
   it("exports the correct event name", () => {
-    expect(MOCK_UPDATE_EVENT_NAME).toBe("msw-devtool-mock-updated");
+    expect(MOCK_UPDATE_EVENT_NAME).toBe("msw-devtools-mock-updated");
   });
 
   describe("dispatching mock updates", () => {
     it("dispatches a CustomEvent on window", () => {
       const handler = vi.fn();
-      window.addEventListener("msw-devtool-mock-updated", handler);
+      window.addEventListener("msw-devtools-mock-updated", handler);
 
       dispatchMockUpdateFn("GetUser", "toggle");
 
@@ -31,19 +31,19 @@ describe("event-bus", () => {
         operationName: "GetUser",
       });
 
-      window.removeEventListener("msw-devtool-mock-updated", handler);
+      window.removeEventListener("msw-devtools-mock-updated", handler);
     });
 
     it("defaults changeType to 'toggle'", () => {
       const handler = vi.fn();
-      window.addEventListener("msw-devtool-mock-updated", handler);
+      window.addEventListener("msw-devtools-mock-updated", handler);
 
       dispatchMockUpdateFn("GetUser");
 
       const event = handler.mock.calls[0][0] as CustomEvent;
       expect(event.detail.changeType).toBe("toggle");
 
-      window.removeEventListener("msw-devtool-mock-updated", handler);
+      window.removeEventListener("msw-devtools-mock-updated", handler);
     });
   });
 

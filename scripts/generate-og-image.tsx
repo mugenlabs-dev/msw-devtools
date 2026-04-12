@@ -1,5 +1,5 @@
 /**
- * Generate the OG image for the msw-devtool demo site using Satori + React.
+ * Generate the OG image for the @mugenlabs/msw-devtools demo site using Satori + React.
  *
  * Usage:
  *   npx tsx scripts/generate-og-image.tsx
@@ -22,7 +22,7 @@ const H = 630;
 const GRID_SIZE = 64;
 const GRID_COLOR = "rgba(255, 255, 255, 0.04)";
 
-const TITLE = "msw-devtool";
+const TITLE = "@mugenlabs/msw-devtools";
 const DESCRIPTION = [
   "A TanStack DevTools plugin for managing MSW mocks.",
   "Toggle, customize, and inspect your mock handlers in real time.",

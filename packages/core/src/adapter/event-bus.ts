@@ -1,7 +1,7 @@
 import type { MockChangeType, MockUpdateEvent } from "./types";
 
 /** @internal */
-export const MOCK_UPDATE_EVENT_NAME = "msw-devtool-mock-updated";
+export const MOCK_UPDATE_EVENT_NAME = "msw-devtools-mock-updated";
 
 declare global {
   interface WindowEventMap {
