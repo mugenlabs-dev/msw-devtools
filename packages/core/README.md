@@ -266,7 +266,7 @@ All exports come from the `@mugenlabs/msw-devtools` package.
 
 ## Documentation
 
-Full documentation and live playground: [https://yagogc.github.io/msw-devtool/](https://yagogc.github.io/msw-devtool/)
+Full documentation and live playground: [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
 
 ## License
 
