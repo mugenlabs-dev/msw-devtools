@@ -1,5 +1,16 @@
 # msw-devtools-plugin
 
+## 0.5.0
+
+### Minor Changes
+
+- ae12f44: Moved the package under the mugenlabs org
+
+### Patch Changes
+
+- 61e76cc: Fix
+- d2732e6: update registry
+
 ## 0.4.0
 
 ### Minor Changes
