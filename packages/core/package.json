@@ -11,15 +11,15 @@
     "react",
     "tanstack"
   ],
-  "homepage": "https://github.com/Yagogc/msw-devtool",
+  "homepage": "https://github.com/mugenlabs-dev/msw-devtools",
   "bugs": {
-    "url": "https://github.com/Yagogc/msw-devtool/issues"
+    "url": "https://github.com/mugenlabs-dev/msw-devtools/issues"
   },
   "license": "MIT",
   "author": "Yago Gonzalez",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Yagogc/msw-devtool.git",
+    "url": "https://github.com/mugenlabs-dev/msw-devtools.git",
     "directory": "packages/core"
   },
   "files": [

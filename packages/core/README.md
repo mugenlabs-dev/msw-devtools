@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Yagogc/msw-devtool/main/apps/demo/public/logo-readme.svg" width="128" height="128" alt="msw-devtools logo" />
+  <img src="https://raw.githubusercontent.com/mugenlabs-dev/msw-devtools/main/apps/demo/public/logo-readme.svg" width="128" height="128" alt="msw-devtools logo" />
 </p>
 
 # @mugenlabs/msw-devtools
@@ -9,7 +9,7 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 > **Note:** This project is a work in progress -- the API has not been finalised yet, which is why we haven't reached 1.0.0. Expect breaking changes between minor versions.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Yagogc/msw-devtool/main/screenshot.png" alt="msw-devtools plugin UI showing operations list with LIVE badges, variant selector, and response editor" />
+  <img src="https://raw.githubusercontent.com/mugenlabs-dev/msw-devtools/main/screenshot.png" alt="msw-devtools plugin UI showing operations list with LIVE badges, variant selector, and response editor" />
 </p>
 
 ## Features

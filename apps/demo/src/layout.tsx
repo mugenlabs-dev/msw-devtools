@@ -147,7 +147,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             <a
               aria-label="GitHub repository"
               className="no-underline"
-              href="https://github.com/Yagogc/msw-devtool"
+              href="https://github.com/mugenlabs-dev/msw-devtools"
               rel="noopener noreferrer"
               target="_blank"
               title="GitHub"
