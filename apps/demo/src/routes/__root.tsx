@@ -3,7 +3,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { Layout } from "../layout";
 import { ThemeProvider } from "../theme-context";
 
-const SITE_URL = "https://yagogc.github.io/msw-devtool/";
+const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
 const SITE_DESCRIPTION =
   "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.";
 
