@@ -1,3 +1,4 @@
+import { RotateCcw } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 
 import type { HeadersEditorProps } from "./types";
@@ -32,16 +33,19 @@ export const HeadersEditor = ({
         <button
           onClick={onHeadersReset}
           style={{
+            alignItems: "center",
             background: "none",
             border: "none",
             color: theme.colors.borderActive,
             cursor: "pointer",
+            display: "inline-flex",
             fontSize: theme.fontSize.sm,
+            gap: theme.spacing.xs,
             padding: 0,
           }}
           type="button"
         >
-          Reset
+          <RotateCcw size={11} /> Reset
         </button>
       )}
     </div>

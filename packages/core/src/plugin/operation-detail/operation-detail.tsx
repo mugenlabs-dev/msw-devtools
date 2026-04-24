@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { MousePointerClick } from "#/plugin/icons";
 import { JsonEditor } from "#/plugin/json-editor";
 import { theme } from "#/plugin/theme";
 import { mockRegistry } from "#/registry/registry";
@@ -189,10 +190,13 @@ export const OperationDetail = ({ operationName }: OperationDetailProps) => {
           color: theme.colors.textDimmed,
           display: "flex",
           flex: 1,
+          flexDirection: "column",
           fontSize: theme.fontSize.lg,
+          gap: theme.spacing.lg,
           justifyContent: "center",
         }}
       >
+        <MousePointerClick size={32} />
         Select an operation to configure
       </div>
     );

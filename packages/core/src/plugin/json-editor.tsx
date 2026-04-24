@@ -1,6 +1,7 @@
 import { Debouncer } from "@tanstack/pacer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AlertCircle, RotateCcw } from "./icons";
 import { theme } from "./theme";
 
 interface JsonEditorProps {
@@ -87,26 +88,36 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
         <div style={{ display: "flex", gap: theme.spacing.md }}>
           {!isValid && (
             <span
-              style={{ color: theme.colors.error, fontSize: theme.fontSize.md, fontWeight: 500 }}
+              style={{
+                alignItems: "center",
+                color: theme.colors.error,
+                display: "inline-flex",
+                fontSize: theme.fontSize.md,
+                fontWeight: 500,
+                gap: theme.spacing.xs,
+              }}
             >
-              Invalid JSON
+              <AlertCircle size={13} /> Invalid JSON
             </span>
           )}
           {hasOverride && (
             <button
               onClick={onReset}
               style={{
+                alignItems: "center",
                 background: theme.colors.surfaceHover,
                 border: `1px solid ${theme.colors.borderInput}`,
                 borderRadius: theme.radius.md,
                 color: theme.colors.textDisabled,
                 cursor: "pointer",
+                display: "inline-flex",
                 fontSize: theme.fontSize.md,
+                gap: theme.spacing.xs,
                 padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
               }}
               type="button"
             >
-              Reset to Default
+              <RotateCcw size={12} /> Reset to Default
             </button>
           )}
         </div>

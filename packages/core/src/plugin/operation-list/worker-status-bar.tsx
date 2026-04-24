@@ -1,3 +1,4 @@
+import { EyeOff } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 
 import type { WorkerStatusBarProps } from "./types";
@@ -43,17 +44,20 @@ export const WorkerStatusBar = ({
       <button
         onClick={clearSeenOperations}
         style={{
+          alignItems: "center",
           background: "transparent",
           border: `1px solid ${theme.colors.borderInput}`,
           borderRadius: theme.radius.md,
           color: theme.colors.textSecondary,
           cursor: "pointer",
+          display: "inline-flex",
           fontSize: theme.fontSize.sm,
+          gap: theme.spacing.xs,
           padding: `1px ${theme.spacing.md}`,
         }}
         type="button"
       >
-        Clear seen
+        <EyeOff size={12} /> Clear seen
       </button>
     )}
   </div>
