@@ -3,11 +3,78 @@ import { useCallback, useMemo } from "react";
 import { dispatchMockUpdate } from "#/adapter/event-bus";
 import { ChevronDown } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
+import { useHover } from "#/plugin/use-hover";
 import type { MockOperationDescriptor } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 import { OperationRow } from "./operation-row";
 import type { GroupedOperationListProps } from "./types";
 import { buildGroups } from "./utils";
+
+const GroupHeader = ({
+  count,
+  isCollapsed,
+  name,
+  onToggle,
+}: {
+  count: number;
+  isCollapsed: boolean;
+  name: string;
+  onToggle: () => void;
+}) => {
+  const { hoverProps, isHovered } = useHover();
+
+  return (
+    <button
+      onClick={onToggle}
+      style={{
+        alignItems: "center",
+        background: isHovered
+          ? theme.colors.surfaceGroupHeaderHover
+          : theme.colors.surfaceGroupHeader,
+        border: "none",
+        borderBottom: `1px solid ${theme.colors.border}`,
+        cursor: "pointer",
+        display: "flex",
+        gap: theme.spacing.md,
+        padding: `5px ${theme.spacing.xl}`,
+        textAlign: "left",
+        transition: "background 0.15s",
+        width: "100%",
+      }}
+      type="button"
+      {...hoverProps}
+    >
+      <ChevronDown
+        color={theme.colors.textSecondary}
+        size={12}
+        style={{
+          transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
+          transition: "transform 0.15s",
+        }}
+      />
+      <span
+        style={{
+          color: theme.colors.textSecondary,
+          fontSize: theme.fontSize.sm,
+          fontWeight: 600,
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
+        }}
+      >
+        {name}
+      </span>
+      <span
+        style={{
+          color: theme.colors.textDimmed,
+          fontSize: theme.fontSize.xs,
+          marginLeft: "auto",
+        }}
+      >
+        {count}
+      </span>
+    </button>
+  );
+};
 
 export const GroupedOperationList = ({
   descriptors,
@@ -67,55 +134,16 @@ export const GroupedOperationList = ({
         const isCollapsed = collapsedGroups.has(group.name);
         return (
           <div key={group.name}>
-            <button
-              onClick={() => {
+            <GroupHeader
+              count={group.items.length}
+              isCollapsed={isCollapsed}
+              name={group.name}
+              onToggle={() => {
                 if (group.name != null && group.name !== "") {
                   toggleGroupCollapsed(group.name);
                 }
               }}
-              style={{
-                alignItems: "center",
-                background: theme.colors.surfaceGroupHeader,
-                border: "none",
-                borderBottom: `1px solid ${theme.colors.border}`,
-                cursor: "pointer",
-                display: "flex",
-                gap: theme.spacing.md,
-                padding: `5px ${theme.spacing.xl}`,
-                textAlign: "left",
-                width: "100%",
-              }}
-              type="button"
-            >
-              <ChevronDown
-                color={theme.colors.textSecondary}
-                size={12}
-                style={{
-                  transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
-                  transition: "transform 0.15s",
-                }}
-              />
-              <span
-                style={{
-                  color: theme.colors.textSecondary,
-                  fontSize: theme.fontSize.sm,
-                  fontWeight: 600,
-                  letterSpacing: "0.5px",
-                  textTransform: "uppercase",
-                }}
-              >
-                {group.name}
-              </span>
-              <span
-                style={{
-                  color: theme.colors.textDimmed,
-                  fontSize: theme.fontSize.xs,
-                  marginLeft: "auto",
-                }}
-              >
-                {group.items.length}
-              </span>
-            </button>
+            />
             {!isCollapsed && group.items.map(renderRow)}
           </div>
         );
