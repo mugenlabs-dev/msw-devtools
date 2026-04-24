@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { theme } from "#/plugin/theme";
+import { useHover } from "#/plugin/use-hover";
 import type { ErrorOverride } from "#/store/types";
 
 const ERROR_OPTIONS: { label: string; value: Exclude<ErrorOverride, null> }[] = [
@@ -15,6 +16,48 @@ interface ErrorOverrideSelectorProps {
   operationName: string;
   value: ErrorOverride;
 }
+
+const ErrorOptionButton = ({
+  isActive,
+  label,
+  onClick,
+}: {
+  isActive: boolean;
+  label: string;
+  onClick: () => void;
+}) => {
+  const { hoverProps, isHovered } = useHover();
+
+  let bg = theme.colors.surface;
+  if (isActive) {
+    bg = isHovered ? theme.colors.errorBgHover : theme.colors.errorBg;
+  } else if (isHovered) {
+    bg = theme.colors.surfaceHover;
+  }
+
+  return (
+    <button
+      aria-label={`Set error override to ${label}`}
+      aria-pressed={isActive}
+      onClick={onClick}
+      style={{
+        background: bg,
+        border: `1px solid ${isActive ? theme.colors.error : theme.colors.borderInput}`,
+        borderRadius: theme.radius.md,
+        color: isActive ? theme.colors.error : theme.colors.textSecondary,
+        cursor: "pointer",
+        fontSize: theme.fontSize.md,
+        fontWeight: isActive ? 600 : 400,
+        padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+        transition: "all 0.15s",
+      }}
+      type="button"
+      {...hoverProps}
+    >
+      {label}
+    </button>
+  );
+};
 
 export const ErrorOverrideSelector = ({
   onChange,
@@ -59,33 +102,16 @@ export const ErrorOverrideSelector = ({
           gap: theme.spacing.sm,
         }}
       >
-        {ERROR_OPTIONS.map((opt) => {
-          const isActive = value === opt.value;
-          return (
-            <button
-              aria-label={`Set error override to ${opt.label}`}
-              aria-pressed={isActive}
-              key={opt.label}
-              onClick={() => {
-                handleClick(opt.value);
-              }}
-              style={{
-                background: isActive ? theme.colors.errorBg : theme.colors.surface,
-                border: `1px solid ${isActive ? theme.colors.error : theme.colors.borderInput}`,
-                borderRadius: theme.radius.md,
-                color: isActive ? theme.colors.error : theme.colors.textSecondary,
-                cursor: "pointer",
-                fontSize: theme.fontSize.md,
-                fontWeight: isActive ? 600 : 400,
-                padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
-                transition: "all 0.15s",
-              }}
-              type="button"
-            >
-              {opt.label}
-            </button>
-          );
-        })}
+        {ERROR_OPTIONS.map((opt) => (
+          <ErrorOptionButton
+            isActive={value === opt.value}
+            key={opt.label}
+            label={opt.label}
+            onClick={() => {
+              handleClick(opt.value);
+            }}
+          />
+        ))}
       </div>
     </fieldset>
   );

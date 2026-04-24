@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback } from "react";
 import { theme } from "#/plugin/theme";
+import { useHover } from "#/plugin/use-hover";
 
 import type { OperationRowProps } from "./types";
 
@@ -16,6 +17,9 @@ export const OperationRow = ({
   onSelect,
   onToggle,
 }: OperationRowProps): ReactElement => {
+  const rowHover = useHover();
+  const toggleHover = useHover();
+
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -34,6 +38,20 @@ export const OperationRow = ({
     [onToggle]
   );
 
+  let rowBg = "transparent";
+  if (isSelected) {
+    rowBg = theme.colors.surfaceSelected;
+  } else if (rowHover.isHovered) {
+    rowBg = theme.colors.surfaceHover;
+  }
+
+  let toggleBg = theme.colors.toggleOff;
+  if (isEnabled) {
+    toggleBg = toggleHover.isHovered ? "#5be992" : theme.colors.success;
+  } else if (toggleHover.isHovered) {
+    toggleBg = theme.colors.toggleOffHover;
+  }
+
   return (
     // biome-ignore lint/a11y/useSemanticElements: contains nested interactive toggle button
     <div
@@ -44,7 +62,7 @@ export const OperationRow = ({
       role="button"
       style={{
         alignItems: "center",
-        background: isSelected ? theme.colors.surfaceSelected : "transparent",
+        background: rowBg,
         borderLeft: isSelected
           ? `2px solid ${theme.colors.borderSelected}`
           : "2px solid transparent",
@@ -52,8 +70,10 @@ export const OperationRow = ({
         display: "flex",
         gap: theme.spacing.lg,
         padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+        transition: "background 0.15s",
       }}
       tabIndex={0}
+      {...rowHover.hoverProps}
     >
       <span
         style={{
@@ -130,7 +150,7 @@ export const OperationRow = ({
         aria-pressed={isEnabled}
         onClick={onToggleClick}
         style={{
-          background: isEnabled ? theme.colors.success : theme.colors.toggleOff,
+          background: toggleBg,
           border: "none",
           borderRadius: theme.radius.pill,
           cursor: "pointer",
@@ -141,6 +161,7 @@ export const OperationRow = ({
           width: "36px",
         }}
         type="button"
+        {...toggleHover.hoverProps}
       >
         <span
           style={{

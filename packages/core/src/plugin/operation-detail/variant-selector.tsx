@@ -28,6 +28,7 @@ export const VariantSelector = ({
         border: `1px solid ${theme.colors.borderInput}`,
         borderRadius: theme.radius.lg,
         color: theme.colors.textPrimary,
+        cursor: "pointer",
         flex: 1,
         fontSize: theme.fontSize.base,
         outline: "none",

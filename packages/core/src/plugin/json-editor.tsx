@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AlertCircle, RotateCcw } from "./icons";
 import { theme } from "./theme";
+import { useHover } from "./use-hover";
 
 interface JsonEditorProps {
   hasOverride: boolean;
@@ -16,6 +17,7 @@ const DEBOUNCE_WAIT = 600;
 export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditorProps) => {
   const [localValue, setLocalValue] = useState(value);
   const [isValid, setIsValid] = useState(true);
+  const resetHover = useHover();
 
   const debouncer = useMemo(
     () =>
@@ -105,7 +107,9 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
               onClick={onReset}
               style={{
                 alignItems: "center",
-                background: theme.colors.surfaceHover,
+                background: resetHover.isHovered
+                  ? theme.colors.surfaceHoverStrong
+                  : theme.colors.surfaceHover,
                 border: `1px solid ${theme.colors.borderInput}`,
                 borderRadius: theme.radius.md,
                 color: theme.colors.textDisabled,
@@ -114,8 +118,10 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
                 fontSize: theme.fontSize.md,
                 gap: theme.spacing.xs,
                 padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+                transition: "background 0.15s",
               }}
               type="button"
+              {...resetHover.hoverProps}
             >
               <RotateCcw size={12} /> Reset to Default
             </button>
