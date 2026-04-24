@@ -1,3 +1,4 @@
+import { ArrowUpDown, Layers } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 
 import type { FilterButtonProps, FilterSortBarProps } from "./types";
@@ -53,7 +54,7 @@ export const FilterSortBar = ({
       ))}
     </div>
     <div style={{ alignItems: "center", display: "flex", gap: theme.spacing.md }}>
-      <span style={{ color: theme.colors.textMuted, fontSize: theme.fontSize.sm }}>Sort:</span>
+      <ArrowUpDown color={theme.colors.textMuted} size={12} />
       <select
         onChange={onSortChange}
         style={{
@@ -76,20 +77,23 @@ export const FilterSortBar = ({
         data-testid="group-toggle"
         onClick={onGroupToggle}
         style={{
+          alignItems: "center",
           background: isGrouped ? theme.colors.accentBg : "transparent",
           border: `1px solid ${theme.colors.borderInput}`,
           borderRadius: theme.radius.md,
           color: isGrouped ? theme.colors.accentLight : theme.colors.textSecondary,
           cursor: "pointer",
+          display: "inline-flex",
           fontSize: theme.fontSize.sm,
           fontWeight: isGrouped ? 600 : 400,
+          gap: theme.spacing.xs,
           marginLeft: "auto",
           padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
         }}
         title={isGrouped ? "Show flat list" : "Show grouped"}
         type="button"
       >
-        Group
+        <Layers size={12} /> Group
       </button>
     </div>
   </div>

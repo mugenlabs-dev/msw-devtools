@@ -1,3 +1,4 @@
+import { RotateCcw } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 
 import type { StatusCodeInputProps } from "./types";
@@ -48,16 +49,19 @@ export const StatusCodeInput = ({
         <button
           onClick={onStatusCodeReset}
           style={{
+            alignItems: "center",
             background: "none",
             border: "none",
             color: theme.colors.borderActive,
             cursor: "pointer",
+            display: "inline-flex",
             fontSize: theme.fontSize.sm,
+            gap: theme.spacing.xs,
             padding: 0,
           }}
           type="button"
         >
-          Reset
+          <RotateCcw size={11} /> Reset
         </button>
       )}
     </>

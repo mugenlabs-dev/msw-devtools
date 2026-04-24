@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import { dispatchMockUpdate } from "#/adapter/event-bus";
+import { ChevronDown } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 import type { MockOperationDescriptor } from "#/registry/types";
 import { useMockStore } from "#/store/store";
@@ -86,17 +87,14 @@ export const GroupedOperationList = ({
               }}
               type="button"
             >
-              <span
+              <ChevronDown
+                color={theme.colors.textSecondary}
+                size={12}
                 style={{
-                  color: theme.colors.textSecondary,
-                  display: "inline-block",
-                  fontSize: "8px",
                   transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
                   transition: "transform 0.15s",
                 }}
-              >
-                ▼
-              </span>
+              />
               <span
                 style={{
                   color: theme.colors.textSecondary,
