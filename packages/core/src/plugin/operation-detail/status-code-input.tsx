@@ -1,5 +1,6 @@
 import { RotateCcw } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
+import { useHover } from "#/plugin/use-hover";
 
 import type { StatusCodeInputProps } from "./types";
 
@@ -10,8 +11,10 @@ export const StatusCodeInput = ({
   onStatusCodeReset,
   operationName,
 }: StatusCodeInputProps) => {
+  const resetHover = useHover();
   const statusBorderColor =
     config.statusCode === null ? theme.colors.borderInput : theme.colors.borderActive;
+
   return (
     <>
       <span style={{ color: theme.colors.border, margin: `0 ${theme.spacing.sm}` }}>|</span>
@@ -57,9 +60,12 @@ export const StatusCodeInput = ({
             display: "inline-flex",
             fontSize: theme.fontSize.sm,
             gap: theme.spacing.xs,
+            opacity: resetHover.isHovered ? 0.7 : 1,
             padding: 0,
+            transition: "opacity 0.15s",
           }}
           type="button"
+          {...resetHover.hoverProps}
         >
           <RotateCcw size={11} /> Reset
         </button>

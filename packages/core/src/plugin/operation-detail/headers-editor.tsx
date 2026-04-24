@@ -1,5 +1,6 @@
 import { RotateCcw } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
+import { useHover } from "#/plugin/use-hover";
 
 import type { HeadersEditorProps } from "./types";
 
@@ -9,63 +10,70 @@ export const HeadersEditor = ({
   onHeadersChange,
   onHeadersReset,
   operationName,
-}: HeadersEditorProps) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: theme.spacing.sm }}>
-    <div
-      style={{
-        alignItems: "center",
-        display: "flex",
-        justifyContent: "space-between",
-      }}
-    >
-      <label
-        htmlFor={`headers-${operationName}`}
+}: HeadersEditorProps) => {
+  const resetHover = useHover();
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: theme.spacing.sm }}>
+      <div
         style={{
-          color: theme.colors.textSecondary,
-          fontSize: theme.fontSize.md,
-          fontWeight: 600,
-          textTransform: "uppercase",
+          alignItems: "center",
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
-        Headers
-      </label>
-      {hasHeadersOverride && (
-        <button
-          onClick={onHeadersReset}
+        <label
+          htmlFor={`headers-${operationName}`}
           style={{
-            alignItems: "center",
-            background: "none",
-            border: "none",
-            color: theme.colors.borderActive,
-            cursor: "pointer",
-            display: "inline-flex",
-            fontSize: theme.fontSize.sm,
-            gap: theme.spacing.xs,
-            padding: 0,
+            color: theme.colors.textSecondary,
+            fontSize: theme.fontSize.md,
+            fontWeight: 600,
+            textTransform: "uppercase",
           }}
-          type="button"
         >
-          <RotateCcw size={11} /> Reset
-        </button>
-      )}
+          Headers
+        </label>
+        {hasHeadersOverride && (
+          <button
+            onClick={onHeadersReset}
+            style={{
+              alignItems: "center",
+              background: "none",
+              border: "none",
+              color: theme.colors.borderActive,
+              cursor: "pointer",
+              display: "inline-flex",
+              fontSize: theme.fontSize.sm,
+              gap: theme.spacing.xs,
+              opacity: resetHover.isHovered ? 0.7 : 1,
+              padding: 0,
+              transition: "opacity 0.15s",
+            }}
+            type="button"
+            {...resetHover.hoverProps}
+          >
+            <RotateCcw size={11} /> Reset
+          </button>
+        )}
+      </div>
+      <textarea
+        id={`headers-${operationName}`}
+        onChange={onHeadersChange}
+        rows={3}
+        spellCheck={false}
+        style={{
+          background: theme.colors.surface,
+          border: `1px solid ${hasHeadersOverride ? theme.colors.borderActive : theme.colors.borderInput}`,
+          borderRadius: theme.radius.lg,
+          color: theme.colors.textPrimary,
+          fontFamily: "monospace",
+          fontSize: theme.fontSize.md,
+          outline: "none",
+          padding: `${theme.spacing.md} ${theme.spacing.lg}`,
+          resize: "vertical",
+        }}
+        value={effectiveHeaders}
+      />
     </div>
-    <textarea
-      id={`headers-${operationName}`}
-      onChange={onHeadersChange}
-      rows={3}
-      spellCheck={false}
-      style={{
-        background: theme.colors.surface,
-        border: `1px solid ${hasHeadersOverride ? theme.colors.borderActive : theme.colors.borderInput}`,
-        borderRadius: theme.radius.lg,
-        color: theme.colors.textPrimary,
-        fontFamily: "monospace",
-        fontSize: theme.fontSize.md,
-        outline: "none",
-        padding: `${theme.spacing.md} ${theme.spacing.lg}`,
-        resize: "vertical",
-      }}
-      value={effectiveHeaders}
-    />
-  </div>
-);
+  );
+};
