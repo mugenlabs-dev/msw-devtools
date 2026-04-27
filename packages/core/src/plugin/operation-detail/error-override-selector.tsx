@@ -28,7 +28,7 @@ const ErrorOptionButton = ({
 }) => {
   const { hoverProps, isHovered } = useHover();
 
-  let bg = theme.colors.surface;
+  let bg: string = theme.colors.surface;
   if (isActive) {
     bg = isHovered ? theme.colors.errorBgHover : theme.colors.errorBg;
   } else if (isHovered) {
