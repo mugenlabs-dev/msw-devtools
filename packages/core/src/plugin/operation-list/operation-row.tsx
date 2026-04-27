@@ -45,7 +45,7 @@ export const OperationRow = ({
     rowBg = theme.colors.surfaceHover;
   }
 
-  let toggleBg = theme.colors.toggleOff;
+  let toggleBg: string = theme.colors.toggleOff;
   if (isEnabled) {
     toggleBg = toggleHover.isHovered ? "#5be992" : theme.colors.success;
   } else if (toggleHover.isHovered) {
