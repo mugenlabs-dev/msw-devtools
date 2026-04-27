@@ -1,5 +1,12 @@
 # msw-devtools-plugin
 
+## 0.5.1
+
+### Patch Changes
+
+- 0ae0994: Add Lucide SVG icons across the plugin UI for improved visual clarity
+- da68094: Fix typecheck errors in hover state variables caused by narrow literal types from `as const` theme
+
 ## 0.5.0
 
 ### Minor Changes
