@@ -1,3 +1,4 @@
+import type { OperationHandle } from "@mugenlabs/msw-devtools";
 import { useMockRefetch } from "@mugenlabs/msw-devtools";
 import { useCallback, useEffect, useState } from "react";
 
@@ -25,7 +26,7 @@ export const fetchPokemonJson = async (url: string): Promise<RestPokemonResponse
 
 // --- Hook ---
 
-export const useRestPokemon = (url: string, operationName: string) => {
+export const useRestPokemon = (url: string, operation: OperationHandle | string) => {
   const [data, setData] = useState<PokemonData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +49,7 @@ export const useRestPokemon = (url: string, operationName: string) => {
     void fetchData();
   }, [fetchData]);
 
-  useMockRefetch(operationName, () => {
+  useMockRefetch(operation, () => {
     void fetchData();
   });
 

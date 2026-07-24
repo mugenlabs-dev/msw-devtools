@@ -24,6 +24,8 @@ export type {
   GraphqlMockDef,
   HandlerVariant,
   MockOperationDescriptor,
+  OperationHandle,
+  OperationHandles,
   RestMethod,
   RestMockDef,
   RestMockDescriptor,
