@@ -32,6 +32,7 @@ export default defineConfig({
     "graphql",
   ],
   format: ["esm"],
+  minify: true,
   outExtension: () => ({ js: ".mjs" }),
-  sourcemap: true,
+  sourcemap: false,
 });

@@ -84,6 +84,40 @@ export type RestMockDescriptor = MockOperationDescriptorBase & {
 
 export type MockOperationDescriptor = GraphQLMockDescriptor | RestMockDescriptor;
 
+// ---------------------------------------------------------------------------
+// Operation handles — type-safe references returned from registration
+// ---------------------------------------------------------------------------
+
+declare const operationHandleBrand: unique symbol;
+
+/**
+ * A type-safe reference to a registered mock operation.
+ *
+ * Returned from {@link registerRestMocks} / {@link registerGraphqlMocks} so the
+ * `operationName` never has to be re-typed as a string literal (which silently
+ * no-ops on a typo). Pass it directly to `useMockRefetch`.
+ *
+ * Branded so it is a distinct nominal type — you cannot fabricate one from a
+ * plain object; it must come from a registration call.
+ */
+export interface OperationHandle {
+  /** The exact operation name this handle refers to. */
+  readonly operationName: string;
+  /** @internal Nominal brand — never present at runtime. */
+  readonly [operationHandleBrand]?: true;
+}
+
+/**
+ * The return value of {@link registerRestMocks} / {@link registerGraphqlMocks}.
+ *
+ * Behaves both as an ordered array (so `const [first] = registerRestMocks(...)`
+ * works) and as an object keyed by `operationName` (so
+ * `handles["GET Charizard"]` works).
+ */
+export type OperationHandles = readonly OperationHandle[] & {
+  readonly [operationName: string]: OperationHandle;
+};
+
 export const isGraphQLDescriptor = (d: MockOperationDescriptor): d is GraphQLMockDescriptor =>
   d.type === "graphql";
 

@@ -11,6 +11,8 @@ export type {
   GraphQLOperationType,
   HandlerVariant,
   MockOperationDescriptor,
+  OperationHandle,
+  OperationHandles,
   RestMethod,
   RestMockDescriptor,
 } from "./registry/types";

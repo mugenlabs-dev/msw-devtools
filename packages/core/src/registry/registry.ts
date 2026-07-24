@@ -8,6 +8,8 @@ import type {
   HandlerVariant,
   HandlerVariantInput,
   MockOperationDescriptor,
+  OperationHandle,
+  OperationHandles,
   RestMethod,
   RestMockDef,
   RestMockDescriptor,
@@ -160,14 +162,37 @@ const eagerCaptureDefaultResponses = async (
 };
 
 // ---------------------------------------------------------------------------
+// Operation handle construction
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the {@link OperationHandles} return value from registered descriptors:
+ * an array of branded handles that is also indexable by `operationName`.
+ */
+const buildOperationHandles = (descriptors: MockOperationDescriptor[]): OperationHandles => {
+  const handles = descriptors.map(
+    (descriptor): OperationHandle => ({ operationName: descriptor.operationName })
+  );
+  const indexed = handles as OperationHandle[] & Record<string, OperationHandle>;
+  for (const handle of handles) {
+    indexed[handle.operationName] = handle;
+  }
+  return indexed as OperationHandles;
+};
+
+// ---------------------------------------------------------------------------
 // Public registration functions
 // ---------------------------------------------------------------------------
 
 /**
  * Register one or more REST mocks from MSW HttpHandlers.
  * Operation metadata (method, path, operationName) is auto-derived from handler info.
+ *
+ * @returns type-safe {@link OperationHandles} — an array of handles (destructurable
+ * in registration order) that is also indexable by `operationName`. Pass a handle
+ * to `useMockRefetch` to avoid hard-coding operation-name strings.
  */
-export const registerRestMocks = (...defs: RestMockDef[]): void => {
+export const registerRestMocks = (...defs: RestMockDef[]): OperationHandles => {
   const descriptors: RestMockDescriptor[] = [];
 
   for (const def of defs) {
@@ -193,13 +218,19 @@ export const registerRestMocks = (...defs: RestMockDef[]): void => {
 
   mockRegistry.register(...descriptors);
   void eagerCaptureDefaultResponses(descriptors);
+
+  return buildOperationHandles(descriptors);
 };
 
 /**
  * Register one or more GraphQL mocks from MSW GraphqlHandlers.
  * Operation metadata (operationName, operationType) is auto-derived from handler info.
+ *
+ * @returns type-safe {@link OperationHandles} — an array of handles (destructurable
+ * in registration order) that is also indexable by `operationName`. Pass a handle
+ * to `useMockRefetch` to avoid hard-coding operation-name strings.
  */
-export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): void => {
+export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): OperationHandles => {
   const descriptors: GraphQLMockDescriptor[] = [];
 
   for (const def of defs) {
@@ -224,4 +255,6 @@ export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): void => {
 
   mockRegistry.register(...descriptors);
   void eagerCaptureDefaultResponses(descriptors);
+
+  return buildOperationHandles(descriptors);
 };

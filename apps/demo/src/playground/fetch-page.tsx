@@ -3,6 +3,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 
 import { CodeBlock } from "../docs/components/code-block";
+import { dragoniteOp, espeonOp, mewtwoOp, mimikyuOp, sylveonOp, umbreonOp } from "../mocks/setup";
 import type { PokemonData } from "../pokemon-card";
 import { mapRestPokemon, PokemonCard, REST_BADGE } from "../pokemon-card";
 import { useRestPokemon } from "../use-rest-pokemon";
@@ -19,9 +20,10 @@ const POKEBALL_URL =
 // ---------------------------------------------------------------------------
 
 const MimikyuCard = () => {
+  // Handle-based (recommended): pass the typed handle returned from registration.
   const { data, error, loading, refetch } = useRestPokemon(
     "https://pokeapi.co/api/v2/pokemon/778",
-    "GET Mimikyu"
+    mimikyuOp
   );
 
   return (
@@ -40,7 +42,7 @@ const MimikyuCard = () => {
 const UmbreonCard = () => {
   const { data, error, loading, refetch } = useRestPokemon(
     "https://pokeapi.co/api/v2/pokemon/197",
-    "GET Umbreon"
+    umbreonOp
   );
 
   return (
@@ -57,9 +59,10 @@ const UmbreonCard = () => {
 };
 
 const EspeonCard = () => {
+  // String-based (still supported): the raw operation name also works.
   const { data, error, loading, refetch } = useRestPokemon(
     "https://pokeapi.co/api/v2/pokemon/196",
-    "GET Espeon"
+    espeonOp.operationName
   );
 
   return (
@@ -102,7 +105,7 @@ const SylveonCard = () => {
     void fetchData();
   }, [fetchData]);
 
-  useMockRefetch("GET Sylveon", () => {
+  useMockRefetch(sylveonOp, () => {
     void fetchData();
   });
 
@@ -144,7 +147,7 @@ const MewtwoCard = () => {
     void fetchData();
   }, [fetchData]);
 
-  useMockRefetch("GET Mewtwo", () => {
+  useMockRefetch(mewtwoOp, () => {
     void fetchData();
   });
 
@@ -186,7 +189,7 @@ const DragoniteCard = () => {
     void fetchData();
   }, [fetchData]);
 
-  useMockRefetch("GET Dragonite", () => {
+  useMockRefetch(dragoniteOp, () => {
     void fetchData();
   });
 
@@ -211,6 +214,13 @@ const DragoniteCard = () => {
 
 const FETCH_CODE = `// REST fetching with fetch and axios
 import axios from "axios";
+import { registerRestMocks, useMockRefetch } from "@mugenlabs/msw-devtools";
+
+// Registration returns type-safe operation handles
+const [mimikyu] = registerRestMocks({
+  handler: getMimikyuHandler,
+  operationName: "GET Mimikyu",
+});
 
 // fetch example
 const res = await fetch("https://pokeapi.co/api/v2/pokemon/778");
@@ -219,9 +229,9 @@ const data = await res.json();
 // axios example
 const { data } = await axios.get("https://pokeapi.co/api/v2/pokemon/700");
 
-// Hook for fetch — auto-refetches when mocks change
-import { useMockRefetch } from "@mugenlabs/msw-devtools";
-useMockRefetch("GET Mimikyu", () => { void fetchData(); });`;
+// Pass the handle — no hard-coded strings, typos are caught at build time.
+// Raw strings still work: useMockRefetch("GET Mimikyu", ...)
+useMockRefetch(mimikyu, () => { void fetchData(); });`;
 
 // ---------------------------------------------------------------------------
 // Page Component

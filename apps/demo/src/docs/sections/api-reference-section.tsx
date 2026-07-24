@@ -146,11 +146,11 @@ export const ApiReferenceSection = () => (
       title="Core"
     >
       <ApiEntry
-        badge="void"
-        badgeVariant="muted"
-        description="Register one or more REST mocks from MSW HttpHandlers. Operation metadata (method, path, operationName) is auto-derived from the handler."
+        badge="OperationHandles"
+        badgeVariant="green"
+        description="Register one or more REST mocks from MSW HttpHandlers. Operation metadata (method, path, operationName) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerRestMocks"
-        signature="registerRestMocks(...defs: RestMockDef[]): void"
+        signature="registerRestMocks(...defs: RestMockDef[]): OperationHandles"
       >
         <ParamTable
           params={[
@@ -178,11 +178,11 @@ export const ApiReferenceSection = () => (
         />
       </ApiEntry>
       <ApiEntry
-        badge="void"
-        badgeVariant="muted"
-        description="Register one or more GraphQL mocks from MSW GraphQLHandlers. Operation metadata (operationName, operationType) is auto-derived from the handler."
+        badge="OperationHandles"
+        badgeVariant="green"
+        description="Register one or more GraphQL mocks from MSW GraphQLHandlers. Operation metadata (operationName, operationType) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerGraphqlMocks"
-        signature="registerGraphqlMocks(...defs: GraphqlMockDef[]): void"
+        signature="registerGraphqlMocks(...defs: GraphqlMockDef[]): OperationHandles"
       >
         <ParamTable
           params={[
@@ -256,15 +256,17 @@ export const ApiReferenceSection = () => (
       <ApiEntry
         badge="void"
         badgeVariant="muted"
-        description="Listens for mock update events matching the given operation name and calls your refetch callback. Use with Axios or plain fetch."
+        description="Listens for mock update events matching the given operation and calls your refetch callback. Accepts either an OperationHandle (recommended — returned from registration, so typos are caught at build time) or a raw operation name string. Use with Axios or plain fetch."
         name="useMockRefetch"
-        signature="useMockRefetch(operationName: string, refetch: () => void): void"
+        signature="useMockRefetch(operation: OperationHandle | string, refetch: () => void): void"
       >
         <div className="mt-3">
           <CodeBlock lang="tsx">
-            {`function UserCard() {
+            {`const [users] = registerRestMocks({ handler: usersHandler });
+
+function UserCard() {
   const { data, refetch } = useMyFetch("/api/users/1");
-  useMockRefetch("GET /api/users/1", refetch);
+  useMockRefetch(users, refetch); // or useMockRefetch("GET /api/users/1", refetch)
   return <div>{data?.name}</div>;
 }`}
           </CodeBlock>

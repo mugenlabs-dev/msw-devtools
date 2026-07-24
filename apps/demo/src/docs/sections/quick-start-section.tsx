@@ -19,15 +19,17 @@ export const QuickStartSection = () => (
     <p className={prose}>
       Pass your MSW handlers directly to <code className={inlineCode}>registerRestMocks</code> or{" "}
       <code className={inlineCode}>registerGraphqlMocks</code>. The operation name, method, and path
-      are auto-derived from the handler:
+      are auto-derived from the handler. Each call returns type-safe{" "}
+      <code className={inlineCode}>OperationHandles</code> you can destructure and pass to{" "}
+      <code className={inlineCode}>useMockRefetch</code> instead of hard-coding name strings:
     </p>
     <div className="mb-7">
       <CodeBlock lang="typescript">
         {`import { http, HttpResponse, graphql } from "msw";
 import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 
-// REST — pass your HttpHandler directly
-registerRestMocks(
+// REST — pass your HttpHandler directly; capture the returned handle
+const [getUsers] = registerRestMocks(
   {
     handler: http.get("/api/users", () =>
       HttpResponse.json([{ id: 1, name: "Alice" }])
@@ -37,14 +39,16 @@ registerRestMocks(
 );
 
 // GraphQL — pass your GraphQLHandler directly
-registerGraphqlMocks(
+const [getUser] = registerGraphqlMocks(
   {
     handler: graphql.query("GetUser", () =>
       HttpResponse.json({ data: { user: { id: 1, name: "Alice" } } })
     ),
     group: "Users",
   },
-);`}
+);
+
+// getUsers.operationName === "GET /api/users", getUser.operationName === "GetUser"`}
       </CodeBlock>
     </div>
 
