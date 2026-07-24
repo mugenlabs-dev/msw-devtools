@@ -1,5 +1,5 @@
+import { play } from "cuelume";
 import type { ReactNode } from "react";
-
 import {
   createContext,
   useCallback,
@@ -25,117 +25,6 @@ const ThemeContext = createContext<ThemeContextValue>({
 });
 
 export const useTheme = () => useContext(ThemeContext);
-
-// ---- light-switch click sound helpers ----
-
-interface ToneConfig {
-  endFreq: number;
-  endTime: number;
-  gainVal: number;
-  rampTime: number;
-  startFreq: number;
-  startTime: number;
-}
-
-const createSineOsc = (ctx: AudioContext) => {
-  const osc = ctx.createOscillator();
-  osc.type = "sine";
-  return osc;
-};
-
-const createGainNode = (ctx: AudioContext, gainVal: number, startTime: number, endTime: number) => {
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(gainVal, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, endTime);
-  return gain;
-};
-
-const playTone = (ctx: AudioContext, config: ToneConfig) => {
-  const osc = createSineOsc(ctx);
-  const gain = createGainNode(ctx, config.gainVal, config.startTime, config.endTime);
-  osc.frequency.setValueAtTime(config.startFreq, config.startTime);
-  osc.frequency.exponentialRampToValueAtTime(config.endFreq, config.rampTime);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(config.startTime);
-  osc.stop(config.endTime);
-};
-
-const playLightModeSound = (ctx: AudioContext, now: number) => {
-  // Rising, bright pop for activating light mode
-  playTone(ctx, {
-    endFreq: 800,
-    endTime: now + 0.15,
-    gainVal: 0.25,
-    rampTime: now + 0.08,
-    startFreq: 400,
-    startTime: now,
-  });
-  // Harmonic sparkle
-  playTone(ctx, {
-    endFreq: 800,
-    endTime: now + 0.1,
-    gainVal: 0.08,
-    rampTime: now + 0.1,
-    startFreq: 1200,
-    startTime: now + 0.02,
-  });
-};
-
-const playDarkModeSound = (ctx: AudioContext, now: number) => {
-  // Falling, mellow pop for activating dark mode
-  playTone(ctx, {
-    endFreq: 200,
-    endTime: now + 0.15,
-    gainVal: 0.25,
-    rampTime: now + 0.12,
-    startFreq: 500,
-    startTime: now,
-  });
-  // Soft low harmonic
-  playTone(ctx, {
-    endFreq: 150,
-    endTime: now + 0.12,
-    gainVal: 0.1,
-    rampTime: now + 0.12,
-    startFreq: 300,
-    startTime: now,
-  });
-};
-
-// Inspired by joshwcomeau.com — different tones for each direction
-let sharedAudioCtx: AudioContext | null = null;
-
-const getAudioContext = (): AudioContext | null => {
-  try {
-    if (sharedAudioCtx == null || sharedAudioCtx.state === "closed") {
-      sharedAudioCtx = new AudioContext();
-    }
-    return sharedAudioCtx;
-  } catch {
-    return null;
-  }
-};
-
-const playLightSwitchSound = (targetTheme: Theme) => {
-  const ctx = getAudioContext();
-  if (ctx == null) {
-    return;
-  }
-
-  // Resume if suspended (browsers suspend until user gesture)
-  if (ctx.state === "suspended") {
-    void ctx.resume();
-  }
-
-  const now = ctx.currentTime;
-
-  if (targetTheme === "light") {
-    playLightModeSound(ctx, now);
-  } else {
-    playDarkModeSound(ctx, now);
-  }
-};
 
 // ---- CSS variables for each theme ----
 const themeVars: Record<Theme, Record<string, string>> = {
@@ -246,7 +135,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     (e?: React.MouseEvent) => {
       const next = theme === "dark" ? "light" : "dark";
 
-      playLightSwitchSound(next);
+      play(next === "light" ? "tick" : "press");
 
       // get click coordinates for circular reveal
       const x = e?.clientX ?? window.innerWidth / 2;
