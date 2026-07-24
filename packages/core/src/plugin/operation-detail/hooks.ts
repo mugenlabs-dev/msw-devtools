@@ -9,7 +9,7 @@ export const useToggleAndVariantHandlers = (operationName: string) => {
   const config = useMockStore((s) => s.operations[operationName]);
 
   const handleToggle = useCallback(() => {
-    setEnabled(operationName, !config.enabled);
+    setEnabled(operationName, !config?.enabled);
     dispatchMockUpdate(operationName, "toggle");
   }, [operationName, config?.enabled, setEnabled]);
 
