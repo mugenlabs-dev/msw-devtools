@@ -240,7 +240,9 @@ registerGraphqlMocks(
 // Fetch + Axios page
 // ---------------------------------------------------------------------------
 
-registerRestMocks(
+// Registration returns type-safe operation handles. Destructure them (in order)
+// and pass them straight to `useMockRefetch` instead of hard-coding name strings.
+export const [mimikyuOp, umbreonOp, espeonOp, sylveonOp, mewtwoOp, dragoniteOp] = registerRestMocks(
   { group: "Fetch + Axios", handler: getMimikyuHandler, operationName: "GET Mimikyu" },
   { group: "Fetch + Axios", handler: getUmbreonHandler, operationName: "GET Umbreon" },
   { group: "Fetch + Axios", handler: getEspeonHandler, operationName: "GET Espeon" },

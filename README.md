@@ -185,12 +185,16 @@ import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
 registerAdapter(createAxiosAdapter());
 ```
 
+Registration returns type-safe **operation handles**. Destructure them and pass a handle to `useMockRefetch` instead of hard-coding operation-name strings (typos silently no-op):
+
 ```tsx
-import { useMockRefetch } from "@mugenlabs/msw-devtools";
+import { registerRestMocks, useMockRefetch } from "@mugenlabs/msw-devtools";
+
+const [users] = registerRestMocks({ handler: http.get("/api/users", resolver) });
 
 function UserCard() {
   const { data, refetch } = useMyFetch("/api/users/1");
-  useMockRefetch("GET Users", refetch);
+  useMockRefetch(users, refetch); // typo-proof — raw strings like "GET /api/users" also still work
   return <div>{data?.name}</div>;
 }
 ```
@@ -238,11 +242,11 @@ registerGraphqlMocks({
 
 | Export | Description |
 | --- | --- |
-| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. |
-| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. |
+| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandles`. |
+| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandles`. |
 | `registerAdapter(adapter)` | Register a data-fetching adapter for auto-refetch. Returns an unregister function. |
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
-| `useMockRefetch(operationName, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. |
+| `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
 | `startWorker(options?)` | Manually start the MSW service worker. |
 | `getWorker()` | Get the current MSW `SetupWorker` instance (or `null`). |
 | `refreshHandlers()` | Re-sync MSW handlers after registry changes post-startup. |
@@ -267,6 +271,8 @@ registerGraphqlMocks({
 | --- | --- |
 | `RestMockDef` | Input for `registerRestMocks` -- `{ handler?, variants?, operationName?, group? }` |
 | `GraphqlMockDef` | Input for `registerGraphqlMocks` -- `{ handler?, variants?, operationName?, operationType?, group? }` |
+| `OperationHandle` | Type-safe reference to a registered operation -- `{ operationName }`. Pass to `useMockRefetch`. |
+| `OperationHandles` | Return type of the register functions: an array of `OperationHandle` also indexable by `operationName`. |
 | `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label }` |
 | `HandlerVariantInput<H>` | What you pass as a variant: a bare handler or `{ handler, label }` |
 | `RestMockDescriptor` | Internal descriptor for a registered REST operation |

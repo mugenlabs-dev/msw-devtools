@@ -214,16 +214,18 @@ function SetupAdapter() {
     </p>
     <div className="!mb-0">
       <CodeBlock lang="tsx">
-        {`import { registerAdapter } from "@mugenlabs/msw-devtools";
+        {`import { registerAdapter, registerRestMocks, useMockRefetch } from "@mugenlabs/msw-devtools";
 import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
-import { useMockRefetch } from "@mugenlabs/msw-devtools";
 
 registerAdapter(createAxiosAdapter());
+
+// Registration returns type-safe operation handles
+const [users] = registerRestMocks({ handler: usersHandler });
 
 // In your component:
 function UserCard() {
   const { data, refetch } = useMyFetch("/api/users/1");
-  useMockRefetch("GET Users", refetch);
+  useMockRefetch(users, refetch); // typo-proof; raw strings still work too
 
   return <div>{data?.name}</div>;
 }`}
