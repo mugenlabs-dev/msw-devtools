@@ -9,6 +9,10 @@ const adapters = new Map<string, { adapter: MswDevToolAdapter; cleanup?: () => v
  * Returns an unregister function.
  */
 export const registerAdapter = (adapter: MswDevToolAdapter): (() => void) => {
+  // Clean up any existing adapter registered under the same id so its
+  // onMockUpdate listener (and setup cleanup) isn't leaked on overwrite.
+  adapters.get(adapter.id)?.cleanup?.();
+
   const adapterCleanup = adapter.setup?.();
 
   const unsubscribe = onMockUpdate((event: MockUpdateEvent) => {

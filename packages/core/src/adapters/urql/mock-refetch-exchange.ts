@@ -22,11 +22,19 @@ const getOperationName = (op: Operation): string | undefined => {
  * exchanges: [cacheExchange, mockRefetchExchange, fetchExchange]
  * ```
  */
+// Tracks the listener from the most recently created exchange so recreating the
+// URQL client removes the previous listener instead of stacking a new one.
+let activeListener: EventListener | null = null;
+
 export const mockRefetchExchange: Exchange = ({ client, forward }) => {
   const activeOps = new Map<number, Operation>();
 
   if (typeof window !== "undefined") {
-    window.addEventListener(MOCK_UPDATE_EVENT_NAME, ((event: CustomEvent<MockUpdateEvent>) => {
+    if (activeListener) {
+      window.removeEventListener(MOCK_UPDATE_EVENT_NAME, activeListener);
+    }
+
+    const listener = ((event: CustomEvent<MockUpdateEvent>) => {
       const { operationName } = event.detail;
 
       for (const [, op] of activeOps) {
@@ -44,7 +52,10 @@ export const mockRefetchExchange: Exchange = ({ client, forward }) => {
           })
         );
       }
-    }) as EventListener);
+    }) as EventListener;
+
+    activeListener = listener;
+    window.addEventListener(MOCK_UPDATE_EVENT_NAME, listener);
   }
 
   return (ops$) =>

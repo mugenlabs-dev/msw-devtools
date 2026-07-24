@@ -151,7 +151,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
         {/* JSON Editor */}
         {!derived.isErrorOverrideActive && (
           <JsonEditor
-            hasOverride={config.customJsonOverride !== null}
+            hasOverride={config.customJsonOverride != null && config.customJsonOverride !== ""}
             onChange={handlers.handleJsonChange}
             onReset={handlers.handleReset}
             value={jsonValue}

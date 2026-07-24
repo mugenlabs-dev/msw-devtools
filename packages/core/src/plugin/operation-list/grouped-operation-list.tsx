@@ -25,6 +25,7 @@ const GroupHeader = ({
 
   return (
     <button
+      aria-expanded={!isCollapsed}
       onClick={onToggle}
       style={{
         alignItems: "center",

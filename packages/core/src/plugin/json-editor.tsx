@@ -1,5 +1,5 @@
 import { Debouncer } from "@tanstack/pacer";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AlertCircle, RotateCcw } from "./icons";
 import { theme } from "./theme";
@@ -17,6 +17,9 @@ const DEBOUNCE_WAIT = 600;
 export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditorProps) => {
   const [localValue, setLocalValue] = useState(value);
   const [isValid, setIsValid] = useState(true);
+  // Tracks unsaved keystrokes not yet committed via the debounced onChange, so
+  // that incoming captured-data updates don't clobber what the user is typing.
+  const isEditingRef = useRef(false);
   const resetHover = useHover();
 
   const debouncer = useMemo(
@@ -38,14 +41,26 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
   );
 
   useEffect(() => {
+    // Once the external value catches up with the local edits (the debounced
+    // commit landed), or there is nothing pending, editing is done.
+    if (value === localValue) {
+      isEditingRef.current = false;
+      return;
+    }
+    // Preserve unsaved keystrokes instead of overwriting them with incoming
+    // captured-data changes.
+    if (isEditingRef.current) {
+      return;
+    }
     setLocalValue(value);
     setIsValid(true);
     debouncer.cancel();
-  }, [value, debouncer]);
+  }, [value, localValue, debouncer]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newValue = e.target.value;
+      isEditingRef.current = true;
       setLocalValue(newValue);
 
       try {

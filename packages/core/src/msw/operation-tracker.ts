@@ -55,7 +55,11 @@ const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor)
     const escaped = descriptor.path.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const pathPattern = escaped.replaceAll(/:[^/]+/g, "[^/]+");
     const regex = new RegExp(`^${pathPattern}(\\?.*)?$`);
-    return regex.test(request.url);
+    // Relative descriptor paths (e.g. "/api/users") match the request pathname;
+    // absolute descriptor paths (with an origin) match the full URL.
+    const isAbsolute = /^https?:\/\//i.test(descriptor.path);
+    const target = isAbsolute ? request.url : new URL(request.url).pathname;
+    return regex.test(target);
   } catch {
     return false;
   }
@@ -78,13 +82,12 @@ const tryRestMatch = (request: Request): void => {
 // SPA navigation detection — auto-clear seen operations on route change
 // ---------------------------------------------------------------------------
 
-let navigationListenerActive = false;
+let restoreNavigation: (() => void) | null = null;
 
 const setupNavigationListener = (): void => {
-  if (typeof window === "undefined" || navigationListenerActive) {
+  if (typeof window === "undefined" || restoreNavigation) {
     return;
   }
-  navigationListenerActive = true;
 
   const clearSeen = (): void => {
     useMockStore.getState().clearSeenOperations();
@@ -106,6 +109,22 @@ const setupNavigationListener = (): void => {
     originalReplaceState(...args);
     clearSeen();
   };
+
+  restoreNavigation = () => {
+    window.removeEventListener("popstate", clearSeen);
+    history.pushState = originalPushState;
+    history.replaceState = originalReplaceState;
+    restoreNavigation = null;
+  };
+};
+
+/**
+ * @internal — Restores the patched history methods and removes the popstate
+ * listener installed by the operation tracker. Called before re-setup and
+ * available for worker stop/reset. Not part of the public API.
+ */
+export const teardownOperationTracker = (): void => {
+  restoreNavigation?.();
 };
 
 // ---------------------------------------------------------------------------
@@ -131,5 +150,8 @@ export const setupOperationTracker = (worker: SetupWorker): void => {
     tryRestMatch(request);
   });
 
+  // Restore any previously patched history methods before re-installing, so a
+  // worker reset/restart doesn't stack listeners or leak the monkey-patch.
+  teardownOperationTracker();
   setupNavigationListener();
 };
