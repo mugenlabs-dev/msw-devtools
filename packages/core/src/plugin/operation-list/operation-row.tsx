@@ -38,6 +38,14 @@ export const OperationRow = ({
     [onToggle]
   );
 
+  const onToggleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Prevent Enter/Space on the toggle from bubbling to the row's keydown
+    // handler, which would also trigger onSelect.
+    if (e.key === "Enter" || e.key === " ") {
+      e.stopPropagation();
+    }
+  }, []);
+
   let rowBg = "transparent";
   if (isSelected) {
     rowBg = theme.colors.surfaceSelected;
@@ -149,6 +157,7 @@ export const OperationRow = ({
         aria-label={`Toggle ${descriptor.operationName} mock`}
         aria-pressed={isEnabled}
         onClick={onToggleClick}
+        onKeyDown={onToggleKeyDown}
         style={{
           background: toggleBg,
           border: "none",

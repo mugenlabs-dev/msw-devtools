@@ -8,6 +8,7 @@ import { setupOperationTracker } from "./operation-tracker";
 
 let worker: SetupWorker | null = null;
 let started = false;
+let starting: Promise<SetupWorker> | null = null;
 
 export interface WorkerOptions {
   /** Behavior for unhandled requests. Default: 'bypass' */
@@ -48,21 +49,33 @@ const activateWorker = (instance: SetupWorker): void => {
   syncAndTrack(instance);
 };
 
-export const startWorker = async (options?: WorkerOptions): Promise<SetupWorker> => {
+export const startWorker = (options?: WorkerOptions): Promise<SetupWorker> => {
   if (started && worker) {
-    return worker;
+    return Promise.resolve(worker);
   }
 
-  try {
-    useMockStore.getState().setWorkerStatus("starting");
-    worker = await initializeWorker(options);
-    activateWorker(worker);
-  } catch (caughtError: unknown) {
-    useMockStore.getState().setWorkerStatus("error");
-    throw caughtError;
+  // Reuse the in-flight start so concurrent callers don't each create a worker
+  // and attach duplicate `request:start` listeners.
+  if (starting) {
+    return starting;
   }
 
-  return worker;
+  starting = (async () => {
+    try {
+      useMockStore.getState().setWorkerStatus("starting");
+      const instance = await initializeWorker(options);
+      worker = instance;
+      activateWorker(instance);
+      return instance;
+    } catch (caughtError: unknown) {
+      useMockStore.getState().setWorkerStatus("error");
+      throw caughtError;
+    } finally {
+      starting = null;
+    }
+  })();
+
+  return starting;
 };
 
 /** @internal — Returns the current MSW worker instance. Not part of the public API. */

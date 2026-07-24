@@ -69,9 +69,19 @@ const applyOverrides = async (
   // Resolve status
   const status = config.statusCode ?? original.status;
 
-  // Resolve headers
+  // Resolve headers. Skip entity headers that describe the original payload —
+  // the body is re-serialized below, so stale content-length/content-encoding/
+  // transfer-encoding would misdescribe it.
   let headers: Record<string, string> = {};
   original.headers.forEach((value, key) => {
+    const lowerKey = key.toLowerCase();
+    if (
+      lowerKey === "content-length" ||
+      lowerKey === "content-encoding" ||
+      lowerKey === "transfer-encoding"
+    ) {
+      return;
+    }
     headers[key] = value;
   });
   if (config.customHeaders != null && config.customHeaders !== "") {
