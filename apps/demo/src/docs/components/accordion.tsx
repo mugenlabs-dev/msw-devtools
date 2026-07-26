@@ -1,6 +1,7 @@
-import { ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
+
+import { ChevronDownIcon } from "../../components/icons/chevron-down";
 
 export const Accordion = ({ children, title }: { children: ReactNode; title: string }) => {
   const [open, setOpen] = useState(false);
@@ -17,8 +18,9 @@ export const Accordion = ({ children, title }: { children: ReactNode; title: str
         onClick={toggle}
         type="button"
       >
-        <ChevronDown
-          className="shrink-0 transition-transform duration-200"
+        <ChevronDownIcon
+          aria-hidden
+          className="flex shrink-0 transition-transform duration-200"
           size={14}
           style={{
             transform: open ? "rotate(0deg)" : "rotate(-90deg)",
