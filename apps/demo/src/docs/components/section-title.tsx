@@ -1,6 +1,8 @@
-import { Check, Link as LinkIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
+
+import { CheckIcon } from "../../components/icons/check";
+import { LinkIcon } from "../../components/icons/link";
 
 export const SectionTitle = ({ children, id }: { children: ReactNode; id: string }) => {
   const [copied, setCopied] = useState(false);
@@ -30,7 +32,16 @@ export const SectionTitle = ({ children, id }: { children: ReactNode; id: string
           className="inline-flex transition-opacity duration-150"
           style={{ opacity: copied ? 1 : 0.3 }}
         >
-          {copied ? <Check color="var(--accent-green)" size={16} /> : <LinkIcon size={16} />}
+          {copied ? (
+            <CheckIcon
+              aria-hidden
+              className="flex"
+              size={16}
+              style={{ color: "var(--accent-green)" }}
+            />
+          ) : (
+            <LinkIcon aria-hidden className="flex" size={16} />
+          )}
         </span>
       </button>
     </h2>

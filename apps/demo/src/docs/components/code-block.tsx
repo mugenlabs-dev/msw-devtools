@@ -1,8 +1,9 @@
-import { Check, Copy } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Highlighter } from "shiki";
 import { createHighlighter } from "shiki";
 
+import { CheckIcon } from "../../components/icons/check";
+import { CopyIcon } from "../../components/icons/copy";
 import { WindowDots } from "./window-dots";
 
 // ---------------------------------------------------------------------------
@@ -100,7 +101,11 @@ const CopyButton = ({ text }: { text: string }) => {
       }}
       type="button"
     >
-      {copied ? <Check size={14} /> : <Copy size={14} />}
+      {copied ? (
+        <CheckIcon aria-hidden className="flex" size={14} />
+      ) : (
+        <CopyIcon aria-hidden className="flex" size={14} />
+      )}
     </button>
   );
 };

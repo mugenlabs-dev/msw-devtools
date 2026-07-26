@@ -8,7 +8,9 @@
     "includes": [
       "!!**/routeTree.gen.ts",
       "!!**/mockServiceWorker.js",
-      "!!**/storybook-static"
+      "!!**/storybook-static",
+      // Vendored lucide-animated registry components, kept verbatim from upstream
+      "!!apps/demo/src/components/icons/*.tsx"
     ]
   },
   "formatter": {
