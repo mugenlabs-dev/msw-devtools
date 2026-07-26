@@ -1,14 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  PenLine,
-  Radio,
-  RefreshCw,
-  Shuffle,
-  SlidersHorizontal,
-  ToggleRight,
-} from "lucide-react";
+import { PenLine, Radio, RefreshCw, Shuffle, SlidersHorizontal, ToggleRight } from "lucide-react";
 import type { ReactNode } from "react";
+
+import { ArrowRightIcon } from "../../components/icons/arrow-right";
 
 // ---------------------------------------------------------------------------
 // Feature pill — compact feature badge for the hero area
@@ -91,7 +85,7 @@ export const HeroSection = () => {
             to="/playground"
           >
             Open Playground
-            <ArrowRight size={14} />
+            <ArrowRightIcon aria-hidden className="flex" size={14} />
           </Link>
         </div>
 

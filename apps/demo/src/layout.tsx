@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Gamepad2, Github } from "lucide-react";
+import { BookOpen, Gamepad2 } from "lucide-react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
 
+import { GithubIcon } from "./components/icons/github";
 import { GradualBlur } from "./gradual-blur";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -153,7 +154,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               title="GitHub"
             >
               <NavIcon isActive={false}>
-                <Github size={16} />
+                <GithubIcon aria-hidden className="flex" size={16} />
               </NavIcon>
             </a>
 
