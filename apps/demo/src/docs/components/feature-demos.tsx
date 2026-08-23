@@ -331,7 +331,8 @@ export const FilterSortDemo = () => {
             </span>
           ))}
         </div>
-        <div className="flex flex-col gap-1.5">
+        {/* Fixed-height list so collapsing rows never re-center the filter chips. */}
+        <div className="flex h-[118px] flex-col gap-1.5">
           {FILTER_ROWS.map((row) => {
             const visible = rowVisible(row, chip);
             return (
