@@ -1,5 +1,7 @@
 import { createSwrAdapter } from "./swr-adapter";
 
+const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 describe("swr adapter", () => {
   it("returns an adapter with id 'swr'", () => {
     const mutate = vi.fn();
@@ -28,5 +30,15 @@ describe("swr adapter", () => {
     const [[matcher]] = mutate.mock.calls;
     expect(matcher("any-key")).toBeTruthy();
     expect(matcher("")).toBeTruthy();
+  });
+
+  it("does not surface a failed revalidation as an unhandled rejection", async () => {
+    const mutate = vi.fn().mockRejectedValue(new Error("fetcher failed"));
+    const adapter = createSwrAdapter(mutate);
+
+    adapter.onMockUpdate("GetUser", "toggle");
+    await flushMicrotasks();
+
+    expect(mutate).toHaveBeenCalledOnce();
   });
 });
