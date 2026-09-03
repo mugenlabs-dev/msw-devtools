@@ -114,19 +114,37 @@ declare const operationHandleBrand: unique symbol;
  * Branded so it is a distinct nominal type — you cannot fabricate one from a
  * plain object; it must come from a registration call.
  */
-export interface OperationHandle {
+export interface OperationHandle<Name extends string = string> {
   /** The exact operation name this handle refers to. */
-  readonly operationName: string;
+  readonly operationName: Name;
   /** @internal Nominal brand — never present at runtime. */
   readonly [operationHandleBrand]?: true;
 }
 
+/** The operation name a mock def will register under, as a literal when it was given explicitly. */
+type OperationNameOf<Def> = Def extends { operationName: infer Name extends string }
+  ? Name
+  : string;
+
 /**
- * The return value of {@link registerRestMocks} / {@link registerGraphqlMocks}.
+ * The return value of {@link registerRestMocks} / {@link registerGraphqlMocks},
+ * typed from the defs that were passed in.
  *
- * Behaves both as an ordered array (so `const [first] = registerRestMocks(...)`
+ * Behaves both as an ordered tuple (so `const [first] = registerRestMocks(...)`
  * works) and as an object keyed by `operationName` (so
- * `handles["GET Charizard"]` works).
+ * `handles["GET Charizard"]` works). When every def carries an explicit
+ * `operationName`, the keys are literal, so a mistyped name is a type error.
+ * Defs that rely on the auto-derived name fall back to `string` keys.
+ */
+export type OperationHandlesFor<Defs extends readonly unknown[]> = readonly [
+  ...{ [Index in keyof Defs]: OperationHandle<OperationNameOf<Defs[Index]>> },
+] & {
+  readonly [Name in OperationNameOf<Defs[number]>]: OperationHandle<Name>;
+};
+
+/**
+ * The untyped form of {@link OperationHandlesFor}: an array of
+ * {@link OperationHandle} that is also indexable by any `operationName`.
  */
 export type OperationHandles = readonly OperationHandle[] & {
   readonly [operationName: string]: OperationHandle;

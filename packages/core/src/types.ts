@@ -13,6 +13,7 @@ export type {
   MockOperationDescriptor,
   OperationHandle,
   OperationHandles,
+  OperationHandlesFor,
   RestMethod,
   RestMockDescriptor,
 } from "./registry/types";

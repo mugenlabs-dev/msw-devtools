@@ -197,6 +197,7 @@ const [users] = registerRestMocks({ handler: http.get("/api/users", resolver) })
 function UserCard() {
   const { data, refetch } = useMyFetch("/api/users/1");
   useMockRefetch(users, refetch); // typo-proof — raw strings like "GET /api/users" also still work
+  // With explicit operationNames, handles["GET Users"] is typed and handles["typo"] fails to compile
   return <div>{data?.name}</div>;
 }
 ```
@@ -244,8 +245,8 @@ registerGraphqlMocks({
 
 | Export | Description |
 | --- | --- |
-| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandles`. |
-| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandles`. |
+| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
+| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
 | `registerAdapter(adapter)` | Register a data-fetching adapter for auto-refetch. Returns an unregister function. |
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
 | `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
@@ -275,7 +276,8 @@ registerGraphqlMocks({
 | `RestMockDef` | Input for `registerRestMocks` -- `{ handler?, variants?, operationName?, group? }` |
 | `GraphqlMockDef` | Input for `registerGraphqlMocks` -- `{ handler?, variants?, operationName?, operationType?, group? }` |
 | `OperationHandle` | Type-safe reference to a registered operation -- `{ operationName }`. Pass to `useMockRefetch`. |
-| `OperationHandles` | Return type of the register functions: an array of `OperationHandle` also indexable by `operationName`. |
+| `OperationHandlesFor<Defs>` | Return type of the register functions: a tuple of `OperationHandle`s also indexable by `operationName`. Keys are literal when every def has an explicit `operationName`, so `handles["typo"]` is a type error. |
+| `OperationHandles` | The untyped form: `OperationHandle[]` indexable by any string. |
 | `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label }` |
 | `HandlerVariantInput<H>` | What you pass as a variant: a bare handler or `{ handler, label }` |
 | `RestMockDescriptor` | Internal descriptor for a registered REST operation |

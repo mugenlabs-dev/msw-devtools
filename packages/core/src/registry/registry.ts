@@ -11,6 +11,7 @@ import type {
   MockOperationDescriptor,
   OperationHandle,
   OperationHandles,
+  OperationHandlesFor,
   RestMethod,
   RestMockDef,
   RestMockDescriptor,
@@ -191,11 +192,14 @@ const buildOperationHandles = (descriptors: MockOperationDescriptor[]): Operatio
  * Register one or more REST mocks from MSW HttpHandlers.
  * Operation metadata (method, path, operationName) is auto-derived from handler info.
  *
- * @returns type-safe {@link OperationHandles} — an array of handles (destructurable
- * in registration order) that is also indexable by `operationName`. Pass a handle
- * to `useMockRefetch` to avoid hard-coding operation-name strings.
+ * @returns type-safe {@link OperationHandlesFor} — a tuple of handles (destructurable
+ * in registration order) that is also indexable by `operationName`. With explicit
+ * `operationName`s the keys are literal, so typos are caught at compile time.
+ * Pass a handle to `useMockRefetch` to avoid hard-coding operation-name strings.
  */
-export const registerRestMocks = (...defs: RestMockDef[]): OperationHandles => {
+export const registerRestMocks = <const Defs extends readonly RestMockDef[]>(
+  ...defs: Defs
+): OperationHandlesFor<Defs> => {
   const descriptors: RestMockDescriptor[] = [];
 
   for (const def of defs) {
@@ -222,18 +226,21 @@ export const registerRestMocks = (...defs: RestMockDef[]): OperationHandles => {
   mockRegistry.register(...descriptors);
   void eagerCaptureDefaultResponses(descriptors);
 
-  return buildOperationHandles(descriptors);
+  return buildOperationHandles(descriptors) as unknown as OperationHandlesFor<Defs>;
 };
 
 /**
  * Register one or more GraphQL mocks from MSW GraphqlHandlers.
  * Operation metadata (operationName, operationType) is auto-derived from handler info.
  *
- * @returns type-safe {@link OperationHandles} — an array of handles (destructurable
- * in registration order) that is also indexable by `operationName`. Pass a handle
- * to `useMockRefetch` to avoid hard-coding operation-name strings.
+ * @returns type-safe {@link OperationHandlesFor} — a tuple of handles (destructurable
+ * in registration order) that is also indexable by `operationName`. With explicit
+ * `operationName`s the keys are literal, so typos are caught at compile time.
+ * Pass a handle to `useMockRefetch` to avoid hard-coding operation-name strings.
  */
-export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): OperationHandles => {
+export const registerGraphqlMocks = <const Defs extends readonly GraphqlMockDef[]>(
+  ...defs: Defs
+): OperationHandlesFor<Defs> => {
   const descriptors: GraphQLMockDescriptor[] = [];
 
   for (const def of defs) {
@@ -266,5 +273,5 @@ export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): OperationHandle
   mockRegistry.register(...descriptors);
   void eagerCaptureDefaultResponses(descriptors);
 
-  return buildOperationHandles(descriptors);
+  return buildOperationHandles(descriptors) as unknown as OperationHandlesFor<Defs>;
 };

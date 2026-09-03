@@ -131,4 +131,34 @@ describe("operation handles", () => {
       expect(handle.operationName).toBe("GET /\\/api\\/items$/");
     });
   });
+
+  describe("literal typing", () => {
+    it("keys handles by the explicit operation names", () => {
+      const handles = registerRest(
+        {
+          handler: http.get("https://pokeapi.co/api/v2/pokemon/6", () => HttpResponse.json({})),
+          operationName: "GET Charizard",
+        },
+        {
+          handler: http.get("https://pokeapi.co/api/v2/pokemon/94", () => HttpResponse.json({})),
+          operationName: "GET Gengar",
+        }
+      );
+
+      expectTypeOf(handles[0].operationName).toEqualTypeOf<"GET Charizard">();
+      expectTypeOf(handles[1].operationName).toEqualTypeOf<"GET Gengar">();
+      expectTypeOf(handles["GET Gengar"].operationName).toEqualTypeOf<"GET Gengar">();
+      // @ts-expect-error — a mistyped name is a compile-time error, not a runtime undefined
+      expect(handles["GET Gangar"]).toBeUndefined();
+    });
+
+    it("falls back to string keys when a name is auto-derived", () => {
+      const handles = registerRest({
+        handler: http.get("https://api.example.com/users", () => HttpResponse.json({})),
+      });
+
+      expectTypeOf(handles[0].operationName).toEqualTypeOf<string>();
+      expect(handles["GET /users"].operationName).toBe("GET /users");
+    });
+  });
 });
