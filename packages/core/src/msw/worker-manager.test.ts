@@ -1,20 +1,33 @@
 import { HttpResponse, http } from "msw";
 import type { mockRegistry } from "#/registry/registry";
 import type { useMockStore } from "#/store/store";
-import type { startWorker as StartWorker } from "./worker-manager";
+import type { startWorker as StartWorker, stopWorker as StopWorker } from "./worker-manager";
 
-const { setupWorkerMock, startMock, setupTrackerMock, resetHandlersMock } = vi.hoisted(() => ({
+const {
+  setupWorkerMock,
+  startMock,
+  stopMock,
+  setupTrackerMock,
+  teardownTrackerMock,
+  resetHandlersMock,
+} = vi.hoisted(() => ({
   resetHandlersMock: vi.fn(),
   setupTrackerMock: vi.fn(),
   setupWorkerMock: vi.fn(),
   startMock: vi.fn(),
+  stopMock: vi.fn(),
+  teardownTrackerMock: vi.fn(),
 }));
 
 vi.mock("msw/browser", () => ({ setupWorker: setupWorkerMock }));
-vi.mock("./operation-tracker", () => ({ setupOperationTracker: setupTrackerMock }));
+vi.mock("./operation-tracker", () => ({
+  setupOperationTracker: setupTrackerMock,
+  teardownOperationTracker: teardownTrackerMock,
+}));
 
 describe("worker-manager - startWorker", () => {
   let startWorkerFn: typeof StartWorker;
+  let stopWorkerFn: typeof StopWorker;
   let registry: typeof mockRegistry;
   let store: typeof useMockStore;
 
@@ -26,6 +39,7 @@ describe("worker-manager - startWorker", () => {
       events: { on: vi.fn() },
       resetHandlers: resetHandlersMock,
       start: startMock,
+      stop: stopMock,
     });
     // Simulate an async worker start so concurrent callers overlap in flight.
     startMock.mockImplementation(
@@ -35,7 +49,7 @@ describe("worker-manager - startWorker", () => {
         })
     );
 
-    ({ startWorker: startWorkerFn } = await import("./worker-manager"));
+    ({ startWorker: startWorkerFn, stopWorker: stopWorkerFn } = await import("./worker-manager"));
     ({ mockRegistry: registry } = await import("#/registry/registry"));
     ({ useMockStore: store } = await import("#/store/store"));
   });
@@ -79,5 +93,37 @@ describe("worker-manager - startWorker", () => {
     expect(resetHandlersMock).toHaveBeenCalledTimes(1);
     expect(resetHandlersMock.mock.calls[0]).toHaveLength(1);
     expect(store.getState().operations["GET /late"]).toBeDefined();
+  });
+
+  it("stops the worker, tears down tracking and allows a fresh start", async () => {
+    await startWorkerFn();
+    await stopWorkerFn();
+
+    expect(stopMock).toHaveBeenCalledTimes(1);
+    expect(teardownTrackerMock).toHaveBeenCalledTimes(1);
+    expect(store.getState().workerStatus).toBe("idle");
+
+    // Registry changes must no longer touch the stopped worker.
+    registry.register({
+      method: "get",
+      operationName: "GET /after-stop",
+      path: "http://localhost/after-stop",
+      type: "rest",
+      variants: [],
+    });
+    expect(resetHandlersMock).not.toHaveBeenCalled();
+
+    await startWorkerFn();
+    expect(setupWorkerMock).toHaveBeenCalledTimes(2);
+    expect(store.getState().workerStatus).toBe("active");
+  });
+
+  it("waits for an in-flight start before stopping", async () => {
+    const starting = startWorkerFn();
+    await stopWorkerFn();
+    await starting;
+
+    expect(stopMock).toHaveBeenCalledTimes(1);
+    expect(store.getState().workerStatus).toBe("idle");
   });
 });

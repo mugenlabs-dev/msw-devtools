@@ -113,6 +113,7 @@ const tryRestMatch = (request: Request): void => {
 // ---------------------------------------------------------------------------
 
 let restoreNavigation: (() => void) | null = null;
+let removeRequestListener: (() => void) | null = null;
 
 const setupNavigationListener = (): void => {
   if (typeof window === "undefined" || restoreNavigation) {
@@ -149,11 +150,14 @@ const setupNavigationListener = (): void => {
 };
 
 /**
- * @internal — Restores the patched history methods and removes the popstate
- * listener installed by the operation tracker. Called before re-setup and
- * available for worker stop/reset. Not part of the public API.
+ * @internal — Removes the worker request listener, restores the patched
+ * history methods and removes the popstate listener installed by the
+ * operation tracker. Called before re-setup and by `stopWorker()`.
+ * Not part of the public API.
  */
 export const teardownOperationTracker = (): void => {
+  removeRequestListener?.();
+  removeRequestListener = null;
   restoreNavigation?.();
 };
 
@@ -168,7 +172,11 @@ export const teardownOperationTracker = (): void => {
  * Also listens for SPA navigation events to automatically clear seen operations.
  */
 export const setupOperationTracker = (worker: SetupWorker): void => {
-  worker.events.on("request:start", ({ request }) => {
+  // Tear down any previous listeners before re-installing, so a worker
+  // reset/restart doesn't stack listeners or leak the monkey-patch.
+  teardownOperationTracker();
+
+  const onRequestStart = ({ request }: { request: Request }): void => {
     if (request.method === "GET" && tryGraphQLGet(request)) {
       return;
     }
@@ -178,10 +186,12 @@ export const setupOperationTracker = (worker: SetupWorker): void => {
     }
 
     tryRestMatch(request);
-  });
+  };
 
-  // Restore any previously patched history methods before re-installing, so a
-  // worker reset/restart doesn't stack listeners or leak the monkey-patch.
-  teardownOperationTracker();
+  worker.events.on("request:start", onRequestStart);
+  removeRequestListener = () => {
+    worker.events.removeListener("request:start", onRequestStart);
+  };
+
   setupNavigationListener();
 };

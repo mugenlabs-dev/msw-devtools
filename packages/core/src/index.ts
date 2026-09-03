@@ -12,7 +12,7 @@ export type { MockChangeType, MockUpdateEvent, MswDevToolAdapter } from "./adapt
 export { useMockRefetch } from "./hooks/use-mock-refetch";
 export type { WorkerOptions } from "./msw/worker-manager";
 // --- MSW Integration ---
-export { getWorker, refreshHandlers, startWorker } from "./msw/worker-manager";
+export { getWorker, refreshHandlers, startWorker, stopWorker } from "./msw/worker-manager";
 export type { MswDevToolsPluginOptions } from "./plugin/create-msw-dev-tools-plugin";
 export { createMswDevToolsPlugin } from "./plugin/create-msw-dev-tools-plugin";
 export { MswDevToolsPlugin } from "./plugin/msw-dev-tools-plugin";
