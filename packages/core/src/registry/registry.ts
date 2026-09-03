@@ -1,5 +1,6 @@
 import { GraphQLHandler, HttpHandler } from "msw";
 
+import { getGraphQLEndpoint, getHandlerOptions, getHandlerResolver } from "#/msw/msw-internals";
 import { useMockStore } from "#/store/store";
 import type {
   GraphQLMockDescriptor,
@@ -75,7 +76,10 @@ export const mockRegistry = new MockRegistry();
 // ---------------------------------------------------------------------------
 
 /** Strip the origin from a full URL to produce a readable display path. */
-const toDisplayPath = (path: string): string => {
+const toDisplayPath = (path: string | RegExp): string => {
+  if (path instanceof RegExp) {
+    return path.toString();
+  }
   try {
     return new URL(path).pathname;
   } catch {
@@ -98,10 +102,13 @@ const normaliseVariant = <H extends HttpHandler | GraphQLHandler>(
   const handler = isObject ? (input as { handler: H; label?: string }).handler : (input as H);
   const label = isObject ? (input as { handler: H; label?: string }).label : undefined;
 
+  const options = getHandlerOptions(handler);
+
   return {
     handler,
     id: `variant-${index}`,
     label: label ?? (index === 0 ? "Default" : `Variant ${index + 1}`),
+    ...(options ? { options } : {}),
   };
 };
 
@@ -141,9 +148,7 @@ const eagerCaptureDefaultResponses = async (
         return;
       }
       try {
-        const { resolver } = variant.handler as unknown as {
-          resolver: (info: unknown) => Promise<Response>;
-        };
+        const resolver = getHandlerResolver(variant.handler);
         const response = await resolver({});
         if (response) {
           const cloned = response.clone();
@@ -201,7 +206,7 @@ export const registerRestMocks = (...defs: RestMockDef[]): OperationHandles => {
     const method = (
       typeof info.method === "string" ? info.method.toLowerCase() : "get"
     ) as RestMethod;
-    const path = typeof info.path === "string" ? info.path : "";
+    const path = typeof info.path === "string" || info.path instanceof RegExp ? info.path : "";
     const operationName = def.operationName ?? `${method.toUpperCase()} ${toDisplayPath(path)}`;
 
     descriptors.push({
@@ -248,6 +253,7 @@ export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): OperationHandle
       def.operationType ?? (info.operationType === "mutation" ? "mutation" : "query");
 
     descriptors.push({
+      endpoint: getGraphQLEndpoint(primary as GraphQLHandler),
       graphqlOperationName,
       group: def.group,
       operationName,

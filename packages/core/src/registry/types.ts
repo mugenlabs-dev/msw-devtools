@@ -1,4 +1,5 @@
 import type { GraphQLHandler, HttpHandler } from "msw";
+import type { HandlerOptions } from "#/msw/msw-internals";
 
 // ---------------------------------------------------------------------------
 // Handler Variant — wraps a user-provided MSW handler as a selectable variant
@@ -11,6 +12,8 @@ export interface HandlerVariant {
   id: string;
   /** Display label shown in the variant dropdown. */
   label: string;
+  /** Handler options (e.g. `{ once: true }`) carried over from the user's handler. */
+  options?: HandlerOptions;
 }
 
 // ---------------------------------------------------------------------------
@@ -69,6 +72,11 @@ interface MockOperationDescriptorBase {
 
 export type GraphQLMockDescriptor = MockOperationDescriptorBase & {
   /**
+   * The endpoint the handler is scoped to via `graphql.link(url)`.
+   * `"*"` (MSW's default) matches any endpoint.
+   */
+  endpoint: string | RegExp;
+  /**
    * The GraphQL operation name (or pattern) the handler matches, exactly as
    * passed to MSW's graphql.query/mutation. Kept separate from `operationName`
    * so the display name can be overridden without breaking request matching.
@@ -82,9 +90,9 @@ export type RestMockDescriptor = MockOperationDescriptorBase & {
   method: RestMethod;
   /**
    * The URL path pattern, exactly as passed to MSW's http.get/post/etc.
-   * e.g., '/api/users/:id', 'https://api.example.com/products'
+   * e.g., '/api/users/:id', 'https://api.example.com/products', or a RegExp.
    */
-  path: string;
+  path: string | RegExp;
   type: "rest";
 };
 

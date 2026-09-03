@@ -3,6 +3,7 @@ import type { HandlerVariant, MockOperationDescriptor } from "#/registry/types";
 import { isGraphQLDescriptor, isRestDescriptor } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 import type { ErrorOverride, OperationMockConfig } from "#/store/types";
+import { getHandlerResolver } from "./msw-internals";
 
 // ---------------------------------------------------------------------------
 // Generic error responses
@@ -173,9 +174,7 @@ const resolveAndRespond = async (
   }
 
   // Call the user's handler resolver
-  const { resolver } = variant.handler as unknown as {
-    resolver: (info: unknown) => Promise<Response>;
-  };
+  const resolver = getHandlerResolver(variant.handler);
   const response = await resolver(resolverInfo);
 
   if (!response) {
@@ -193,18 +192,33 @@ const resolveAndRespond = async (
 // Dynamic handler creation — wraps user handlers with DevTools logic
 // ---------------------------------------------------------------------------
 
+/**
+ * Handler options come from the first variant: the wrapper is a single MSW
+ * handler, so `once` can only apply to the operation as a whole.
+ */
+const primaryOptions = (descriptor: MockOperationDescriptor) => descriptor.variants[0]?.options;
+
 const createRestHandler = (descriptor: Extract<MockOperationDescriptor, { type: "rest" }>) => {
   const httpMethod = http[descriptor.method];
 
-  return httpMethod(descriptor.path, (info) => resolveAndRespond(descriptor, info));
+  return httpMethod(
+    descriptor.path,
+    (info) => resolveAndRespond(descriptor, info),
+    primaryOptions(descriptor)
+  );
 };
 
 const createGraphQLHandler = (
   descriptor: Extract<MockOperationDescriptor, { type: "graphql" }>
 ) => {
-  const gqlMethod = descriptor.operationType === "query" ? graphql.query : graphql.mutation;
+  const link = graphql.link(descriptor.endpoint);
+  const gqlMethod = descriptor.operationType === "query" ? link.query : link.mutation;
 
-  return gqlMethod(descriptor.graphqlOperationName, (info) => resolveAndRespond(descriptor, info));
+  return gqlMethod(
+    descriptor.graphqlOperationName,
+    (info) => resolveAndRespond(descriptor, info),
+    primaryOptions(descriptor)
+  );
 };
 
 export const createDynamicHandler = (descriptor: MockOperationDescriptor) => {

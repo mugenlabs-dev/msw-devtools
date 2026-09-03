@@ -81,6 +81,10 @@ const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor)
     return false;
   }
   try {
+    if (descriptor.path instanceof RegExp) {
+      const url = new URL(request.url);
+      return descriptor.path.test(request.url) || descriptor.path.test(url.pathname);
+    }
     const escaped = descriptor.path.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // MSW wildcards (`*`) match any characters, including path separators.
     const pathPattern = escaped.replaceAll("\\*", ".*").replaceAll(/:[^/]+/g, "[^/]+");

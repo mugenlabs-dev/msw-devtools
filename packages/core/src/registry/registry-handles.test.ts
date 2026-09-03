@@ -101,4 +101,34 @@ describe("operation handles", () => {
       expect(extract("GET Sylveon")).toBe(extract(sylveon));
     });
   });
+
+  describe("handler metadata", () => {
+    it("records handler options, RegExp paths and GraphQL endpoints on the descriptor", async () => {
+      const { mockRegistry } = await import("./registry");
+      const path = /\/api\/items\/\d+$/;
+      registerRest({
+        handler: http.get(path, () => HttpResponse.json({}), { once: true }),
+        operationName: "GET item",
+      });
+      registerGraphql({
+        handler: graphql
+          .link("https://api.example.com/graphql")
+          .query("GetItem", () => HttpResponse.json({ data: {} })),
+      });
+
+      const rest = mockRegistry.get("GET item");
+      expect(rest?.type === "rest" && rest.path).toBe(path);
+      expect(rest?.variants[0].options).toStrictEqual({ once: true });
+
+      const gql = mockRegistry.get("GetItem");
+      expect(gql?.type === "graphql" && gql.endpoint).toBe("https://api.example.com/graphql");
+    });
+
+    it("derives a readable name for RegExp paths", () => {
+      const [handle] = registerRest({
+        handler: http.get(/\/api\/items$/, () => HttpResponse.json({})),
+      });
+      expect(handle.operationName).toBe("GET /\\/api\\/items$/");
+    });
+  });
 });
