@@ -250,6 +250,7 @@ registerGraphqlMocks({
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
 | `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
 | `startWorker(options?)` | Manually start the MSW service worker. |
+| `stopWorker()` | Stop the worker and detach the devtools from it. Registered mocks and persisted config are kept. |
 | `getWorker()` | Get the current MSW `SetupWorker` instance (or `null`). |
 | `refreshHandlers()` | Re-sync MSW handlers after registry changes post-startup. |
 | `mockRegistry` | Singleton registry instance (subscribe, get, unregister). |

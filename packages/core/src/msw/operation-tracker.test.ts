@@ -21,6 +21,11 @@ const createFakeWorker = () => {
       on: (_event: string, cb: RequestStartListener) => {
         listener = cb;
       },
+      removeListener: (_event: string, cb: RequestStartListener) => {
+        if (listener === cb) {
+          listener = undefined;
+        }
+      },
     },
   };
   const emit = (request: Request) => listener?.({ request });
@@ -155,5 +160,16 @@ describe("operation-tracker", () => {
     emit(new Request("https://api.example.com/users/123/profile", { method: "GET" }));
 
     expect(seen().has("GET Users")).toBe(true);
+  });
+
+  it("removes the request listener on teardown", () => {
+    mockRegistry.register(restDescriptor({}));
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    teardownOperationTracker();
+    emit(new Request("http://localhost/api/todos", { method: "GET" }));
+
+    expect(seen().has("GET /api/todos")).toBe(false);
   });
 });
