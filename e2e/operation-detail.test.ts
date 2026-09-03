@@ -33,8 +33,8 @@ test.describe("Operation Detail Panel", () => {
     const count = await options.count();
     expect(count).toBe(2);
 
-    await variantSelect.selectOption("variant-1");
-    await expect(variantSelect).toHaveValue("variant-1");
+    await variantSelect.selectOption({ label: "Not Found (empty)" });
+    await expect(variantSelect).toHaveValue("not-found-empty");
   });
 
   test("Mocked/Passthrough toggle works", async ({ page }) => {

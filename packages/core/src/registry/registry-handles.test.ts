@@ -161,4 +161,42 @@ describe("operation handles", () => {
       expect(handles["GET /users"].operationName).toBe("GET /users");
     });
   });
+
+  describe("variant ids", () => {
+    const success = http.get("https://api.example.com/items", () => HttpResponse.json([1]));
+    const empty = http.get("https://api.example.com/items", () => HttpResponse.json([]));
+
+    it("derives ids from labels and keeps them stable across reordering", async () => {
+      const { mockRegistry } = await import("./registry");
+      registerRest({
+        operationName: "GET items",
+        variants: [success, { handler: empty, label: "Not Found (empty)" }],
+      });
+      const before = mockRegistry.get("GET items")?.variants.map((v) => v.id);
+
+      registerRest({
+        operationName: "GET items",
+        variants: [{ handler: empty, label: "Not Found (empty)" }, success],
+      });
+      const after = mockRegistry.get("GET items")?.variants.map((v) => v.id);
+
+      expect(before).toContain("not-found-empty");
+      expect(new Set(after)).toStrictEqual(new Set(before));
+    });
+
+    it("suffixes duplicate ids within one operation", async () => {
+      const { mockRegistry } = await import("./registry");
+      registerRest({
+        operationName: "GET dupes",
+        variants: [
+          { handler: success, label: "Same" },
+          { handler: empty, label: "same!" },
+        ],
+      });
+      expect(mockRegistry.get("GET dupes")?.variants.map((v) => v.id)).toStrictEqual([
+        "same",
+        "same-2",
+      ]);
+    });
+  });
 });

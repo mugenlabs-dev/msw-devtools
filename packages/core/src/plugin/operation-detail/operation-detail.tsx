@@ -3,6 +3,7 @@ import { MousePointerClick } from "#/plugin/icons";
 import { JsonEditor } from "#/plugin/json-editor";
 import { theme } from "#/plugin/theme";
 import { mockRegistry } from "#/registry/registry";
+import { resolveActiveVariant } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 import { ErrorOverrideSelector } from "./error-override-selector";
 import { HeadersEditor } from "./headers-editor";
@@ -73,7 +74,9 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
         }}
       >
         <VariantSelector
-          activeVariantId={config.activeVariantId}
+          activeVariantId={
+            resolveActiveVariant(descriptor, config.activeVariantId)?.id ?? config.activeVariantId
+          }
           onVariantChange={handlers.handleVariantChange}
           operationName={operationName}
           variants={descriptor.variants}

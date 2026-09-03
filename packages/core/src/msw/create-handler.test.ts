@@ -234,6 +234,15 @@ describe("createDynamicHandler", () => {
   });
 
   describe("REST", () => {
+    it("falls back to the first variant when the selected id is unknown", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { activeVariantId: "variant-from-an-older-version" });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
+    });
+
     it("returns the handler response when enabled", async () => {
       const descriptor = restDescriptor();
       configure(descriptor.operationName);

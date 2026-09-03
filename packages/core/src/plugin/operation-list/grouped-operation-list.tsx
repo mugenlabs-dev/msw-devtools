@@ -5,6 +5,7 @@ import { ChevronDown } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 import type { MockOperationDescriptor } from "#/registry/types";
+import { resolveActiveVariant } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 import { OperationRow } from "./operation-row";
 import type { GroupedOperationListProps } from "./types";
@@ -97,7 +98,7 @@ export const GroupedOperationList = ({
     (descriptor: MockOperationDescriptor) => {
       const config = operations[descriptor.operationName];
       const isEnabled = config?.enabled ?? false;
-      const variant = descriptor.variants.find((v) => v.id === config?.activeVariantId);
+      const variant = resolveActiveVariant(descriptor, config?.activeVariantId);
       const hasErrorOverride = config?.errorOverride != null;
       return (
         <OperationRow
