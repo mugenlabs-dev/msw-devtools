@@ -104,4 +104,30 @@ describe("adapter-registry", () => {
       expect(onMockUpdateFn).not.toHaveBeenCalled();
     });
   });
+
+  describe("re-registration", () => {
+    it("does not let a stale unregister remove a newer adapter with the same id", () => {
+      const firstCleanup = vi.fn();
+      const secondCleanup = vi.fn();
+      const first: MswDevToolAdapter = {
+        id: "same",
+        onMockUpdate: vi.fn(),
+        setup: () => firstCleanup,
+      };
+      const second: MswDevToolAdapter = {
+        id: "same",
+        onMockUpdate: vi.fn(),
+        setup: () => secondCleanup,
+      };
+
+      const unregisterFirst = registerAdapterFn(first);
+      registerAdapterFn(second);
+      expect(firstCleanup).toHaveBeenCalledOnce();
+
+      unregisterFirst();
+
+      expect(secondCleanup).not.toHaveBeenCalled();
+      expect(getAdaptersFn()).toContainEqual(second);
+    });
+  });
 });
