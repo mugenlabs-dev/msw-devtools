@@ -19,7 +19,7 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 - **Live Overrides** -- Edit JSON response bodies, status codes, headers, and delays in real time
 - **LIVE Tracking** -- See which operations have been intercepted by MSW on the current page
 - **Filter & Sort** -- Filter by type (REST/GraphQL), status (enabled/live), and sort alphabetically
-- **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, and Axios trigger automatic refetches when mock config changes
+- **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, RTK Query, and Axios trigger automatic refetches when mock config changes
 - **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes
 
 ## Packages
@@ -33,6 +33,7 @@ Everything ships in a single package. Adapters are available via subpath exports
 | `@mugenlabs/msw-devtools/adapters/urql`           | Auto-refetch via custom exchange                                            |
 | `@mugenlabs/msw-devtools/adapters/swr`            | Auto-refetch via global mutate                                              |
 | `@mugenlabs/msw-devtools/adapters/apollo`         | Auto-refetch via refetchQueries                                             |
+| `@mugenlabs/msw-devtools/adapters/rtk-query`      | Auto-refetch via resetApiState                                              |
 | `@mugenlabs/msw-devtools/adapters/axios`          | Registration marker for Axios users (use `useMockRefetch` for live updates) |
 
 ## Installation
@@ -151,7 +152,8 @@ const client = createClient({
 
 **SWR:**
 
-```ts
+```tsx
+import { useEffect } from "react";
 import { registerAdapter } from "@mugenlabs/msw-devtools";
 import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 import { useSWRConfig } from "swr";
@@ -174,6 +176,17 @@ import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
 
 const apolloClient = new ApolloClient({ uri: "/graphql", cache: new InMemoryCache() });
 registerAdapter(createApolloAdapter(apolloClient));
+```
+
+**RTK Query:**
+
+```ts
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
+import { store } from "./store";
+import { pokemonApi } from "./pokemon-api";
+
+registerAdapter(createRtkQueryAdapter(store, pokemonApi));
 ```
 
 **Axios / plain fetch:**
@@ -267,6 +280,7 @@ registerGraphqlMocks({
 | `@mugenlabs/msw-devtools/adapters/urql` | `mockRefetchExchange` | URQL exchange for mock-triggered re-execution |
 | `@mugenlabs/msw-devtools/adapters/swr` | `createSwrAdapter(mutate)` | SWR adapter |
 | `@mugenlabs/msw-devtools/adapters/apollo` | `createApolloAdapter(apolloClient)` | Apollo Client adapter |
+| `@mugenlabs/msw-devtools/adapters/rtk-query` | `createRtkQueryAdapter(store, api)` | RTK Query adapter (resets the API state) |
 | `@mugenlabs/msw-devtools/adapters/axios` | `createAxiosAdapter()` | Axios adapter (use with `useMockRefetch`) |
 
 ### Key Types
@@ -280,8 +294,8 @@ registerGraphqlMocks({
 | `OperationHandles` | The untyped form: `OperationHandle[]` indexable by any string. |
 | `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label }` |
 | `HandlerVariantInput<H>` | What you pass as a variant: a bare handler or `{ handler, label }` |
-| `RestMockDescriptor` | Internal descriptor for a registered REST operation |
-| `GraphQLMockDescriptor` | Internal descriptor for a registered GraphQL operation |
+| `RestMockDescriptor` | Internal descriptor for a registered REST operation -- `{ method, path: string \| RegExp, operationName, group?, variants }` |
+| `GraphQLMockDescriptor` | Internal descriptor for a registered GraphQL operation -- `{ operationName, graphqlOperationName, operationType, endpoint, group?, variants }`. `graphqlOperationName` is what the handler matches on; `operationName` is the display name |
 | `MockOperationDescriptor` | Union of `RestMockDescriptor` and `GraphQLMockDescriptor` |
 | `OperationMockConfig` | Per-operation runtime state (enabled, active variant, overrides) |
 | `MswDevToolAdapter` | Interface for creating custom adapters |

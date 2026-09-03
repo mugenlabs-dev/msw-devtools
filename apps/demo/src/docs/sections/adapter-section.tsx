@@ -164,7 +164,8 @@ registerAdapter(createRtkQueryAdapter(store, pokemonApi));`}
     </p>
     <div className="!mb-0">
       <CodeBlock lang="tsx">
-        {`import { useSWRConfig } from "swr";
+        {`import { useEffect } from "react";
+import { useSWRConfig } from "swr";
 import { registerAdapter } from "@mugenlabs/msw-devtools";
 import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 
