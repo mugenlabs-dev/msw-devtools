@@ -21,31 +21,33 @@ const getOperationName = (op: Operation): string | undefined => {
  * ```ts
  * exchanges: [cacheExchange, mockRefetchExchange, fetchExchange]
  * ```
+ *
+ * Each client gets its own listener, so multiple clients on one page all
+ * refetch. The listener only holds a weak reference to the client and removes
+ * itself once the client has been garbage collected.
  */
-// Tracks the listener from the most recently created exchange so recreating the
-// URQL client removes the previous listener instead of stacking a new one.
-let activeListener: EventListener | null = null;
-
 export const mockRefetchExchange: Exchange = ({ client, forward }) => {
-  const activeOps = new Map<number, Operation>();
+  // Only queries are re-executed, so only queries are tracked. Mutations never
+  // emit a teardown and would otherwise accumulate for the page's lifetime.
+  const activeQueries = new Map<number, Operation>();
 
   if (typeof window !== "undefined") {
-    if (activeListener) {
-      window.removeEventListener(MOCK_UPDATE_EVENT_NAME, activeListener);
-    }
+    const clientRef = new WeakRef(client);
 
     const listener = ((event: CustomEvent<MockUpdateEvent>) => {
-      const { operationName } = event.detail;
+      const liveClient = clientRef.deref();
+      if (!liveClient) {
+        window.removeEventListener(MOCK_UPDATE_EVENT_NAME, listener);
+        activeQueries.clear();
+        return;
+      }
 
-      for (const [, op] of activeOps) {
-        if (op.kind !== "query") {
-          continue;
-        }
+      const { operationName } = event.detail;
+      for (const [, op] of activeQueries) {
         if (getOperationName(op) !== operationName) {
           continue;
         }
-
-        client.reexecuteOperation(
+        liveClient.reexecuteOperation(
           makeOperation(op.kind, op, {
             ...op.context,
             requestPolicy: "network-only",
@@ -54,7 +56,6 @@ export const mockRefetchExchange: Exchange = ({ client, forward }) => {
       }
     }) as EventListener;
 
-    activeListener = listener;
     window.addEventListener(MOCK_UPDATE_EVENT_NAME, listener);
   }
 
@@ -63,9 +64,9 @@ export const mockRefetchExchange: Exchange = ({ client, forward }) => {
       ops$,
       tap((op) => {
         if (op.kind === "teardown") {
-          activeOps.delete(op.key);
-        } else {
-          activeOps.set(op.key, op);
+          activeQueries.delete(op.key);
+        } else if (op.kind === "query") {
+          activeQueries.set(op.key, op);
         }
       }),
       forward
