@@ -100,7 +100,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
             textTransform: "uppercase",
           }}
         >
-          Response JSON {hasOverride && "(custom)"}
+          Response JSON {hasOverride ? "(custom)" : null}
         </span>
         <div style={{ display: "flex", gap: theme.spacing.md }}>
           {!isValid && (
@@ -117,7 +117,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
               <AlertCircle size={13} /> Invalid JSON
             </span>
           )}
-          {hasOverride && (
+          {hasOverride ? (
             <button
               onClick={onReset}
               style={{
@@ -140,7 +140,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
             >
               <RotateCcw size={12} /> Reset to Default
             </button>
-          )}
+          ) : null}
         </div>
       </div>
       <textarea
