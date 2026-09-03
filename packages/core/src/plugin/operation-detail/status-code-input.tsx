@@ -33,7 +33,7 @@ export const StatusCodeInput = ({
       <input
         id={`status-${operationName}`}
         max={599}
-        min={100}
+        min={200}
         onChange={onStatusCodeChange}
         style={{
           background: theme.colors.surface,
