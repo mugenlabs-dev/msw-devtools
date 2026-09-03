@@ -1,4 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
+import { ignoreRejection } from "#/adapter/ignore-rejection";
 import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
 
 /**
@@ -8,6 +9,6 @@ import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
 export const createTanStackQueryAdapter = (queryClient: QueryClient): MswDevToolAdapter => ({
   id: "tanstack-query",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
-    void queryClient.invalidateQueries();
+    ignoreRejection(queryClient.invalidateQueries());
   },
 });
