@@ -320,6 +320,13 @@ void startWorker({
           </CodeBlock>
         </div>
       </ApiEntry>
+      <ApiEntry
+        badge="Promise<void>"
+        badgeVariant="default"
+        description="Stops the MSW service worker started by startWorker() and detaches everything the devtools attached to it (registry subscription, request tracker, SPA navigation patch). Registered mocks and persisted configuration are kept, so a later startWorker() resumes where it left off. Useful in tests and hot-reload setups."
+        name="stopWorker"
+        signature="stopWorker(): Promise<void>"
+      />
     </ApiCategory>
   </section>
 );

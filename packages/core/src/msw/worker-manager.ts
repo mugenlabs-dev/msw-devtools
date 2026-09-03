@@ -4,7 +4,7 @@ import { mockRegistry } from "#/registry/registry";
 import { useMockStore } from "#/store/store";
 
 import { createDynamicHandler } from "./create-handler";
-import { setupOperationTracker } from "./operation-tracker";
+import { setupOperationTracker, teardownOperationTracker } from "./operation-tracker";
 
 let worker: SetupWorker | null = null;
 let started = false;
@@ -85,6 +85,26 @@ export const startWorker = (options?: WorkerOptions): Promise<SetupWorker> => {
 
 /** @internal — Returns the current MSW worker instance. Not part of the public API. */
 export const getWorker = (): SetupWorker | null => worker;
+
+/**
+ * Stops the MSW service worker started by {@link startWorker} and tears down
+ * everything the devtools attached to it: the registry subscription, the
+ * request tracker and the SPA navigation patch. Registered mocks and persisted
+ * configuration are kept, so a later `startWorker()` picks up where it left off.
+ */
+export const stopWorker = async (): Promise<void> => {
+  if (starting) {
+    // Let an in-flight start settle so we never leave a half-initialised worker.
+    await starting.catch(() => undefined);
+  }
+  unsubscribeFromRegistry?.();
+  unsubscribeFromRegistry = null;
+  teardownOperationTracker();
+  worker?.stop();
+  worker = null;
+  started = false;
+  useMockStore.getState().setWorkerStatus("idle");
+};
 
 /**
  * @internal — Refresh handlers when registry changes.
