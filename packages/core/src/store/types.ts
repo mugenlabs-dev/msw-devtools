@@ -5,6 +5,7 @@ export type SortOption = "default" | "a-z" | "z-a";
 export type ErrorOverride = 401 | 404 | 429 | 500 | "networkError" | null;
 
 export interface OperationMockConfig {
+  /** Id of the selected variant. An unknown id (including the default) resolves to the first variant. */
   activeVariantId: string;
   /** Custom headers override as JSON string. null = use handler default. */
   customHeaders: string | null;

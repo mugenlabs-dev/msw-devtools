@@ -1,6 +1,6 @@
 import { delay, graphql, HttpResponse, http, passthrough } from "msw";
 import type { HandlerVariant, MockOperationDescriptor } from "#/registry/types";
-import { isGraphQLDescriptor, isRestDescriptor } from "#/registry/types";
+import { isGraphQLDescriptor, isRestDescriptor, resolveActiveVariant } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 import type { ErrorOverride, OperationMockConfig } from "#/store/types";
 import { getHandlerResolver } from "./msw-internals";
@@ -165,9 +165,10 @@ const resolveAndRespond = async (
     return buildErrorResponse(errorOverride as number);
   }
 
-  // Find active variant handler
-  const variant: HandlerVariant | undefined = descriptor.variants.find(
-    (v) => v.id === config.activeVariantId
+  // Find active variant handler (falls back to the first variant)
+  const variant: HandlerVariant | undefined = resolveActiveVariant(
+    descriptor,
+    config.activeVariantId
   );
   if (!variant) {
     return passthrough() as unknown as Response;
