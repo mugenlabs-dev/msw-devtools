@@ -86,8 +86,8 @@ export const useHeaderAndResetHandlers = (operationName: string) => {
   const setCustomJsonOverride = useMockStore((s) => s.setCustomJsonOverride);
 
   const handleHeadersChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setCustomHeaders(operationName, e.target.value || null);
+    (headers: string | null) => {
+      setCustomHeaders(operationName, headers);
     },
     [operationName, setCustomHeaders]
   );

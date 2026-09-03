@@ -29,7 +29,8 @@ export interface StatusCodeInputProps {
 export interface HeadersEditorProps {
   effectiveHeaders: string;
   hasHeadersOverride: boolean;
-  onHeadersChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  /** Called (debounced) with valid header JSON, or null when the editor is emptied. */
+  onHeadersChange: (headers: string | null) => void;
   onHeadersReset: () => void;
   operationName: string;
 }
