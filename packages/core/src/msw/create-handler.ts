@@ -60,6 +60,16 @@ const captureResponseBody = async (operationName: string, response: Response): P
 // Override application — mutate the handler response with user overrides
 // ---------------------------------------------------------------------------
 
+const readJsonBody = async (
+  response: Response
+): Promise<{ body: unknown; isJson: true } | { body: null; isJson: false }> => {
+  try {
+    return { body: await response.clone().json(), isJson: true };
+  } catch {
+    return { body: null, isJson: false };
+  }
+};
+
 const applyOverrides = async (
   original: Response,
   config: OperationMockConfig
@@ -73,22 +83,21 @@ const applyOverrides = async (
     return original;
   }
 
-  // Read original body if needed
+  // Resolve the body: a valid JSON override wins, otherwise fall back to the
+  // handler's own body. Non-JSON bodies (text, HTML, binary) are passed through
+  // untouched rather than being re-serialised as `null`.
   let body: unknown;
-  if (config.customJsonOverride != null && config.customJsonOverride !== "") {
+  let hasJsonBody = false;
+  if (hasJsonOverride) {
     try {
-      body = JSON.parse(config.customJsonOverride);
+      body = JSON.parse(config.customJsonOverride as string);
+      hasJsonBody = true;
     } catch {
-      body = await original
-        .clone()
-        .json()
-        .catch(() => null);
+      // Invalid override JSON — fall through to the original body
     }
-  } else {
-    body = await original
-      .clone()
-      .json()
-      .catch(() => null);
+  }
+  if (!hasJsonBody) {
+    ({ body, isJson: hasJsonBody } = await readJsonBody(original));
   }
 
   // Resolve status
@@ -119,6 +128,10 @@ const applyOverrides = async (
 
   if (NULL_BODY_STATUS_CODES.has(status)) {
     return new HttpResponse(null, { headers, status });
+  }
+
+  if (!hasJsonBody) {
+    return new HttpResponse(original.clone().body, { headers, status });
   }
 
   return HttpResponse.json(body as Record<string, unknown>, { headers, status });
