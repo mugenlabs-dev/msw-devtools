@@ -1,5 +1,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 
+import { ErrorPage, NotFoundPage } from "../error-page";
 import { Layout } from "../layout";
 import { ThemeProvider } from "../theme-context";
 
@@ -73,6 +74,7 @@ const RootComponent = () => (
 
 export const Route = createRootRoute({
   component: RootComponent,
+  errorComponent: ErrorPage,
   head: () => ({
     links: [
       {
@@ -101,4 +103,5 @@ export const Route = createRootRoute({
     ],
     title: "@mugenlabs/msw-devtools",
   }),
+  notFoundComponent: NotFoundPage,
 });
