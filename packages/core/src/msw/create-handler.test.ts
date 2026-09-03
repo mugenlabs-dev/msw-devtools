@@ -114,6 +114,25 @@ describe("createDynamicHandler", () => {
       await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
     });
 
+    it("keeps a non-JSON body when only the status is overridden", async () => {
+      const descriptor = restDescriptor({
+        variants: [
+          {
+            handler: http.get("http://localhost/api/users", () => HttpResponse.text("hello")),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+      configure(descriptor.operationName, { statusCode: 202 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.status).toBe(202);
+      expect(response?.headers.get("content-type")).toContain("text/plain");
+      await expect(response?.text()).resolves.toBe("hello");
+    });
+
     it("returns an empty body for null-body statuses", async () => {
       const descriptor = restDescriptor();
       configure(descriptor.operationName, { statusCode: 204 });
@@ -122,6 +141,26 @@ describe("createDynamicHandler", () => {
 
       expect(response?.status).toBe(204);
       await expect(response?.text()).resolves.toBe("");
+    });
+  });
+
+  describe("JSON override", () => {
+    it("replaces the body with a valid JSON override", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { customJsonOverride: '{"users":[]}' });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      await expect(response?.json()).resolves.toStrictEqual({ users: [] });
+    });
+
+    it("falls back to the handler body when the override is not valid JSON", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { customJsonOverride: "{not json" });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
     });
   });
 
