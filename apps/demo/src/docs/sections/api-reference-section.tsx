@@ -9,8 +9,8 @@ import { prose } from "../styles";
 // ---------------------------------------------------------------------------
 const Badge = ({ children, variant = "default" }: { children: ReactNode; variant?: string }) => {
   const colors: Record<string, string> = {
-    default: "bg-accent-purple/10 text-accent-purple border-accent-purple/20",
     blue: "bg-accent-blue/10 text-accent-blue border-accent-blue/20",
+    default: "bg-accent-purple/10 text-accent-purple border-accent-purple/20",
     green: "bg-accent-green/10 text-accent-green border-accent-green/20",
     muted: "bg-bg-tertiary text-text-muted border-border-secondary",
   };

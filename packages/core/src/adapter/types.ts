@@ -6,14 +6,14 @@ export interface MswDevToolAdapter {
    * Called when a mock configuration changes for an operation.
    * The adapter should trigger the client to refetch the affected operation.
    */
-  onMockUpdate(operationName: string, changeType: MockChangeType): void;
+  onMockUpdate: (operationName: string, changeType: MockChangeType) => void;
 
   /**
    * Called once when the adapter is attached to the devtools.
    * Use for setup (e.g., adding event listeners).
    * Returns a cleanup function.
    */
-  setup?(): (() => void) | undefined;
+  setup?: () => (() => void) | undefined;
 }
 
 export type MockChangeType = "toggle" | "variant" | "json-override" | "enable-all" | "disable-all";

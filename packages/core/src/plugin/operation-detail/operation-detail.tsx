@@ -158,7 +158,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
           />
         )}
 
-        {derived.isErrorOverrideActive && (
+        {derived.isErrorOverrideActive ? (
           <div
             style={{
               alignItems: "center",
@@ -175,7 +175,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
               ? "Network error -- no response body"
               : `Error override active: ${config.errorOverride}`}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -252,7 +252,7 @@ export const PokemonCard = ({
         className="flex min-h-[220px] flex-col items-center justify-center px-[18px] py-6 pb-7"
         style={{ gap: loading ? 12 : 0 }}
       >
-        {loading && <CardSkeleton />}
+        {loading ? <CardSkeleton /> : null}
 
         {error != null && error !== "" && (
           <div className="flex flex-col gap-1.5 text-center">

@@ -25,10 +25,10 @@ const getInstallCommand = (pm: PackageManager, packages: string): string => {
 };
 
 const pmIcons: Record<PackageManager, ComponentType<{ size: number; color: string }>> = {
-  npm: SiNpm,
-  yarn: SiYarn,
-  pnpm: SiPnpm,
   bun: SiBun,
+  npm: SiNpm,
+  pnpm: SiPnpm,
+  yarn: SiYarn,
 };
 
 const PmButton = ({

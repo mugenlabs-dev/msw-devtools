@@ -28,7 +28,7 @@ export const Accordion = ({ children, title }: { children: ReactNode; title: str
         />
         {title}
       </button>
-      {open && <div className="border-border-primary border-t px-3.5 py-3">{children}</div>}
+      {open ? <div className="border-border-primary border-t px-3.5 py-3">{children}</div> : null}
     </div>
   );
 };

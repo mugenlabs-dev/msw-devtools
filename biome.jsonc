@@ -23,7 +23,11 @@
         "noUndeclaredVariables": "off"
       },
       "suspicious": {
-        "noDoubleEquals": "off"
+        "noDoubleEquals": "off",
+        // `x != null` is the project idiom for null-or-undefined checks
+        "noEqualsToNull": "off",
+        // Misfires on ref.current and other values Biome cannot narrow
+        "noUnnecessaryConditions": "off"
       },
       "complexity": {
         "noVoid": "off"
@@ -32,8 +36,23 @@
         // E2E tests and callback patterns use inline regex legitimately
         "useTopLevelRegex": "off",
         // Core package re-exports via index.ts intentionally
-        "noBarrelFile": "off"
+        "noBarrelFile": "off",
+        // Inline handlers in JSX are fine at this app's scale
+        "noJsxPropsBind": "off"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      // Playwright tests and Storybook play functions await steps sequentially on purpose
+      "includes": ["e2e/**", "**/*.stories.tsx"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noAwaitInLoops": "off"
+          }
+        }
+      }
+    }
+  ]
 }
