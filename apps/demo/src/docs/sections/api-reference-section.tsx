@@ -146,11 +146,11 @@ export const ApiReferenceSection = () => (
       title="Core"
     >
       <ApiEntry
-        badge="OperationHandles"
+        badge="OperationHandlesFor<Defs>"
         badgeVariant="green"
         description="Register one or more REST mocks from MSW HttpHandlers. Operation metadata (method, path, operationName) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerRestMocks"
-        signature="registerRestMocks(...defs: RestMockDef[]): OperationHandles"
+        signature="registerRestMocks<const Defs extends readonly RestMockDef[]>(...defs: Defs): OperationHandlesFor<Defs>"
       >
         <ParamTable
           params={[
@@ -178,11 +178,11 @@ export const ApiReferenceSection = () => (
         />
       </ApiEntry>
       <ApiEntry
-        badge="OperationHandles"
+        badge="OperationHandlesFor<Defs>"
         badgeVariant="green"
         description="Register one or more GraphQL mocks from MSW GraphQLHandlers. Operation metadata (operationName, operationType) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerGraphqlMocks"
-        signature="registerGraphqlMocks(...defs: GraphqlMockDef[]): OperationHandles"
+        signature="registerGraphqlMocks<const Defs extends readonly GraphqlMockDef[]>(...defs: Defs): OperationHandlesFor<Defs>"
       >
         <ParamTable
           params={[

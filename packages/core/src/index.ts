@@ -27,6 +27,7 @@ export type {
   MockOperationDescriptor,
   OperationHandle,
   OperationHandles,
+  OperationHandlesFor,
   RestMethod,
   RestMockDef,
   RestMockDescriptor,
