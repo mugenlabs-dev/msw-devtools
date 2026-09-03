@@ -1,4 +1,4 @@
-import { useMockStore } from "./store";
+import { defaultConfig, useMockStore } from "./store";
 
 const resetStore = () => {
   useMockStore.setState({
@@ -25,6 +25,16 @@ describe("mockStore - setEnabled", () => {
 
     const { operations } = useMockStore.getState();
     expect(operations.GetUser.enabled).toBeTruthy();
+  });
+
+  it("fills in default config fields for an operation the store has not seen", () => {
+    resetStore();
+    useMockStore.getState().setDelay("GetUser", 500);
+
+    expect(useMockStore.getState().operations.GetUser).toStrictEqual({
+      ...defaultConfig,
+      delay: 500,
+    });
   });
 
   it("toggles enabled state", () => {
