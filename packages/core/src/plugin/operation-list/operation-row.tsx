@@ -106,7 +106,7 @@ export const OperationRow = ({
           }}
         >
           {descriptor.operationName}
-          {isSeen && (
+          {isSeen ? (
             <span
               style={{
                 background: theme.colors.info,
@@ -121,7 +121,7 @@ export const OperationRow = ({
             >
               LIVE
             </span>
-          )}
+          ) : null}
         </div>
         <div
           style={{

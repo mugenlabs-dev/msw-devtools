@@ -76,7 +76,7 @@ export const HeadersEditor = ({
             <AlertCircle size={12} /> Invalid JSON
           </span>
         )}
-        {hasHeadersOverride && (
+        {hasHeadersOverride ? (
           <button
             onClick={onHeadersReset}
             style={{
@@ -97,7 +97,7 @@ export const HeadersEditor = ({
           >
             <RotateCcw size={11} /> Reset
           </button>
-        )}
+        ) : null}
       </div>
       <textarea
         id={`headers-${operationName}`}

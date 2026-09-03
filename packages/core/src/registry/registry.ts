@@ -136,16 +136,14 @@ const eagerCaptureDefaultResponses = async (
 ): Promise<void> => {
   await Promise.all(
     descriptors.map(async (descriptor) => {
-      const variant = descriptor.variants[0];
+      const [variant] = descriptor.variants;
       if (!variant) {
         return;
       }
       try {
-        const resolver = (
-          variant.handler as unknown as {
-            resolver: (info: unknown) => Promise<Response>;
-          }
-        ).resolver;
+        const { resolver } = variant.handler as unknown as {
+          resolver: (info: unknown) => Promise<Response>;
+        };
         const response = await resolver({});
         if (response) {
           const cloned = response.clone();

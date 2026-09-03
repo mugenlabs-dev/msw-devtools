@@ -131,9 +131,9 @@ const resolveAndRespond = async (
   }
 
   // Call the user's handler resolver
-  const resolver = (
-    variant.handler as unknown as { resolver: (info: unknown) => Promise<Response> }
-  ).resolver;
+  const { resolver } = variant.handler as unknown as {
+    resolver: (info: unknown) => Promise<Response>;
+  };
   const response = await resolver(resolverInfo);
 
   if (!response) {
