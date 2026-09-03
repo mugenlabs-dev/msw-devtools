@@ -43,6 +43,7 @@ const updateOperation = (
     operations: {
       ...state.operations,
       [operationName]: {
+        ...defaultConfig,
         ...state.operations[operationName],
         ...update,
       },
