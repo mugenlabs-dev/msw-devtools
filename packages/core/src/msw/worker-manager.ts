@@ -83,7 +83,7 @@ export const startWorker = (options?: WorkerOptions): Promise<SetupWorker> => {
   return starting;
 };
 
-/** @internal — Returns the current MSW worker instance. Not part of the public API. */
+/** Returns the current MSW worker instance, or `null` before `startWorker()` resolves. */
 export const getWorker = (): SetupWorker | null => worker;
 
 /**
