@@ -103,6 +103,7 @@ export const restOrdersDescriptor: RestMockDescriptor = {
 };
 
 export const graphqlQueryDescriptor: GraphQLMockDescriptor = {
+  endpoint: "*",
   graphqlOperationName: "GetUsers",
   group: "Users",
   operationName: "GetUsers",
@@ -112,6 +113,7 @@ export const graphqlQueryDescriptor: GraphQLMockDescriptor = {
 };
 
 export const graphqlMutationDescriptor: GraphQLMockDescriptor = {
+  endpoint: "*",
   graphqlOperationName: "CreateUser",
   group: "Users",
   operationName: "CreateUser",
