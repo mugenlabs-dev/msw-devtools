@@ -18,7 +18,7 @@ export default defineConfig({
       : {},
     trace: "on-first-retry",
   },
-  workers: process.env.CI !== undefined ? 4 : undefined,
+  workers: process.env.CI === undefined ? undefined : 4,
   ...(isRemote
     ? {}
     : {

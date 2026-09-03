@@ -11,15 +11,6 @@ import { theme } from "#/plugin/theme";
 import { OperationRow } from "./operation-row";
 
 const meta: Meta<typeof OperationRow> = {
-  title: "Operation List/OperationRow",
-  component: OperationRow,
-  decorators: [
-    (Story) => (
-      <div style={{ background: theme.colors.background, width: "280px" }}>
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     descriptor: restGetDescriptor,
     isEnabled: false,
@@ -30,6 +21,15 @@ const meta: Meta<typeof OperationRow> = {
     onToggle: fn(),
     variantLabel: undefined,
   },
+  component: OperationRow,
+  decorators: [
+    (Story) => (
+      <div style={{ background: theme.colors.background, width: "280px" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  title: "Operation List/OperationRow",
 };
 
 export default meta;

@@ -10,7 +10,12 @@ const multipleVariants = [
 ];
 
 const meta: Meta<typeof VariantSelector> = {
-  title: "Operation Detail/VariantSelector",
+  args: {
+    activeVariantId: "variant-0",
+    onVariantChange: fn(),
+    operationName: "GET /api/users",
+    variants: [{ id: "variant-0", label: "Default" }],
+  },
   component: VariantSelector,
   decorators: [
     (Story) => (
@@ -19,12 +24,7 @@ const meta: Meta<typeof VariantSelector> = {
       </div>
     ),
   ],
-  args: {
-    activeVariantId: "variant-0",
-    onVariantChange: fn(),
-    operationName: "GET /api/users",
-    variants: [{ id: "variant-0", label: "Default" }],
-  },
+  title: "Operation Detail/VariantSelector",
 };
 
 export default meta;
@@ -69,11 +69,11 @@ export const MultipleVariants: Story = {
 };
 
 export const NonDefaultSelected: Story = {
-  name: "Non-Default Selected",
   args: {
     activeVariantId: "variant-1",
     variants: multipleVariants,
   },
+  name: "Non-Default Selected",
   play: async ({ canvas, step }) => {
     await step("Verify non-default selected", async () => {
       const select = canvas.getByRole("combobox");

@@ -6,7 +6,10 @@ import { theme } from "#/plugin/theme";
 import { OperationList } from "./operation-list";
 
 const meta: Meta<typeof OperationList> = {
-  title: "Operation List/OperationList",
+  args: {
+    onSelectOperation: fn(),
+    selectedOperation: null,
+  },
   component: OperationList,
   decorators: [
     (Story) => (
@@ -15,10 +18,7 @@ const meta: Meta<typeof OperationList> = {
       </div>
     ),
   ],
-  args: {
-    onSelectOperation: fn(),
-    selectedOperation: null,
-  },
+  title: "Operation List/OperationList",
 };
 
 export default meta;

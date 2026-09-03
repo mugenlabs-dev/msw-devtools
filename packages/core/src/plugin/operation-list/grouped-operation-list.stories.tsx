@@ -6,7 +6,15 @@ import { theme } from "#/plugin/theme";
 import { GroupedOperationList } from "./grouped-operation-list";
 
 const meta: Meta<typeof GroupedOperationList> = {
-  title: "Operation List/GroupedOperationList",
+  args: {
+    descriptors: allDescriptors,
+    grouped: true,
+    onSelectOperation: fn(),
+    operations: buildOperations(allDescriptors),
+    seenOperations: new Set<string>(),
+    selectedOperation: null,
+    setEnabled: fn(),
+  },
   component: GroupedOperationList,
   decorators: [
     (Story) => (
@@ -21,15 +29,7 @@ const meta: Meta<typeof GroupedOperationList> = {
       </div>
     ),
   ],
-  args: {
-    descriptors: allDescriptors,
-    grouped: true,
-    onSelectOperation: fn(),
-    operations: buildOperations(allDescriptors),
-    seenOperations: new Set<string>(),
-    selectedOperation: null,
-    setEnabled: fn(),
-  },
+  title: "Operation List/GroupedOperationList",
 };
 
 export default meta;

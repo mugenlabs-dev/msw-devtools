@@ -52,14 +52,6 @@ export const ALL_OPERATION_NAMES = [
 export const PAGE_OPERATIONS: Record<string, string[]> = {
   apollo: ["GetRayquaza", "GetMetagross", "GetMilotic", "GetAbsol", "GetFlygon", "GetAggron"],
   fetch: ["GET Mimikyu", "GET Umbreon", "GET Espeon", "GET Sylveon", "GET Mewtwo", "GET Dragonite"],
-  "rtk-query": [
-    "GET Infernape",
-    "GET Weavile",
-    "GET Zoroark",
-    "GetVolcarona",
-    "GetHydreigon",
-    "GetChandelure",
-  ],
   query: [
     "GET Charizard",
     "GET Gengar",
@@ -67,6 +59,14 @@ export const PAGE_OPERATIONS: Record<string, string[]> = {
     "GetPancham",
     "GetSalamence",
     "GetSnorlax",
+  ],
+  "rtk-query": [
+    "GET Infernape",
+    "GET Weavile",
+    "GET Zoroark",
+    "GetVolcarona",
+    "GetHydreigon",
+    "GetChandelure",
   ],
   swr: ["GET Garchomp", "GET Lucario", "GET Blaziken", "GetGardevoir", "GetScizor", "GetTogekiss"],
   urql: ["GetEevee", "GetLapras", "GetAlakazam", "GetArcanine", "GetSteelix", "GetHeracross"],

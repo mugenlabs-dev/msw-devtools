@@ -5,7 +5,12 @@ import { statusConfig } from "./utils";
 import { WorkerStatusBar } from "./worker-status-bar";
 
 const meta: Meta<typeof WorkerStatusBar> = {
-  title: "Operation List/WorkerStatusBar",
+  args: {
+    clearSeenOperations: fn(),
+    seenOperations: new Set<string>(),
+    status: statusConfig.idle,
+    workerStatus: "idle",
+  },
   component: WorkerStatusBar,
   decorators: [
     (Story) => (
@@ -14,12 +19,7 @@ const meta: Meta<typeof WorkerStatusBar> = {
       </div>
     ),
   ],
-  args: {
-    clearSeenOperations: fn(),
-    seenOperations: new Set<string>(),
-    status: statusConfig.idle,
-    workerStatus: "idle",
-  },
+  title: "Operation List/WorkerStatusBar",
 };
 
 export default meta;
@@ -59,11 +59,11 @@ export const Active: Story = {
 };
 
 export const WorkerError: Story = {
-  name: "Error",
   args: {
     status: statusConfig.error,
     workerStatus: "error",
   },
+  name: "Error",
   play: async ({ canvas, step }) => {
     await step("Verify error state", async () => {
       await expect(canvas.getByText("MSW Error")).toBeInTheDocument();
@@ -72,12 +72,12 @@ export const WorkerError: Story = {
 };
 
 export const ActiveWithSeenOps: Story = {
-  name: "Active With Seen Operations",
   args: {
     seenOperations: new Set(["GET /api/users", "POST /api/users"]),
     status: statusConfig.active,
     workerStatus: "active",
   },
+  name: "Active With Seen Operations",
   play: async ({ canvas, userEvent, step, args }) => {
     await step("Verify clear button visible", async () => {
       await expect(canvas.getByText("MSW Active")).toBeInTheDocument();

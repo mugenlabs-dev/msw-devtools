@@ -4,7 +4,13 @@ import { theme } from "#/plugin/theme";
 import { HeadersEditor } from "./headers-editor";
 
 const meta: Meta<typeof HeadersEditor> = {
-  title: "Operation Detail/HeadersEditor",
+  args: {
+    effectiveHeaders: "{}",
+    hasHeadersOverride: false,
+    onHeadersChange: fn(),
+    onHeadersReset: fn(),
+    operationName: "GET /api/users",
+  },
   component: HeadersEditor,
   decorators: [
     (Story) => (
@@ -13,13 +19,7 @@ const meta: Meta<typeof HeadersEditor> = {
       </div>
     ),
   ],
-  args: {
-    effectiveHeaders: "{}",
-    hasHeadersOverride: false,
-    onHeadersChange: fn(),
-    onHeadersReset: fn(),
-    operationName: "GET /api/users",
-  },
+  title: "Operation Detail/HeadersEditor",
 };
 
 export default meta;
@@ -38,11 +38,11 @@ export const Default: Story = {
 };
 
 export const WithCustomHeaders: Story = {
-  name: "Custom Headers",
   args: {
     effectiveHeaders: '{"X-Custom": "value"}',
     hasHeadersOverride: true,
   },
+  name: "Custom Headers",
   play: async ({ canvas, userEvent, step, args }) => {
     await step("Verify custom headers state", async () => {
       const textarea = canvas.getByRole("textbox");

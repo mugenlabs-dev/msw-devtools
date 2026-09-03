@@ -4,7 +4,11 @@ import { theme } from "#/plugin/theme";
 import { ErrorOverrideSelector } from "./error-override-selector";
 
 const meta: Meta<typeof ErrorOverrideSelector> = {
-  title: "Operation Detail/ErrorOverrideSelector",
+  args: {
+    onChange: fn(),
+    operationName: "GET /api/users",
+    value: null,
+  },
   component: ErrorOverrideSelector,
   decorators: [
     (Story) => (
@@ -13,11 +17,7 @@ const meta: Meta<typeof ErrorOverrideSelector> = {
       </div>
     ),
   ],
-  args: {
-    onChange: fn(),
-    operationName: "GET /api/users",
-    value: null,
-  },
+  title: "Operation Detail/ErrorOverrideSelector",
 };
 
 export default meta;
@@ -54,8 +54,8 @@ export const NoOverride: Story = {
 };
 
 export const Unauthorized401: Story = {
-  name: "401 Unauthorized",
   args: { value: 401 },
+  name: "401 Unauthorized",
   play: async ({ canvas, step }) => {
     await step("Verify 401 active", async () => {
       const btn401 = canvas.getByRole("button", { name: "Set error override to 401" });
@@ -68,8 +68,8 @@ export const Unauthorized401: Story = {
 };
 
 export const NotFound404: Story = {
-  name: "404 Not Found",
   args: { value: 404 },
+  name: "404 Not Found",
   play: async ({ canvas, step }) => {
     await step("Verify 404 active", async () => {
       await expect(
@@ -80,8 +80,8 @@ export const NotFound404: Story = {
 };
 
 export const ServerError500: Story = {
-  name: "500 Server Error",
   args: { value: 500 },
+  name: "500 Server Error",
   play: async ({ canvas, userEvent, step, args }) => {
     await step("Verify 500 active", async () => {
       await expect(

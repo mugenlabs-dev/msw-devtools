@@ -81,7 +81,7 @@ describe("operation-tracker", () => {
     const { emit, worker } = createFakeWorker();
     setupOperationTracker(worker as never);
 
-    emit(new Request("http://localhost/api/todos/42", { method: "PUT", body: "{}" }));
+    emit(new Request("http://localhost/api/todos/42", { body: "{}", method: "PUT" }));
     emit(new Request("http://localhost/api/todos/42", { method: "DELETE" }));
 
     expect(seen().has("UpdateTodo")).toBe(true);

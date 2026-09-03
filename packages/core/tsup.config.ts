@@ -6,9 +6,9 @@ export default defineConfig({
   entry: {
     "adapters/apollo": "src/adapters/apollo/index.ts",
     "adapters/axios": "src/adapters/axios/index.ts",
+    "adapters/rtk-query": "src/adapters/rtk-query/index.ts",
     "adapters/swr": "src/adapters/swr/index.ts",
     "adapters/tanstack-query": "src/adapters/tanstack-query/index.ts",
-    "adapters/rtk-query": "src/adapters/rtk-query/index.ts",
     "adapters/urql": "src/adapters/urql/index.ts",
     index: "src/index.ts",
     types: "src/types.ts",
