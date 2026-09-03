@@ -1,5 +1,6 @@
-import { useCallback, useRef, useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { dispatchMockUpdate } from "#/adapter/event-bus";
+import { ALL_OPERATIONS } from "#/adapter/types";
 import { mockRegistry } from "#/registry/registry";
 import type { MockOperationDescriptor } from "#/registry/types";
 import { useMockStore } from "#/store/store";
@@ -50,24 +51,20 @@ export const useOperationListState = () => {
   return { filter, handleFilterChange, handleGroupToggle, handleSortChange, isGrouped, sort };
 };
 
-export const useBulkActions = (descriptors: MockOperationDescriptor[]) => {
+export const useBulkActions = () => {
   const enableAll = useMockStore((s) => s.enableAll);
   const disableAll = useMockStore((s) => s.disableAll);
-  const descriptorsRef = useRef(descriptors);
-  descriptorsRef.current = descriptors;
 
+  // One event for the whole registry: adapters refetch once instead of once
+  // per operation, and per-operation listeners match via ALL_OPERATIONS.
   const handleEnableAll = useCallback(() => {
     enableAll();
-    for (const d of descriptorsRef.current) {
-      dispatchMockUpdate(d.operationName, "enable-all");
-    }
+    dispatchMockUpdate(ALL_OPERATIONS, "enable-all");
   }, [enableAll]);
 
   const handleDisableAll = useCallback(() => {
     disableAll();
-    for (const d of descriptorsRef.current) {
-      dispatchMockUpdate(d.operationName, "disable-all");
-    }
+    dispatchMockUpdate(ALL_OPERATIONS, "disable-all");
   }, [disableAll]);
 
   return { handleDisableAll, handleEnableAll };
