@@ -53,7 +53,8 @@ const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor)
   }
   try {
     const escaped = descriptor.path.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pathPattern = escaped.replaceAll(/:[^/]+/g, "[^/]+");
+    // MSW wildcards (`*`) match any characters, including path separators.
+    const pathPattern = escaped.replaceAll("\\*", ".*").replaceAll(/:[^/]+/g, "[^/]+");
     const regex = new RegExp(`^${pathPattern}(\\?.*)?$`);
     // Relative descriptor paths (e.g. "/api/users") match the request pathname;
     // absolute descriptor paths (with an origin) match the full URL.
