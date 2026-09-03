@@ -9,6 +9,7 @@ import { setupOperationTracker } from "./operation-tracker";
 let worker: SetupWorker | null = null;
 let started = false;
 let starting: Promise<SetupWorker> | null = null;
+let unsubscribeFromRegistry: (() => void) | null = null;
 
 export interface WorkerOptions {
   /** Behavior for unhandled requests. Default: 'bypass' */
@@ -47,6 +48,10 @@ const activateWorker = (instance: SetupWorker): void => {
   started = true;
   useMockStore.getState().setWorkerStatus("active");
   syncAndTrack(instance);
+  // Mocks registered after start (route-level or code-split registrations)
+  // need their handlers installed on the running worker too.
+  unsubscribeFromRegistry?.();
+  unsubscribeFromRegistry = mockRegistry.subscribe(refreshHandlers);
 };
 
 export const startWorker = (options?: WorkerOptions): Promise<SetupWorker> => {
@@ -83,8 +88,8 @@ export const getWorker = (): SetupWorker | null => worker;
 
 /**
  * @internal — Refresh handlers when registry changes.
- * Called when new descriptors are registered after initial startup.
- * Not part of the public API.
+ * Called automatically when descriptors are registered or unregistered after
+ * initial startup. Not part of the public API.
  */
 export const refreshHandlers = (): void => {
   if (!worker) {
