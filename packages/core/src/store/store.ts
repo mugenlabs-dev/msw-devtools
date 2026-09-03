@@ -19,6 +19,78 @@ export const defaultConfig: OperationMockConfig = {
   statusCode: null,
 };
 
+const FILTER_OPTIONS: readonly FilterOption[] = ["all", "live", "enabled", "rest", "graphql"];
+const SORT_OPTIONS: readonly SortOption[] = ["default", "a-z", "z-a"];
+const ERROR_OVERRIDES: readonly ErrorOverride[] = [401, 404, 429, 500, "networkError", null];
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isOneOf = <T>(options: readonly T[], value: unknown): value is T =>
+  options.includes(value as T);
+
+/**
+ * Coerce a persisted operation config into a valid {@link OperationMockConfig},
+ * dropping fields with the wrong shape and migrating legacy values.
+ */
+const sanitizeOperationConfig = (value: unknown): OperationMockConfig => {
+  if (!isRecord(value)) {
+    return { ...defaultConfig };
+  }
+  const activeVariantId =
+    typeof value.activeVariantId === "string"
+      ? value.activeVariantId
+      : defaultConfig.activeVariantId;
+  return {
+    // Migrate the pre-variant "success" id to the first variant
+    activeVariantId: activeVariantId === "success" ? "variant-0" : activeVariantId,
+    customHeaders: typeof value.customHeaders === "string" ? value.customHeaders : null,
+    customJsonOverride:
+      typeof value.customJsonOverride === "string" ? value.customJsonOverride : null,
+    delay: typeof value.delay === "number" && value.delay >= 0 ? value.delay : defaultConfig.delay,
+    enabled: typeof value.enabled === "boolean" ? value.enabled : defaultConfig.enabled,
+    errorOverride: isOneOf(ERROR_OVERRIDES, value.errorOverride) ? value.errorOverride : null,
+    statusCode: typeof value.statusCode === "number" ? value.statusCode : null,
+  };
+};
+
+export interface PersistedMockState {
+  collapsedGroups: string[];
+  filter: FilterOption;
+  isGrouped: boolean;
+  operations: Record<string, OperationMockConfig>;
+  sort: SortOption;
+}
+
+/**
+ * @internal — Validate whatever came out of storage before it reaches the
+ * store. Corrupt or hand-edited localStorage must never throw at import time,
+ * because that would take down the host application. Not part of the public API.
+ */
+export const sanitizePersistedState = (
+  persisted: unknown,
+  fallback: PersistedMockState
+): PersistedMockState => {
+  if (!isRecord(persisted)) {
+    return fallback;
+  }
+  const operations: Record<string, OperationMockConfig> = {};
+  if (isRecord(persisted.operations)) {
+    for (const [name, config] of Object.entries(persisted.operations)) {
+      operations[name] = sanitizeOperationConfig(config);
+    }
+  }
+  return {
+    collapsedGroups: Array.isArray(persisted.collapsedGroups)
+      ? persisted.collapsedGroups.filter((group): group is string => typeof group === "string")
+      : fallback.collapsedGroups,
+    filter: isOneOf(FILTER_OPTIONS, persisted.filter) ? persisted.filter : fallback.filter,
+    isGrouped: typeof persisted.isGrouped === "boolean" ? persisted.isGrouped : fallback.isGrouped,
+    operations: { ...fallback.operations, ...operations },
+    sort: isOneOf(SORT_OPTIONS, persisted.sort) ? persisted.sort : fallback.sort,
+  };
+};
+
 /** Set all operations' enabled flag to the given value. */
 const setAllEnabled = (
   set: (fn: (state: MockStoreState) => Partial<MockStoreState>) => void,
@@ -151,13 +223,7 @@ export const useMockStore = create<MockStoreState>()(
             const operations = { ...state.operations };
             const nameSet = new Set(operationNames);
             for (const name of operationNames) {
-              if (name in operations) {
-                // Ensure existing persisted configs have new fields with defaults
-                const existing = operations[name];
-                if (existing.errorOverride === undefined) {
-                  operations[name] = { ...existing, errorOverride: null };
-                }
-              } else {
+              if (!(name in operations)) {
                 operations[name] = { ...defaultConfig };
               }
             }
@@ -186,41 +252,18 @@ export const useMockStore = create<MockStoreState>()(
       }),
       {
         merge: (persisted, current) => {
-          const persistedState = persisted as
-            | {
-                collapsedGroups?: string[];
-                filter?: FilterOption;
-                isGrouped?: boolean;
-                operations?: Record<string, OperationMockConfig>;
-                sort?: SortOption;
-              }
-            | undefined;
-
-          // Migrate persisted operations: add errorOverride if missing
-          const mergedOps = {
-            ...current.operations,
-            ...persistedState?.operations,
-          };
-          for (const key of Object.keys(mergedOps)) {
-            const op = mergedOps[key];
-            if (op.errorOverride === undefined) {
-              mergedOps[key] = { ...op, errorOverride: null };
-            }
-            // Migrate old "success" variant ID to new "variant-0"
-            if (op.activeVariantId === "success") {
-              mergedOps[key] = { ...mergedOps[key], activeVariantId: "variant-0" };
-            }
-          }
+          const sanitized = sanitizePersistedState(persisted, {
+            collapsedGroups: [...current.collapsedGroups],
+            filter: current.filter,
+            isGrouped: current.isGrouped,
+            operations: current.operations,
+            sort: current.sort,
+          });
 
           return {
             ...current,
-            collapsedGroups: persistedState?.collapsedGroups
-              ? new Set(persistedState.collapsedGroups)
-              : current.collapsedGroups,
-            filter: persistedState?.filter ?? current.filter,
-            isGrouped: persistedState?.isGrouped ?? current.isGrouped,
-            operations: mergedOps,
-            sort: persistedState?.sort ?? current.sort,
+            ...sanitized,
+            collapsedGroups: new Set(sanitized.collapsedGroups),
           };
         },
         name: "msw-devtools-store",
