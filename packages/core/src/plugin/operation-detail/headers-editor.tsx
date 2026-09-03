@@ -1,9 +1,25 @@
-import { useCallback, useState } from "react";
+import { Debouncer } from "@tanstack/pacer";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, RotateCcw } from "#/plugin/icons";
 import { theme } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { HeadersEditorProps } from "./types";
+
+const DEBOUNCE_WAIT = 600;
+
+/** Headers must be a JSON object; an empty editor means "no override". */
+const isValidHeadersJson = (text: string): boolean => {
+  if (text.trim() === "") {
+    return true;
+  }
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed);
+  } catch {
+    return false;
+  }
+};
 
 export const HeadersEditor = ({
   effectiveHeaders,
@@ -13,25 +29,61 @@ export const HeadersEditor = ({
   operationName,
 }: HeadersEditorProps) => {
   const resetHover = useHover();
-  const [isValid, setIsValid] = useState(true);
+  const [localValue, setLocalValue] = useState(effectiveHeaders);
+  // Tracks keystrokes not yet committed via the debounced onHeadersChange, so
+  // incoming store updates don't clobber what the user is typing.
+  const isEditingRef = useRef(false);
+  const isValid = useMemo(() => isValidHeadersJson(localValue), [localValue]);
+
+  const debouncer = useMemo(
+    () =>
+      new Debouncer(
+        (headers: string | null) => {
+          onHeadersChange(headers);
+        },
+        { wait: DEBOUNCE_WAIT }
+      ),
+    [onHeadersChange]
+  );
+
+  useEffect(
+    () => () => {
+      debouncer.cancel();
+    },
+    [debouncer]
+  );
+
+  useEffect(() => {
+    if (effectiveHeaders === localValue) {
+      isEditingRef.current = false;
+      return;
+    }
+    if (isEditingRef.current) {
+      return;
+    }
+    setLocalValue(effectiveHeaders);
+  }, [effectiveHeaders, localValue]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const nextValue = e.target.value;
-      if (nextValue === "") {
-        setIsValid(true);
+      isEditingRef.current = true;
+      setLocalValue(nextValue);
+      // Only valid header objects reach the store; invalid text stays local.
+      if (isValidHeadersJson(nextValue)) {
+        debouncer.maybeExecute(nextValue.trim() === "" ? null : nextValue);
       } else {
-        try {
-          JSON.parse(nextValue);
-          setIsValid(true);
-        } catch {
-          setIsValid(false);
-        }
+        debouncer.cancel();
       }
-      onHeadersChange(e);
     },
-    [onHeadersChange]
+    [debouncer]
   );
+
+  const handleReset = useCallback(() => {
+    debouncer.cancel();
+    isEditingRef.current = false;
+    onHeadersReset();
+  }, [debouncer, onHeadersReset]);
 
   let borderColor: string = theme.colors.borderInput;
   if (!isValid) {
@@ -78,7 +130,7 @@ export const HeadersEditor = ({
         )}
         {hasHeadersOverride ? (
           <button
-            onClick={onHeadersReset}
+            onClick={handleReset}
             style={{
               alignItems: "center",
               background: "none",
@@ -115,7 +167,7 @@ export const HeadersEditor = ({
           padding: `${theme.spacing.md} ${theme.spacing.lg}`,
           resize: "vertical",
         }}
-        value={effectiveHeaders}
+        value={localValue}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn } from "storybook/test";
+import { expect, fn, waitFor } from "storybook/test";
 import { theme } from "#/plugin/theme";
 import { HeadersEditor } from "./headers-editor";
 
@@ -63,7 +63,42 @@ export const EditsHeaders: Story = {
       const textarea = canvas.getByRole("textbox");
       await userEvent.clear(textarea);
       await userEvent.type(textarea, '{{"Content-Type": "application/json"}');
-      await expect(args.onHeadersChange).toHaveBeenCalled();
+    });
+    await step("Commits valid JSON after the debounce", async () => {
+      await waitFor(
+        () => {
+          expect(args.onHeadersChange).toHaveBeenCalledWith('{"Content-Type": "application/json"}');
+        },
+        { timeout: 2000 }
+      );
+    });
+  },
+};
+
+export const InvalidHeaders: Story = {
+  name: "Invalid Headers",
+  play: async ({ canvas, userEvent, step, args }) => {
+    await step("Type invalid JSON", async () => {
+      const textarea = canvas.getByRole("textbox");
+      await userEvent.clear(textarea);
+      await userEvent.type(textarea, "{{not json");
+      await expect(canvas.getByText("Invalid JSON")).toBeInTheDocument();
+    });
+    await step("Invalid text is never committed", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      await expect(args.onHeadersChange).not.toHaveBeenCalled();
+    });
+    await step("Fixing the JSON clears the error and commits", async () => {
+      const textarea = canvas.getByRole("textbox");
+      await userEvent.clear(textarea);
+      await userEvent.type(textarea, '{{"X-Id": "1"}');
+      await expect(canvas.queryByText("Invalid JSON")).not.toBeInTheDocument();
+      await waitFor(
+        () => {
+          expect(args.onHeadersChange).toHaveBeenCalledWith('{"X-Id": "1"}');
+        },
+        { timeout: 2000 }
+      );
     });
   },
 };
