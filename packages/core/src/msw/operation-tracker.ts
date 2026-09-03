@@ -1,10 +1,39 @@
 import type { SetupWorker } from "msw/browser";
 import { mockRegistry } from "#/registry/registry";
-import type { RestMockDescriptor } from "#/registry/types";
+import type { GraphQLMockDescriptor, RestMockDescriptor } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 
 const markSeen = (name: string): void => {
   useMockStore.getState().markOperationSeen(name);
+};
+
+const matchesGraphQLDescriptor = (
+  requestOperationName: string,
+  descriptor: GraphQLMockDescriptor
+): boolean =>
+  typeof descriptor.graphqlOperationName === "string"
+    ? descriptor.graphqlOperationName === requestOperationName
+    : descriptor.graphqlOperationName.test(requestOperationName);
+
+/**
+ * Mark every registered GraphQL operation whose handler matches the request's
+ * operation name as seen. Falls back to the raw request name when nothing is
+ * registered for it, so unregistered operations are still tracked.
+ */
+const markGraphQLSeen = (requestOperationName: string): void => {
+  const matches = mockRegistry
+    .getAll()
+    .filter(
+      (d): d is GraphQLMockDescriptor =>
+        d.type === "graphql" && matchesGraphQLDescriptor(requestOperationName, d)
+    );
+  if (matches.length === 0) {
+    markSeen(requestOperationName);
+    return;
+  }
+  for (const descriptor of matches) {
+    markSeen(descriptor.operationName);
+  }
 };
 
 /** Try to extract a GraphQL operation name from a GET request's URL params. */
@@ -13,7 +42,7 @@ const tryGraphQLGet = (request: Request): boolean => {
     const url = new URL(request.url);
     const opName = url.searchParams.get("operationName");
     if (opName != null && opName !== "") {
-      markSeen(opName);
+      markGraphQLSeen(opName);
       return true;
     }
   } catch {
@@ -39,7 +68,7 @@ const tryGraphQLPost = async (request: Request): Promise<void> => {
       (body?.operationName != null && body.operationName !== "" ? body.operationName : null) ??
       (body?.query ? extractOperationNameFromQuery(body.query) : null);
     if (opName) {
-      markSeen(opName);
+      markGraphQLSeen(opName);
     }
   } catch {
     // Not JSON — ignore

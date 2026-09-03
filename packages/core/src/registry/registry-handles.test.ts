@@ -69,6 +69,20 @@ describe("operation handles", () => {
 
       expect(handles[0].operationName).toBe("Pancham (custom)");
     });
+
+    it("keeps the handler's GraphQL operation name when the display name is overridden", async () => {
+      const { mockRegistry } = await import("./registry");
+      registerGraphql({
+        handler: graphql.query("GetPancham", () => HttpResponse.json({ data: {} })),
+        operationName: "Pancham (custom)",
+      });
+
+      const descriptor = mockRegistry.get("Pancham (custom)");
+      expect(descriptor?.type).toBe("graphql");
+      expect(
+        descriptor && "graphqlOperationName" in descriptor && descriptor.graphqlOperationName
+      ).toBe("GetPancham");
+    });
   });
 
   describe("useMockRefetch-relevant name extraction", () => {
