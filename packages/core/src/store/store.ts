@@ -145,18 +145,6 @@ export const useMockStore = create<MockStoreState>()(
 
         sort: "default" as SortOption,
 
-        toggleGroupCollapsed: (group) => {
-          set((state) => {
-            const next = new Set(state.collapsedGroups);
-            if (next.has(group)) {
-              next.delete(group);
-            } else {
-              next.add(group);
-            }
-            return { collapsedGroups: next };
-          });
-        },
-
         syncWithRegistry: (operationNames) => {
           set((state) => {
             const operations = { ...state.operations };
@@ -178,6 +166,18 @@ export const useMockStore = create<MockStoreState>()(
               }
             }
             return { operations };
+          });
+        },
+
+        toggleGroupCollapsed: (group) => {
+          set((state) => {
+            const next = new Set(state.collapsedGroups);
+            if (next.has(group)) {
+              next.delete(group);
+            } else {
+              next.add(group);
+            }
+            return { collapsedGroups: next };
           });
         },
 

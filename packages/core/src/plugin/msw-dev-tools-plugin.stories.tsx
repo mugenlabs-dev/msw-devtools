@@ -5,9 +5,9 @@ import { allDescriptors, buildOperations, enabledConfig } from "#/plugin/__stori
 import { MswDevToolsPlugin } from "./msw-dev-tools-plugin";
 
 const meta: Meta<typeof MswDevToolsPlugin> = {
-  title: "Plugin/MswDevToolsPlugin",
   component: MswDevToolsPlugin,
   decorators: [withPluginContainer],
+  title: "Plugin/MswDevToolsPlugin",
 };
 
 export default meta;
@@ -96,12 +96,12 @@ export const Default: Story = {
 };
 
 export const AllMocksEnabled: Story = {
-  name: "All Mocks Enabled",
   decorators: [
     withMockSeed({
       operations: buildOperations(allDescriptors, enabledConfig),
     }),
   ],
+  name: "All Mocks Enabled",
   play: async ({ canvas, step }) => {
     await step("Verify all mocks enabled", async () => {
       await canvas.findByText("7/7 active");
@@ -110,8 +110,8 @@ export const AllMocksEnabled: Story = {
 };
 
 export const EmptyState: Story = {
-  name: "Empty (No Operations)",
   decorators: [withMockSeed({ descriptors: [] })],
+  name: "Empty (No Operations)",
   play: async ({ canvas, step }) => {
     await step("Verify empty state", async () => {
       await canvas.findByText("MSW Active");

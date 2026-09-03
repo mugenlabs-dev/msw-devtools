@@ -4,7 +4,12 @@ import { theme } from "#/plugin/theme";
 import { ControlsBar } from "./controls-bar";
 
 const meta: Meta<typeof ControlsBar> = {
-  title: "Operation List/ControlsBar",
+  args: {
+    descriptorCount: 7,
+    enabledCount: 0,
+    onDisableAll: fn(),
+    onEnableAll: fn(),
+  },
   component: ControlsBar,
   decorators: [
     (Story) => (
@@ -13,12 +18,7 @@ const meta: Meta<typeof ControlsBar> = {
       </div>
     ),
   ],
-  args: {
-    descriptorCount: 7,
-    enabledCount: 0,
-    onDisableAll: fn(),
-    onEnableAll: fn(),
-  },
+  title: "Operation List/ControlsBar",
 };
 
 export default meta;

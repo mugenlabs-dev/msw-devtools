@@ -12,7 +12,9 @@ import { theme } from "#/plugin/theme";
 import { OperationDetail } from "./operation-detail";
 
 const meta: Meta<typeof OperationDetail> = {
-  title: "Operation Detail/OperationDetail",
+  args: {
+    operationName: null,
+  },
   component: OperationDetail,
   decorators: [
     (Story) => (
@@ -28,9 +30,7 @@ const meta: Meta<typeof OperationDetail> = {
       </div>
     ),
   ],
-  args: {
-    operationName: null,
-  },
+  title: "Operation Detail/OperationDetail",
 };
 
 export default meta;
@@ -46,13 +46,13 @@ export const NoSelection: Story = {
 };
 
 export const RestEndpoint: Story = {
-  name: "REST Endpoint Selected",
   args: { operationName: "GET /api/users" },
   decorators: [
     withMockSeed({
       operations: buildOperations(allDescriptors, enabledConfig),
     }),
   ],
+  name: "REST Endpoint Selected",
   play: async ({ canvas, userEvent, step }) => {
     await step("Verify REST endpoint detail", async () => {
       const toggle = await canvas.findByRole("button", { name: "Toggle mock" });
@@ -90,7 +90,6 @@ export const RestEndpoint: Story = {
 };
 
 export const WithErrorOverride: Story = {
-  name: "Error Override Active",
   args: { operationName: "GET /api/users" },
   decorators: [
     withMockSeed({
@@ -100,6 +99,7 @@ export const WithErrorOverride: Story = {
       },
     }),
   ],
+  name: "Error Override Active",
   play: async ({ canvas, step }) => {
     await step("Verify error override state", async () => {
       await canvas.findByRole("button", { name: "Toggle mock" });
@@ -112,7 +112,6 @@ export const WithErrorOverride: Story = {
 };
 
 export const WithCustomJson: Story = {
-  name: "Custom JSON Override",
   args: { operationName: "GET /api/users" },
   decorators: [
     withMockSeed({
@@ -122,6 +121,7 @@ export const WithCustomJson: Story = {
       },
     }),
   ],
+  name: "Custom JSON Override",
   play: async ({ canvas, step }) => {
     await step("Verify custom JSON", async () => {
       await canvas.findByText("Response JSON (custom)");
@@ -135,13 +135,13 @@ export const WithCustomJson: Story = {
 };
 
 export const GraphQLEndpoint: Story = {
-  name: "GraphQL Query Selected",
   args: { operationName: "GetUsers" },
   decorators: [
     withMockSeed({
       operations: buildOperations(allDescriptors, enabledConfig),
     }),
   ],
+  name: "GraphQL Query Selected",
   play: async ({ canvas, step }) => {
     await step("Verify GraphQL query detail", async () => {
       await canvas.findByRole("button", { name: "Toggle mock" });
