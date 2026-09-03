@@ -28,6 +28,7 @@ export const theme = {
     success: "#4ade80",
     successBg: "#1a3a1a",
     successBgHover: "#1f4a1f",
+    successHover: "#5be992",
     surface: "#1a1a1a",
     surfaceGroupHeader: "#1e1e2e",
     surfaceGroupHeaderHover: "#262640",

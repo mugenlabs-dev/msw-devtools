@@ -13,7 +13,7 @@ export const OperationDetailHeader = ({
 
   let toggleBg: string = theme.colors.toggleOff;
   if (config.enabled) {
-    toggleBg = toggleHover.isHovered ? "#5be992" : theme.colors.success;
+    toggleBg = toggleHover.isHovered ? theme.colors.successHover : theme.colors.success;
   } else if (toggleHover.isHovered) {
     toggleBg = theme.colors.toggleOffHover;
   }

@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { theme } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
@@ -7,7 +7,7 @@ import type { OperationRowProps } from "./types";
 
 import { getOperationTypeBadge, getStatusDotColor } from "./utils";
 
-export const OperationRow = ({
+const OperationRowComponent = ({
   descriptor,
   isSelected,
   isEnabled,
@@ -55,7 +55,7 @@ export const OperationRow = ({
 
   let toggleBg: string = theme.colors.toggleOff;
   if (isEnabled) {
-    toggleBg = toggleHover.isHovered ? "#5be992" : theme.colors.success;
+    toggleBg = toggleHover.isHovered ? theme.colors.successHover : theme.colors.success;
   } else if (toggleHover.isHovered) {
     toggleBg = theme.colors.toggleOffHover;
   }
@@ -188,3 +188,9 @@ export const OperationRow = ({
     </div>
   );
 };
+
+/**
+ * Memoised: every store update replaces the whole `operations` record, so
+ * without this a single toggle would re-render every row in the list.
+ */
+export const OperationRow = memo(OperationRowComponent);
