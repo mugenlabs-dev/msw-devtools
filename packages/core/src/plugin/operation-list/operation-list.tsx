@@ -17,7 +17,7 @@ export const OperationList = ({ selectedOperation, onSelectOperation }: Operatio
   const descriptors = useRegistryDescriptors();
   const store = useListStoreSelectors();
   const listState = useOperationListState();
-  const { handleEnableAll, handleDisableAll } = useBulkActions(descriptors);
+  const { handleEnableAll, handleDisableAll } = useBulkActions();
 
   const filteredDescriptors = useMemo(
     () =>

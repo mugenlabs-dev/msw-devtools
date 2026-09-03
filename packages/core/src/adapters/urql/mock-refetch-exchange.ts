@@ -2,7 +2,7 @@ import type { Exchange, Operation } from "@urql/core";
 import { makeOperation } from "@urql/core";
 import { pipe, tap } from "wonka";
 import { MOCK_UPDATE_EVENT_NAME } from "#/adapter/event-bus";
-import type { MockUpdateEvent } from "#/adapter/types";
+import { affectsOperation, type MockUpdateEvent } from "#/adapter/types";
 
 const getOperationName = (op: Operation): string | undefined => {
   for (const def of op.query.definitions) {
@@ -42,9 +42,9 @@ export const mockRefetchExchange: Exchange = ({ client, forward }) => {
         return;
       }
 
-      const { operationName } = event.detail;
       for (const [, op] of activeQueries) {
-        if (getOperationName(op) !== operationName) {
+        const name = getOperationName(op);
+        if (name === undefined || !affectsOperation(event.detail, name)) {
           continue;
         }
         liveClient.reexecuteOperation(

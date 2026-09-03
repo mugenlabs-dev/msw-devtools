@@ -2,6 +2,7 @@ import type { Client, Operation, OperationContext, OperationResult } from "@urql
 import { gql, makeOperation } from "@urql/core";
 import { makeSubject, map, pipe, publish } from "wonka";
 import { dispatchMockUpdate } from "#/adapter/event-bus";
+import { ALL_OPERATIONS } from "#/adapter/types";
 import { mockRefetchExchange } from "./mock-refetch-exchange";
 
 const context = { requestPolicy: "cache-first", url: "/graphql" } as unknown as OperationContext;
@@ -94,5 +95,15 @@ describe("mockRefetchExchange", () => {
 
     expect(first.client.reexecuteOperation).toHaveBeenCalledOnce();
     expect(second.client.reexecuteOperation).toHaveBeenCalledOnce();
+  });
+
+  it("re-executes every active query on a bulk event", () => {
+    const { client, emit } = setup();
+    emit(queryOp(1, "GetUser"));
+    emit(queryOp(2, "GetPosts"));
+
+    dispatchMockUpdate(ALL_OPERATIONS, "enable-all");
+
+    expect(client.reexecuteOperation).toHaveBeenCalledTimes(2);
   });
 });

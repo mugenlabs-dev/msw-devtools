@@ -8,6 +8,7 @@
 export { getAdapters, registerAdapter } from "./adapter/adapter-registry";
 export { dispatchMockUpdate, MOCK_UPDATE_EVENT_NAME, onMockUpdate } from "./adapter/event-bus";
 export type { MockChangeType, MockUpdateEvent, MswDevToolAdapter } from "./adapter/types";
+export { ALL_OPERATIONS, affectsOperation } from "./adapter/types";
 // --- React Hooks ---
 export { useMockRefetch } from "./hooks/use-mock-refetch";
 export type { WorkerOptions } from "./msw/worker-manager";

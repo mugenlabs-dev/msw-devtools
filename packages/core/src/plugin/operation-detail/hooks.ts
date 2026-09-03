@@ -64,11 +64,13 @@ export const useFieldHandlers = (operationName: string) => {
       const raw = e.target.value;
       if (raw === "") {
         setStatusCode(operationName, null);
-      } else {
-        const value = Number.parseInt(raw, 10);
-        if (!Number.isNaN(value)) {
-          setStatusCode(operationName, value);
-        }
+        dispatchMockUpdate(operationName, "status-override");
+        return;
+      }
+      const value = Number.parseInt(raw, 10);
+      if (!Number.isNaN(value)) {
+        setStatusCode(operationName, value);
+        dispatchMockUpdate(operationName, "status-override");
       }
     },
     [operationName, setStatusCode]
@@ -76,6 +78,7 @@ export const useFieldHandlers = (operationName: string) => {
 
   const handleStatusCodeReset = useCallback(() => {
     setStatusCode(operationName, null);
+    dispatchMockUpdate(operationName, "status-override");
   }, [operationName, setStatusCode]);
 
   return { handleDelayChange, handleJsonChange, handleStatusCodeChange, handleStatusCodeReset };
@@ -88,12 +91,14 @@ export const useHeaderAndResetHandlers = (operationName: string) => {
   const handleHeadersChange = useCallback(
     (headers: string | null) => {
       setCustomHeaders(operationName, headers);
+      dispatchMockUpdate(operationName, "headers-override");
     },
     [operationName, setCustomHeaders]
   );
 
   const handleHeadersReset = useCallback(() => {
     setCustomHeaders(operationName, null);
+    dispatchMockUpdate(operationName, "headers-override");
   }, [operationName, setCustomHeaders]);
 
   const handleReset = useCallback(() => {

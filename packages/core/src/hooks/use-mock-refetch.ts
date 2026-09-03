@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { onMockUpdate } from "#/adapter/event-bus";
+import { affectsOperation } from "#/adapter/types";
 import type { OperationHandle } from "#/registry/types";
 
 /**
@@ -22,7 +23,7 @@ export const useMockRefetch = (operation: OperationHandle | string, refetch: () 
   useEffect(
     () =>
       onMockUpdate((event) => {
-        if (event.operationName === operationName) {
+        if (affectsOperation(event, operationName)) {
           refetch();
         }
       }),

@@ -283,7 +283,8 @@ registerGraphqlMocks({
 | `MockOperationDescriptor` | Union of `RestMockDescriptor` and `GraphQLMockDescriptor` |
 | `OperationMockConfig` | Per-operation runtime state (enabled, active variant, overrides) |
 | `MswDevToolAdapter` | Interface for creating custom adapters |
-| `MockChangeType` | `"toggle" \| "variant" \| "json-override" \| "enable-all" \| "disable-all"` |
+| `MockChangeType` | `"toggle" \| "variant" \| "json-override" \| "status-override" \| "headers-override" \| "enable-all" \| "disable-all"` |
+| `ALL_OPERATIONS` | Sentinel `operationName` (`"*"`) carried by bulk `enable-all` / `disable-all` events. Use `affectsOperation(event, name)` in custom adapters to match it. |
 | `WorkerOptions` | Configuration for `startWorker()` |
 | `MswDevToolsPluginOptions` | Configuration for `createMswDevToolsPlugin()` |
 
