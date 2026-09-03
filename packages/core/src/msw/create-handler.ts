@@ -19,6 +19,30 @@ const buildErrorResponse = (code: number): Response =>
   HttpResponse.json({ error: ERROR_MESSAGES[code] ?? "Error", status: code }, { status: code });
 
 // ---------------------------------------------------------------------------
+// Status code overrides
+// ---------------------------------------------------------------------------
+
+/** The `Response` constructor only accepts status codes in this range. */
+const MIN_STATUS_CODE = 200;
+const MAX_STATUS_CODE = 599;
+
+/** Statuses that must not carry a body (the `Response` constructor throws otherwise). */
+const NULL_BODY_STATUS_CODES = new Set([204, 205, 304]);
+
+/**
+ * Only apply status overrides the platform can actually represent. Partial
+ * values typed into the status input (e.g. "2" on the way to "204") are ignored
+ * rather than crashing the resolver.
+ */
+const resolveStatusOverride = (statusCode: number | null): number | null =>
+  statusCode != null &&
+  Number.isInteger(statusCode) &&
+  statusCode >= MIN_STATUS_CODE &&
+  statusCode <= MAX_STATUS_CODE
+    ? statusCode
+    : null;
+
+// ---------------------------------------------------------------------------
 // Response capture — lazily store the handler's response for the JSON editor
 // ---------------------------------------------------------------------------
 
@@ -42,9 +66,10 @@ const applyOverrides = async (
 ): Promise<Response> => {
   const hasJsonOverride = config.customJsonOverride != null && config.customJsonOverride !== "";
   const hasHeaderOverride = config.customHeaders != null && config.customHeaders !== "";
+  const statusOverride = resolveStatusOverride(config.statusCode);
 
   // If nothing to override, return as-is
-  if (!(hasJsonOverride || config.statusCode != null || hasHeaderOverride)) {
+  if (!(hasJsonOverride || statusOverride != null || hasHeaderOverride)) {
     return original;
   }
 
@@ -67,7 +92,7 @@ const applyOverrides = async (
   }
 
   // Resolve status
-  const status = config.statusCode ?? original.status;
+  const status = statusOverride ?? original.status;
 
   // Resolve headers. Skip entity headers that describe the original payload —
   // the body is re-serialized below, so stale content-length/content-encoding/
@@ -90,6 +115,10 @@ const applyOverrides = async (
     } catch {
       // Invalid JSON — keep original headers
     }
+  }
+
+  if (NULL_BODY_STATUS_CODES.has(status)) {
+    return new HttpResponse(null, { headers, status });
   }
 
   return HttpResponse.json(body as Record<string, unknown>, { headers, status });

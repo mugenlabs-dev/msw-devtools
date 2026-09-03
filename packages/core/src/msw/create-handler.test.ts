@@ -93,6 +93,38 @@ describe("createDynamicHandler", () => {
     });
   });
 
+  describe("status code override", () => {
+    it("applies a valid status override", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { statusCode: 201 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.status).toBe(201);
+      await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
+    });
+
+    it("ignores a status override outside the range a Response can represent", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { statusCode: 2 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.status).toBe(200);
+      await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
+    });
+
+    it("returns an empty body for null-body statuses", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { statusCode: 204 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.status).toBe(204);
+      await expect(response?.text()).resolves.toBe("");
+    });
+  });
+
   describe("REST", () => {
     it("returns the handler response when enabled", async () => {
       const descriptor = restDescriptor();
