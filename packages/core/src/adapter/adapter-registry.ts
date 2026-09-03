@@ -19,16 +19,22 @@ export const registerAdapter = (adapter: MswDevToolAdapter): (() => void) => {
     adapter.onMockUpdate(event.operationName, event.changeType);
   });
 
-  adapters.set(adapter.id, {
+  const entry = {
     adapter,
     cleanup: () => {
       unsubscribe();
       adapterCleanup?.();
     },
-  });
+  };
+  adapters.set(adapter.id, entry);
 
   return () => {
-    adapters.get(adapter.id)?.cleanup?.();
+    // Only tear down the adapter this call registered. If the id has since
+    // been re-registered, the newer adapter stays live.
+    if (adapters.get(adapter.id) !== entry) {
+      return;
+    }
+    entry.cleanup();
     adapters.delete(adapter.id);
   };
 };
