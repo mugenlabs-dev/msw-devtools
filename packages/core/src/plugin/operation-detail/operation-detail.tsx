@@ -202,5 +202,7 @@ export const OperationDetail = ({ operationName }: OperationDetailProps) => {
     );
   }
 
-  return <OperationDetailInner operationName={operationName} />;
+  // Remount per operation so editors with local, debounced state never carry
+  // a pending or invalid edit from one operation over to the next.
+  return <OperationDetailInner key={operationName} operationName={operationName} />;
 };
