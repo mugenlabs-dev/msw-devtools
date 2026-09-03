@@ -162,7 +162,7 @@ const createGraphQLHandler = (
 ) => {
   const gqlMethod = descriptor.operationType === "query" ? graphql.query : graphql.mutation;
 
-  return gqlMethod(descriptor.operationName, (info) => resolveAndRespond(descriptor, info));
+  return gqlMethod(descriptor.graphqlOperationName, (info) => resolveAndRespond(descriptor, info));
 };
 
 export const createDynamicHandler = (descriptor: MockOperationDescriptor) => {

@@ -106,6 +106,30 @@ describe("operation-tracker", () => {
     expect(seen().has("AddPokemon")).toBe(true);
   });
 
+  it("marks a GraphQL operation with an overridden display name as seen", async () => {
+    mockRegistry.register({
+      graphqlOperationName: "GetPancham",
+      operationName: "Pancham (custom)",
+      operationType: "query",
+      type: "graphql",
+      variants: [],
+    });
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    emit(
+      new Request("http://localhost/graphql", {
+        body: JSON.stringify({ operationName: "GetPancham", query: "query GetPancham { id }" }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      })
+    );
+    await flush();
+
+    expect(seen().has("Pancham (custom)")).toBe(true);
+    expect(seen().has("GetPancham")).toBe(false);
+  });
+
   it("marks a REST operation with an absolute URL and query string as seen", () => {
     mockRegistry.register(
       restDescriptor({

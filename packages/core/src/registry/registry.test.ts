@@ -2,6 +2,7 @@ import type { mockRegistry } from "./registry";
 import type { MockOperationDescriptor } from "./types";
 
 const graphqlDescriptor: MockOperationDescriptor = {
+  graphqlOperationName: "GetUser",
   operationName: "GetUser",
   operationType: "query",
   type: "graphql",
@@ -38,11 +39,11 @@ describe("mock registry", () => {
     });
 
     it("overwrites existing descriptor with same operationName", () => {
-      const updated = { ...graphqlDescriptor, variants: [] };
+      const updated = { ...graphqlDescriptor, group: "Updated" };
       mockRegistryInstance.register(graphqlDescriptor);
       mockRegistryInstance.register(updated);
       expect(mockRegistryInstance.size).toBe(1);
-      expect(mockRegistryInstance.get("GetUser")?.variants).toStrictEqual([]);
+      expect(mockRegistryInstance.get("GetUser")?.group).toBe("Updated");
     });
 
     it("notifies listeners on register", () => {

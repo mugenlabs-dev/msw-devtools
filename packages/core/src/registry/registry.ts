@@ -236,13 +236,19 @@ export const registerGraphqlMocks = (...defs: GraphqlMockDef[]): OperationHandle
     const primary = getPrimaryHandler(variants);
     const info = primary.info as unknown as Record<string, unknown>;
 
+    const handlerOperationName = info.operationName;
+    const graphqlOperationName =
+      typeof handlerOperationName === "string" || handlerOperationName instanceof RegExp
+        ? handlerOperationName
+        : "UnknownOperation";
     const operationName =
       def.operationName ??
-      (typeof info.operationName === "string" ? info.operationName : "UnknownOperation");
+      (typeof graphqlOperationName === "string" ? graphqlOperationName : "UnknownOperation");
     const operationType: GraphQLOperationType =
       def.operationType ?? (info.operationType === "mutation" ? "mutation" : "query");
 
     descriptors.push({
+      graphqlOperationName,
       group: def.group,
       operationName,
       operationType,
