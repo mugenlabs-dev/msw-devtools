@@ -16,9 +16,27 @@ export interface MswDevToolAdapter {
   setup?: () => (() => void) | undefined;
 }
 
-export type MockChangeType = "toggle" | "variant" | "json-override" | "enable-all" | "disable-all";
+export type MockChangeType =
+  | "toggle"
+  | "variant"
+  | "json-override"
+  | "status-override"
+  | "headers-override"
+  | "enable-all"
+  | "disable-all";
+
+/**
+ * Sentinel `operationName` used by bulk events (`enable-all` / `disable-all`),
+ * which affect every registered operation at once.
+ */
+export const ALL_OPERATIONS = "*";
 
 export interface MockUpdateEvent {
   changeType: MockChangeType;
+  /** The affected operation, or {@link ALL_OPERATIONS} for bulk changes. */
   operationName: string;
 }
+
+/** Whether a mock update event applies to the given operation. */
+export const affectsOperation = (event: MockUpdateEvent, operationName: string): boolean =>
+  event.operationName === ALL_OPERATIONS || event.operationName === operationName;
