@@ -68,6 +68,12 @@ interface MockOperationDescriptorBase {
 }
 
 export type GraphQLMockDescriptor = MockOperationDescriptorBase & {
+  /**
+   * The GraphQL operation name (or pattern) the handler matches, exactly as
+   * passed to MSW's graphql.query/mutation. Kept separate from `operationName`
+   * so the display name can be overridden without breaking request matching.
+   */
+  graphqlOperationName: string | RegExp;
   operationType: GraphQLOperationType;
   type: "graphql";
 };
