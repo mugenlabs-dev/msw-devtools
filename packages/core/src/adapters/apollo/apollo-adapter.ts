@@ -1,4 +1,5 @@
 import type { ApolloClient } from "@apollo/client";
+import { ignoreRejection } from "#/adapter/ignore-rejection";
 import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
 
 /**
@@ -8,6 +9,6 @@ import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
 export const createApolloAdapter = (client: ApolloClient<unknown>): MswDevToolAdapter => ({
   id: "apollo",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
-    void client.refetchQueries({ include: "active" });
+    ignoreRejection(client.refetchQueries({ include: "active" }));
   },
 });

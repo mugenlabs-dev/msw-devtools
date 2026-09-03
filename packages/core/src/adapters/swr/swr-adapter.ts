@@ -1,3 +1,4 @@
+import { ignoreRejection } from "#/adapter/ignore-rejection";
 import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
 
 type SWRMutateFn = (
@@ -13,6 +14,6 @@ type SWRMutateFn = (
 export const createSwrAdapter = (mutate: SWRMutateFn): MswDevToolAdapter => ({
   id: "swr",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
-    void mutate(() => true, undefined, { revalidate: true });
+    ignoreRejection(mutate(() => true, undefined, { revalidate: true }));
   },
 });
