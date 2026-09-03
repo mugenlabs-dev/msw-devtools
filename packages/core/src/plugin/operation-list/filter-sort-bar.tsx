@@ -80,6 +80,7 @@ export const FilterSortBar = ({
       <div style={{ alignItems: "center", display: "flex", gap: theme.spacing.md }}>
         <ArrowUpDown color={theme.colors.textMuted} size={12} />
         <select
+          aria-label="Sort operations"
           onChange={onSortChange}
           style={{
             background: theme.colors.surface,
