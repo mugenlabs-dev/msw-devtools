@@ -1,3 +1,4 @@
+import type { TanStackDevtoolsReactPlugin } from "@tanstack/react-devtools";
 import { MswDevToolsPlugin } from "./msw-dev-tools-plugin";
 
 export interface MswDevToolsPluginOptions {
@@ -18,7 +19,9 @@ export interface MswDevToolsPluginOptions {
  * <TanStackDevtools plugins={[createMswDevToolsPlugin()]} />
  * ```
  */
-export const createMswDevToolsPlugin = (options?: MswDevToolsPluginOptions) => ({
+export const createMswDevToolsPlugin = (
+  options?: MswDevToolsPluginOptions
+): TanStackDevtoolsReactPlugin => ({
   defaultOpen: options?.defaultOpen ?? true,
   id: "@mugenlabs/msw-devtools",
   name: options?.name ?? "MSW Mocks",

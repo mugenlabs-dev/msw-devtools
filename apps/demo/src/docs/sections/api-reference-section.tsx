@@ -215,11 +215,11 @@ export const ApiReferenceSection = () => (
         />
       </ApiEntry>
       <ApiEntry
-        badge="TanStackPlugin"
+        badge="TanStackDevtoolsReactPlugin"
         badgeVariant="default"
         description="Creates a TanStack DevTools plugin that auto-starts the MSW service worker on mount. No manual worker setup required."
         name="createMswDevToolsPlugin"
-        signature="createMswDevToolsPlugin(options?: MswDevToolsPluginOptions): TanStackPlugin"
+        signature="createMswDevToolsPlugin(options?: MswDevToolsPluginOptions): TanStackDevtoolsReactPlugin"
       >
         <ParamTable
           params={[

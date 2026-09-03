@@ -80,6 +80,7 @@
     "@storybook/addon-vitest": "^10.6.0",
     "@storybook/react": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",
+    "@tanstack/react-devtools": "^0.9.13",
     "@tanstack/react-query": "^5.102.8",
     "@urql/core": "^6.0.3",
     "graphql": "^16.14.2",
@@ -93,19 +94,23 @@
     "zustand": "^5.0.15"
   },
   "peerDependencies": {
-    "@apollo/client": ">=3.0.0",
-    "@tanstack/react-query": ">=5.0.0",
-    "@urql/core": ">=5.0.0",
-    "graphql": ">=16.0.0",
+    "@apollo/client": "^3.0.0 || ^4.0.0",
+    "@tanstack/react-devtools": ">=0.9.0",
+    "@tanstack/react-query": "^5.0.0",
+    "@urql/core": "^5.0.0 || ^6.0.0",
+    "graphql": "^16.0.0 || ^17.0.0",
     "msw": "^2.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "swr": ">=2.0.0",
-    "wonka": ">=6.0.0",
+    "swr": "^2.0.0",
+    "wonka": "^6.0.0",
     "zustand": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "@apollo/client": {
+      "optional": true
+    },
+    "@tanstack/react-devtools": {
       "optional": true
     },
     "@tanstack/react-query": {

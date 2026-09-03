@@ -49,10 +49,12 @@ npm install @mugenlabs/msw-devtools
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
 | `react-dom` | `^18.0.0 \|\| ^19.0.0` | Yes |
 | `zustand` | `^5.0.0` | Yes |
-| `@tanstack/react-query` | `>=5.0.0` | Only if using TanStack Query adapter |
-| `@urql/core` + `wonka` | `>=5.0.0` / `>=6.0.0` | Only if using URQL adapter |
-| `swr` | `>=2.0.0` | Only if using SWR adapter |
-| `@apollo/client` + `graphql` | `>=3.0.0` / `>=16.0.0` | Only if using Apollo adapter |
+| `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
+| `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.0.0` | Only if using URQL adapter |
+| `swr` | `^2.0.0` | Only if using SWR adapter |
+| `@apollo/client` + `graphql` | `^3.0.0 \|\| ^4.0.0` / `^16.0.0 \|\| ^17.0.0` | Only if using Apollo adapter |
+| `@reduxjs/toolkit` | any | Only if using RTK Query adapter (typed structurally, no peer needed) |
+| `@tanstack/react-devtools` | `>=0.9.0` | Optional — only needed to host the panel |
 
 ## Quick Start
 
