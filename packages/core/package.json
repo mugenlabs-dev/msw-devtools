@@ -15,20 +15,15 @@
   "bugs": {
     "url": "https://github.com/mugenlabs-dev/msw-devtools/issues"
   },
-  "license": "MIT",
-  "author": "Yago Gonzalez",
   "repository": {
     "type": "git",
     "url": "https://github.com/mugenlabs-dev/msw-devtools.git",
     "directory": "packages/core"
   },
-  "files": [
-    "dist"
-  ],
-  "type": "module",
+  "license": "MIT",
+  "author": "Yago Gonzalez",
   "sideEffects": false,
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -63,39 +58,39 @@
       "import": "./dist/adapters/rtk-query.mjs"
     }
   },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist",
-    "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "vitest run --project=storybook"
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "storybook": "storybook dev -p 6006",
+    "test-storybook": "vitest run --project=storybook",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tanstack/pacer": ">=0.19.0"
+    "@tanstack/pacer": "^0.22.0"
   },
   "devDependencies": {
-    "@apollo/client": "^3.13.8",
-    "@storybook/addon-vitest": "^10.2.13",
-    "@storybook/react": "^10.2.13",
-    "@storybook/react-vite": "^10.2.13",
-    "@tanstack/pacer": "^0.19.0",
-    "@tanstack/react-query": "^5.80.7",
-    "@urql/core": "^6.0.1",
-    "graphql": "^16.10.0",
-    "msw": "^2.12.10",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "storybook": "^10.2.13",
-    "swr": "^2.3.3",
-    "vite": "^6.0.0",
-    "wonka": "^6.3.5",
-    "zustand": "^5.0.11"
+    "@apollo/client": "^3.14.1",
+    "@storybook/addon-vitest": "^10.6.0",
+    "@storybook/react": "^10.6.0",
+    "@storybook/react-vite": "^10.6.0",
+    "@tanstack/react-query": "^5.102.8",
+    "@urql/core": "^6.0.3",
+    "graphql": "^16.14.2",
+    "msw": "^2.15.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "storybook": "^10.6.0",
+    "swr": "^2.5.1",
+    "vite": "^6.4.3",
+    "wonka": "^6.3.6",
+    "zustand": "^5.0.15"
   },
   "peerDependencies": {
     "@apollo/client": ">=3.0.0",
@@ -110,26 +105,30 @@
     "zustand": "^5.0.0"
   },
   "peerDependenciesMeta": {
-    "@urql/core": {
-      "optional": true
-    },
-    "wonka": {
+    "@apollo/client": {
       "optional": true
     },
     "@tanstack/react-query": {
       "optional": true
     },
-    "swr": {
-      "optional": true
-    },
-    "@apollo/client": {
+    "@urql/core": {
       "optional": true
     },
     "graphql": {
+      "optional": true
+    },
+    "swr": {
+      "optional": true
+    },
+    "wonka": {
       "optional": true
     }
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
