@@ -1,9 +1,9 @@
 import type { startWorker as StartWorker } from "./worker-manager";
 
 const { setupWorkerMock, startMock, setupTrackerMock } = vi.hoisted(() => ({
+  setupTrackerMock: vi.fn(),
   setupWorkerMock: vi.fn(),
   startMock: vi.fn(),
-  setupTrackerMock: vi.fn(),
 }));
 
 vi.mock("msw/browser", () => ({ setupWorker: setupWorkerMock }));

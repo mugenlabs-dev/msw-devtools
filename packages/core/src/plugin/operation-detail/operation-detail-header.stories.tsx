@@ -4,15 +4,6 @@ import { theme } from "#/plugin/theme";
 import { OperationDetailHeader } from "./operation-detail-header";
 
 const meta: Meta<typeof OperationDetailHeader> = {
-  title: "Operation Detail/OperationDetailHeader",
-  component: OperationDetailHeader,
-  decorators: [
-    (Story) => (
-      <div style={{ background: theme.colors.background, padding: "12px" }}>
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     config: { enabled: true },
     onToggle: fn(),
@@ -23,6 +14,15 @@ const meta: Meta<typeof OperationDetailHeader> = {
       label: "GET /api/users",
     },
   },
+  component: OperationDetailHeader,
+  decorators: [
+    (Story) => (
+      <div style={{ background: theme.colors.background, padding: "12px" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  title: "Operation Detail/OperationDetailHeader",
 };
 
 export default meta;
@@ -47,7 +47,6 @@ export const EnabledRest: Story = {
 };
 
 export const DisabledPost: Story = {
-  name: "Disabled (REST POST)",
   args: {
     config: { enabled: false },
     operationName: "POST /api/users",
@@ -57,6 +56,7 @@ export const DisabledPost: Story = {
       label: "POST /api/users",
     },
   },
+  name: "Disabled (REST POST)",
   play: async ({ canvas, step }) => {
     await step("Verify disabled state", async () => {
       const matches = canvas.getAllByText("POST /api/users");
@@ -69,7 +69,6 @@ export const DisabledPost: Story = {
 };
 
 export const GraphQLQuery: Story = {
-  name: "GraphQL Query",
   args: {
     operationName: "GetUsers",
     typeBadge: {
@@ -78,6 +77,7 @@ export const GraphQLQuery: Story = {
       label: "query",
     },
   },
+  name: "GraphQL Query",
   play: async ({ canvas, step }) => {
     await step("Verify GraphQL query rendering", async () => {
       await expect(canvas.getByText("GetUsers")).toBeInTheDocument();

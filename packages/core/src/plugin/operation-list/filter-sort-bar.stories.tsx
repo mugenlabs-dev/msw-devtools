@@ -4,15 +4,6 @@ import { theme } from "#/plugin/theme";
 import { FilterSortBar } from "./filter-sort-bar";
 
 const meta: Meta<typeof FilterSortBar> = {
-  title: "Operation List/FilterSortBar",
-  component: FilterSortBar,
-  decorators: [
-    (Story) => (
-      <div style={{ background: theme.colors.background, width: "280px" }}>
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     filter: "all",
     isGrouped: true,
@@ -21,6 +12,15 @@ const meta: Meta<typeof FilterSortBar> = {
     onSortChange: fn(),
     sort: "default",
   },
+  component: FilterSortBar,
+  decorators: [
+    (Story) => (
+      <div style={{ background: theme.colors.background, width: "280px" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  title: "Operation List/FilterSortBar",
 };
 
 export default meta;
@@ -71,8 +71,8 @@ export const Default: Story = {
 };
 
 export const FilteredByRest: Story = {
-  name: "Filtered: REST",
   args: { filter: "rest" },
+  name: "Filtered: REST",
   play: async ({ canvas, step }) => {
     await step("Verify REST filter active", async () => {
       await expect(canvas.getByRole("button", { name: "rest" })).toHaveAttribute(
@@ -88,8 +88,8 @@ export const FilteredByRest: Story = {
 };
 
 export const FilteredByGraphQL: Story = {
-  name: "Filtered: GraphQL",
   args: { filter: "graphql" },
+  name: "Filtered: GraphQL",
   play: async ({ canvas, step }) => {
     await step("Verify GraphQL filter active", async () => {
       await expect(canvas.getByRole("button", { name: "graphql" })).toHaveAttribute(
@@ -101,8 +101,8 @@ export const FilteredByGraphQL: Story = {
 };
 
 export const SortedAToZ: Story = {
-  name: "Sorted: A to Z",
   args: { sort: "a-z" },
+  name: "Sorted: A to Z",
   play: async ({ canvas, step }) => {
     await step("Verify sort value", async () => {
       await expect(canvas.getByRole("combobox")).toHaveValue("a-z");
@@ -111,8 +111,8 @@ export const SortedAToZ: Story = {
 };
 
 export const GroupingOff: Story = {
-  name: "Grouping Disabled",
   args: { isGrouped: false },
+  name: "Grouping Disabled",
   play: async ({ canvas, step }) => {
     await step("Verify grouping disabled", async () => {
       await expect(canvas.getByTestId("group-toggle")).toHaveAttribute("aria-pressed", "false");

@@ -4,7 +4,12 @@ import { theme } from "#/plugin/theme";
 import { JsonEditor } from "./json-editor";
 
 const meta: Meta<typeof JsonEditor> = {
-  title: "Editors/JsonEditor",
+  args: {
+    hasOverride: false,
+    onChange: fn(),
+    onReset: fn(),
+    value: '{"users": [{"id": 1, "name": "Alice"}]}',
+  },
   component: JsonEditor,
   decorators: [
     (Story) => (
@@ -13,12 +18,7 @@ const meta: Meta<typeof JsonEditor> = {
       </div>
     ),
   ],
-  args: {
-    hasOverride: false,
-    onChange: fn(),
-    onReset: fn(),
-    value: '{"users": [{"id": 1, "name": "Alice"}]}',
-  },
+  title: "Editors/JsonEditor",
 };
 
 export default meta;
@@ -61,11 +61,11 @@ export const Default: Story = {
 };
 
 export const WithCustomOverride: Story = {
-  name: "Custom Override",
   args: {
     hasOverride: true,
     value: '{"custom": true}',
   },
+  name: "Custom Override",
   play: async ({ canvas, userEvent, step, args }) => {
     await step("Verify custom override state", async () => {
       await expect(canvas.getByText("Response JSON (custom)")).toBeInTheDocument();
@@ -81,10 +81,10 @@ export const WithCustomOverride: Story = {
 };
 
 export const WaitingForRequest: Story = {
-  name: "Waiting For First Request",
   args: {
     value: "// Waiting for first request...",
   },
+  name: "Waiting For First Request",
   play: async ({ canvas, step }) => {
     await step("Verify waiting state", async () => {
       const textarea = canvas.getByRole("textbox");

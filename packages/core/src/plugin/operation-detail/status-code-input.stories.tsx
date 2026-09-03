@@ -5,7 +5,13 @@ import { theme } from "#/plugin/theme";
 import { StatusCodeInput } from "./status-code-input";
 
 const meta: Meta<typeof StatusCodeInput> = {
-  title: "Operation Detail/StatusCodeInput",
+  args: {
+    config: defaultConfig,
+    effectiveStatusCode: 200,
+    onStatusCodeChange: fn(),
+    onStatusCodeReset: fn(),
+    operationName: "GET /api/users",
+  },
   component: StatusCodeInput,
   decorators: [
     (Story) => (
@@ -22,13 +28,7 @@ const meta: Meta<typeof StatusCodeInput> = {
       </div>
     ),
   ],
-  args: {
-    config: defaultConfig,
-    effectiveStatusCode: 200,
-    onStatusCodeChange: fn(),
-    onStatusCodeReset: fn(),
-    operationName: "GET /api/users",
-  },
+  title: "Operation Detail/StatusCodeInput",
 };
 
 export default meta;
@@ -47,11 +47,11 @@ export const Default: Story = {
 };
 
 export const CustomOverride: Story = {
-  name: "Custom (201)",
   args: {
     config: customStatusConfig,
     effectiveStatusCode: 201,
   },
+  name: "Custom (201)",
   play: async ({ canvas, userEvent, step, args }) => {
     await step("Verify custom status code", async () => {
       const input = canvas.getByRole("spinbutton");
