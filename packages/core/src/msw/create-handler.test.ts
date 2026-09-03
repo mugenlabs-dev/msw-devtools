@@ -23,6 +23,7 @@ const restDescriptor = (overrides: Partial<RestMockDescriptor> = {}): RestMockDe
 const graphqlDescriptor = (
   overrides: Partial<GraphQLMockDescriptor> = {}
 ): GraphQLMockDescriptor => ({
+  endpoint: "*",
   graphqlOperationName: "GetPancham",
   operationName: "GetPancham",
   operationType: "query",
@@ -161,6 +162,74 @@ describe("createDynamicHandler", () => {
       const response = await run(createDynamicHandler(descriptor), restRequest());
 
       await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
+    });
+  });
+
+  describe("handler options", () => {
+    it("preserves `once` from the user's handler", async () => {
+      const descriptor = restDescriptor({
+        variants: [
+          {
+            handler: http.get("http://localhost/api/users", () => HttpResponse.json({ n: 1 }), {
+              once: true,
+            }),
+            id: "variant-0",
+            label: "Default",
+            options: { once: true },
+          },
+        ],
+      });
+      configure(descriptor.operationName);
+      const handler = createDynamicHandler(descriptor);
+
+      const first = await run(handler, restRequest());
+      const second = await run(handler, restRequest());
+
+      await expect(first?.json()).resolves.toStrictEqual({ n: 1 });
+      expect(second).toBeNull();
+    });
+
+    it("scopes GraphQL handlers to their graphql.link endpoint", async () => {
+      const descriptor = graphqlDescriptor({ endpoint: "http://api.example.com/graphql" });
+      configure(descriptor.operationName);
+      const handler = createDynamicHandler(descriptor);
+
+      const other = new Request("http://elsewhere.test/graphql", {
+        body: JSON.stringify({ operationName: "GetPancham", query: "query GetPancham { id }" }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      });
+      const scoped = new Request("http://api.example.com/graphql", {
+        body: JSON.stringify({ operationName: "GetPancham", query: "query GetPancham { id }" }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      });
+
+      expect(await run(handler, other)).toBeNull();
+      expect(await run(handler, scoped)).not.toBeNull();
+    });
+
+    it("supports RegExp paths", async () => {
+      const path = /\/api\/users\/\d+$/;
+      const descriptor = restDescriptor({
+        operationName: "GET user by id",
+        path,
+        variants: [
+          {
+            handler: http.get(path, () => HttpResponse.json({ id: 42 })),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+      configure(descriptor.operationName);
+
+      const response = await run(
+        createDynamicHandler(descriptor),
+        new Request("http://localhost/api/users/42")
+      );
+
+      await expect(response?.json()).resolves.toStrictEqual({ id: 42 });
     });
   });
 

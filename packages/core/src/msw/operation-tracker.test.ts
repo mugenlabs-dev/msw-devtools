@@ -113,6 +113,7 @@ describe("operation-tracker", () => {
 
   it("marks a GraphQL operation with an overridden display name as seen", async () => {
     mockRegistry.register({
+      endpoint: "*",
       graphqlOperationName: "GetPancham",
       operationName: "Pancham (custom)",
       operationType: "query",
@@ -148,6 +149,18 @@ describe("operation-tracker", () => {
     emit(new Request("https://pokeapi.co/api/v2/pokemon/6?verbose=1", { method: "GET" }));
 
     expect(seen().has("GET Charizard")).toBe(true);
+  });
+
+  it("marks a REST operation registered with a RegExp path as seen", () => {
+    mockRegistry.register(
+      restDescriptor({ operationName: "GET user by id", path: /\/api\/users\/\d+$/ })
+    );
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    emit(new Request("http://localhost/api/users/42", { method: "GET" }));
+
+    expect(seen().has("GET user by id")).toBe(true);
   });
 
   it("marks a REST operation registered with an MSW wildcard path as seen", () => {

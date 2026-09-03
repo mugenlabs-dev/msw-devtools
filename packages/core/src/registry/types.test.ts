@@ -4,6 +4,7 @@ import { isGraphQLDescriptor, isRestDescriptor } from "./types";
 
 describe("type guards", () => {
   const graphqlDescriptor: MockOperationDescriptor = {
+    endpoint: "*",
     graphqlOperationName: "GetUser",
     operationName: "GetUser",
     operationType: "query",

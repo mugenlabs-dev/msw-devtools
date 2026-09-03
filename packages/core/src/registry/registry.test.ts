@@ -2,6 +2,7 @@ import type { mockRegistry } from "./registry";
 import type { MockOperationDescriptor } from "./types";
 
 const graphqlDescriptor: MockOperationDescriptor = {
+  endpoint: "*",
   graphqlOperationName: "GetUser",
   operationName: "GetUser",
   operationType: "query",
