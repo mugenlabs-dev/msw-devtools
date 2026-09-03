@@ -2,7 +2,8 @@ node_modules/
 dist/
 *.tsbuildinfo
 .env
-.env.local
+.env.*
+!.env.example
 .DS_Store
 *.log
 .turbo/
@@ -12,3 +13,4 @@ playwright-report/
 app.config.timestamp_*
 .claude/settings.local.json
 storybook-static/
+coverage/
