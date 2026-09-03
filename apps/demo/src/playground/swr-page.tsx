@@ -1,5 +1,7 @@
-import { useCallback } from "react";
-import useSWR from "swr";
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
+import { useCallback, useEffect } from "react";
+import useSWR, { useSWRConfig } from "swr";
 import { CodeBlock } from "../docs/components/code-block";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
@@ -214,10 +216,20 @@ function SetupSwr() {
   return null;
 }`;
 
+// --- Adapter ---
+
+/** Registers the SWR adapter with this page's SWR config, exactly as the snippet above shows. */
+const SetupSwr = () => {
+  const { mutate } = useSWRConfig();
+  useEffect(() => registerAdapter(createSwrAdapter(mutate)), [mutate]);
+  return null;
+};
+
 // --- Page ---
 
 export const SwrPage = () => (
   <div className="flex flex-col gap-6">
+    <SetupSwr />
     <div className="group rounded-2xl border border-border-primary bg-card-bg/30 p-6">
       <div className="flex items-center gap-4">
         <img
