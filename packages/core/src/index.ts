@@ -32,7 +32,7 @@ export type {
   RestMockDef,
   RestMockDescriptor,
 } from "./registry/types";
-export { isGraphQLDescriptor, isRestDescriptor } from "./registry/types";
+export { isGraphQLDescriptor, isRestDescriptor, resolveActiveVariant } from "./registry/types";
 export { mockStore, useMockStore } from "./store/store";
 export type {
   ErrorOverride,

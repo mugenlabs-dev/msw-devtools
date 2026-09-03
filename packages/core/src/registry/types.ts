@@ -8,7 +8,11 @@ import type { HandlerOptions } from "#/msw/msw-internals";
 export interface HandlerVariant {
   /** The user's MSW request handler whose resolver produces the response. */
   handler: GraphQLHandler | HttpHandler;
-  /** Stable identifier for this variant (e.g. "variant-0"). */
+  /**
+   * Stable identifier for this variant: derived from the label when one was
+   * given (e.g. "not-found-empty"), otherwise from the handler's resolver, so
+   * reordering variants does not change which one a persisted selection points at.
+   */
   id: string;
   /** Display label shown in the variant dropdown. */
   label: string;
@@ -149,6 +153,17 @@ export type OperationHandlesFor<Defs extends readonly unknown[]> = readonly [
 export type OperationHandles = readonly OperationHandle[] & {
   readonly [operationName: string]: OperationHandle;
 };
+
+/**
+ * The variant a config's `activeVariantId` refers to, falling back to the first
+ * variant when the id is unknown (a legacy positional id, a removed variant, or
+ * the store's "unset" default).
+ */
+export const resolveActiveVariant = (
+  descriptor: MockOperationDescriptor,
+  activeVariantId: string | undefined
+): HandlerVariant | undefined =>
+  descriptor.variants.find((v) => v.id === activeVariantId) ?? descriptor.variants[0];
 
 export const isGraphQLDescriptor = (d: MockOperationDescriptor): d is GraphQLMockDescriptor =>
   d.type === "graphql";
