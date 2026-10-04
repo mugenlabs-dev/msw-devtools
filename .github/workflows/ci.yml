@@ -8,7 +8,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Do not cancel in-flight main deploys / promote / publish.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   # ─────────────────────────────────────────────
@@ -32,7 +33,14 @@ jobs:
       - name: Lint & Format
         run: pnpm lint
 
-      - name: Audit dependencies
+      # GHSA-vfj7-8cjw-p6xm (@changesets/cli → micromatch → braces) is ignored in
+      # package.json pnpm.auditConfig.ignoreGhsas — not in the published dist.
+      # pnpm audit does not support --filter; --dir scopes to the published package.
+      - name: Audit published package
+        run: pnpm --dir packages/core audit --prod --audit-level=moderate
+
+      - name: Audit workspace (non-blocking)
+        continue-on-error: true
         run: pnpm audit --audit-level=moderate
 
       - name: Run unit tests
@@ -99,7 +107,72 @@ jobs:
         run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
   # ─────────────────────────────────────────────
-  # Job 4: Deploy Preview to Vercel
+  # Job 4: Require a changeset with packages/core PRs
+  # ─────────────────────────────────────────────
+  changeset:
+    name: 📝 Changeset
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require changeset when packages/core changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/check-changeset.sh "$BASE_SHA" "$HEAD_SHA"
+
+  # ─────────────────────────────────────────────
+  # Job 5: E2E against local demo (PRs)
+  # ─────────────────────────────────────────────
+  e2e-local:
+    name: 🎭 E2E Tests (local)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright deps (cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Run E2E tests (local webServer)
+        run: pnpm test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-pr
+          path: playwright-report/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Job 6: Deploy Preview to Vercel
   # ─────────────────────────────────────────────
   deploy-preview:
     name: 🚀 Deploy Preview
@@ -124,17 +197,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -g vercel
 
-      - run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy preview (skip production alias)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --prod --skip-domain --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --skip-domain --token=${{ secrets.VERCEL_TOKEN }})
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
   # ─────────────────────────────────────────────
-  # Job 5: E2E tests against preview
+  # Job 7: E2E tests against preview (main)
   # ─────────────────────────────────────────────
   e2e:
     name: 🎭 E2E Tests
@@ -171,7 +244,7 @@ jobs:
           retention-days: 30
 
   # ─────────────────────────────────────────────
-  # Job 6: Promote to Production
+  # Job 8: Promote to Production
   # ─────────────────────────────────────────────
   promote:
     name: 👑 Promote to Production
@@ -181,3 +254,49 @@ jobs:
       - run: npm add -g vercel
       - name: Promote preview to production
         run: vercel promote ${{ needs.deploy-preview.outputs.preview-url }} --yes --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }}
+
+  # ─────────────────────────────────────────────
+  # Job 9: Version PR or npm publish (after full CI graph)
+  # ─────────────────────────────────────────────
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [promote]
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Create Release PR or Publish
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+          version: pnpm changeset version
+          title: "chore: version packages"
+          commit: "chore: version packages"
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
