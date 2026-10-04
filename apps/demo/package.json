@@ -14,7 +14,7 @@
     "@mugenlabs/msw-devtools": "workspace:*",
     "@reduxjs/toolkit": "^2.12.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@tanstack/pacer": "^0.19.0",
+    "@tanstack/pacer": "^0.22.0",
     "@tanstack/react-devtools": "^0.9.13",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "^1.170.32",
