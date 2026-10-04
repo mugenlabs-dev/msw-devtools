@@ -241,7 +241,7 @@ export const ApiReferenceSection = () => (
       <ApiEntry
         badge="() => void"
         badgeVariant="muted"
-        description="Register a data-fetching adapter. When mock config changes, the adapter automatically refetches queries. Returns an unregister function for cleanup."
+        description="Register a data-fetching adapter. When mock config changes, the adapter automatically refetches queries. Returns an unregister function for cleanup. Change kinds include toggle, variant, json-override, status-override, headers-override, and bulk enable-all / disable-all."
         name="registerAdapter"
         signature="registerAdapter(adapter: MswDevToolAdapter): () => void"
       />
@@ -256,7 +256,7 @@ export const ApiReferenceSection = () => (
       <ApiEntry
         badge="void"
         badgeVariant="muted"
-        description="Listens for mock update events matching the given operation and calls your refetch callback. Accepts either an OperationHandle (recommended — returned from registration, so typos are caught at build time) or a raw operation name string. Use with Axios or plain fetch."
+        description="Listens for mock update events matching the given operation and calls your refetch callback. Accepts either an OperationHandle (recommended — returned from registration, so typos are caught at build time) or a raw operation name string. Matches per-operation events and bulk Enable all / Disable all via affectsOperation. Use with Axios or plain fetch."
         name="useMockRefetch"
         signature="useMockRefetch(operation: OperationHandle | string, refetch: () => void): void"
       >
@@ -326,6 +326,29 @@ void startWorker({
         description="Stops the MSW service worker started by startWorker() and detaches everything the devtools attached to it (registry subscription, request tracker, SPA navigation patch). Registered mocks and persisted configuration are kept, so a later startWorker() resumes where it left off. Useful in tests and hot-reload setups."
         name="stopWorker"
         signature="stopWorker(): Promise<void>"
+      />
+      <ApiEntry
+        badge='"*"'
+        badgeVariant="muted"
+        description='Sentinel operationName ("*") on bulk enable-all / disable-all events. Built-in cache adapters ignore the name and refetch everything; custom adapters that compare operationName with === miss Enable all / Disable all. Match with affectsOperation instead.'
+        name="ALL_OPERATIONS"
+        signature='const ALL_OPERATIONS: "*"'
+      />
+      <ApiEntry
+        badge="boolean"
+        badgeVariant="green"
+        description='Returns true when a mock update event applies to the given operation — either a per-operation match or a bulk ALL_OPERATIONS ("*") event. useMockRefetch and the URQL mockRefetchExchange already use this.'
+        name="affectsOperation"
+        signature="affectsOperation(event: MockUpdateEvent, operationName: string): boolean"
+      />
+      <ApiEntry
+        badge="union"
+        badgeVariant="default"
+        description='Change kind on each adapter event. Status code and header edits dispatch "status-override" and "headers-override" so clients refetch the overridden response. Enable all / Disable all dispatch a single event whose operationName is ALL_OPERATIONS.'
+        name="MockChangeType"
+        signature={
+          '"toggle" | "variant" | "json-override" | "status-override" | "headers-override" | "enable-all" | "disable-all"'
+        }
       />
     </ApiCategory>
   </section>
