@@ -56,7 +56,7 @@ npm install @mugenlabs/msw-devtools
 | `swr` | `^2.0.0` | Only if using SWR adapter |
 | `@apollo/client` + `graphql` | `^3.0.0 \|\| ^4.0.0` / `^16.0.0 \|\| ^17.0.0` | Only if using Apollo adapter |
 | `@reduxjs/toolkit` | any | Only if using RTK Query adapter (typed structurally, no peer needed) |
-| `@tanstack/react-devtools` | `>=0.9.0` | Optional — only needed to host the panel |
+| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
 
 ## Quick Start
 
