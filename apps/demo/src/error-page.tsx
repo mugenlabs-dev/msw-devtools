@@ -15,7 +15,9 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
         <AlertTriangle className="text-red-400" size={28} />
       </div>
       <h1 className="m-0 font-bold text-2xl text-text-primary">Something went wrong</h1>
-      <p className="mt-3 text-sm text-text-muted">{error.message}</p>
+      <p className="mt-3 text-sm text-text-muted">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
       <button
         className="mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary transition-colors hover:bg-white/5"
         onClick={() => {
