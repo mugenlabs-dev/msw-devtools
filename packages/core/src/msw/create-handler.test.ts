@@ -1,9 +1,17 @@
-import { graphql, HttpResponse, http } from "msw";
+import { delay, graphql, HttpResponse, http } from "msw";
 import { mockRegistry } from "#/registry/registry";
 import type { GraphQLMockDescriptor, RestMockDescriptor } from "#/registry/types";
 import { defaultConfig, useMockStore } from "#/store/store";
 import type { OperationMockConfig } from "#/store/types";
 import { createDynamicHandler } from "./create-handler";
+
+vi.mock("msw", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("msw")>();
+  return {
+    ...actual,
+    delay: vi.fn(() => Promise.resolve()),
+  };
+});
 
 const restDescriptor = (overrides: Partial<RestMockDescriptor> = {}): RestMockDescriptor => ({
   method: "get",
@@ -71,6 +79,7 @@ describe("createDynamicHandler", () => {
       mockRegistry.unregister(descriptor.operationName);
     }
     useMockStore.setState({ capturedResponseData: new Map(), operations: {} });
+    vi.mocked(delay).mockClear();
   });
 
   describe("GraphQL matching", () => {
@@ -142,6 +151,29 @@ describe("createDynamicHandler", () => {
 
       expect(response?.status).toBe(204);
       await expect(response?.text()).resolves.toBe("");
+    });
+  });
+
+  describe("delay", () => {
+    it("does not call msw delay when delay is 0", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { delay: 0 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(delay).not.toHaveBeenCalled();
+      await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
+    });
+
+    it("awaits msw delay with the configured milliseconds", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName, { delay: 250 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(delay).toHaveBeenCalledOnce();
+      expect(delay).toHaveBeenCalledWith(250);
+      await expect(response?.json()).resolves.toStrictEqual({ users: [1, 2] });
     });
   });
 

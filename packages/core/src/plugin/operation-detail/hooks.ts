@@ -30,7 +30,7 @@ export const useErrorOverrideHandler = (operationName: string) => {
   const handleErrorOverrideChange = useCallback(
     (override: ErrorOverride) => {
       setErrorOverride(operationName, override);
-      dispatchMockUpdate(operationName, "toggle");
+      dispatchMockUpdate(operationName, "error-override");
     },
     [operationName, setErrorOverride]
   );
@@ -55,6 +55,7 @@ export const useFieldHandlers = (operationName: string) => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = Number.parseInt(e.target.value, 10);
       setDelay(operationName, Number.isNaN(value) ? 0 : value);
+      dispatchMockUpdate(operationName, "delay-override");
     },
     [operationName, setDelay]
   );

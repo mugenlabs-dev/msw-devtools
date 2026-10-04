@@ -22,6 +22,8 @@ export type MockChangeType =
   | "json-override"
   | "status-override"
   | "headers-override"
+  | "delay-override"
+  | "error-override"
   | "enable-all"
   | "disable-all";
 
