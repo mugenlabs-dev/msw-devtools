@@ -12,7 +12,18 @@ export const AdapterSection = () => (
     </SectionTitle>
     <p className={prose}>
       Each adapter hooks into a specific library&apos;s cache invalidation mechanism. You only need
-      to register the adapters for the libraries you actually use.
+      to register the adapters for the libraries you actually use. Panel edits dispatch a{" "}
+      <code className={inlineCode}>CustomEvent</code> with a{" "}
+      <code className={inlineCode}>MockChangeType</code> — including{" "}
+      <code className={inlineCode}>status-override</code> and{" "}
+      <code className={inlineCode}>headers-override</code> so clients refetch the overridden
+      response. Enable all / Disable all send one event whose{" "}
+      <code className={inlineCode}>operationName</code> is{" "}
+      <code className={inlineCode}>ALL_OPERATIONS</code> (<code className={inlineCode}>*</code>).
+      Built-in cache adapters ignore the name and refetch everything; custom adapters that compare{" "}
+      <code className={inlineCode}>operationName</code> with <code className={inlineCode}>===</code>{" "}
+      miss those bulk events — use <code className={inlineCode}>affectsOperation(event, name)</code>{" "}
+      instead.
     </p>
 
     {/* TanStack Query */}
@@ -35,15 +46,16 @@ registerAdapter(createTanStackQueryAdapter(queryClient));`}
     </div>
     <Accordion title="How it works">
       <p className={`${prose} !m-0`}>
-        When you toggle a mock or switch variants in the devtools, a{" "}
-        <code className={inlineCode}>CustomEvent</code> is dispatched on the window. The TanStack
-        Query adapter listens for this event and calls{" "}
-        <code className={inlineCode}>queryClient.invalidateQueries()</code>, which marks every query
-        in the cache as stale. React Query then automatically refetches only queries that have
-        active subscriptions &mdash; that is, queries being observed by at least one mounted
-        component. Inactive queries (those with no observers) are marked stale but not refetched
-        until a component subscribes to them again. This keeps network usage efficient while
-        ensuring every visible piece of data reflects the latest mock configuration.
+        When you toggle a mock, switch variants, or edit status/headers/JSON in the devtools, a{" "}
+        <code className={inlineCode}>CustomEvent</code> is dispatched on the window. Enable all /
+        Disable all also fire once with <code className={inlineCode}>operationName</code>{" "}
+        <code className={inlineCode}>*</code>. The TanStack Query adapter ignores the operation name
+        and calls <code className={inlineCode}>queryClient.invalidateQueries()</code>, which marks
+        every query in the cache as stale. React Query then automatically refetches only queries
+        that have active subscriptions &mdash; that is, queries being observed by at least one
+        mounted component. Inactive queries (those with no observers) are marked stale but not
+        refetched until a component subscribes to them again. This keeps network usage efficient
+        while ensuring every visible piece of data reflects the latest mock configuration.
       </p>
     </Accordion>
     <div className="mb-6" />
@@ -75,10 +87,11 @@ const client = createClient({
         marker &mdash; the actual refetch logic lives in the{" "}
         <code className={inlineCode}>mockRefetchExchange</code>, a custom URQL exchange that you add
         to your client&apos;s exchange pipeline. The exchange tracks all active operations and
-        listens for mock update events on the window. When a mock changes, it finds queries whose
-        operation name matches and re-executes them with a{" "}
-        <code className={inlineCode}>&quot;network-only&quot;</code> request policy, bypassing the
-        cache and fetching fresh data from MSW.
+        listens for mock update events on the window. When a mock changes, it uses{" "}
+        <code className={inlineCode}>affectsOperation</code> so both per-operation events and bulk{" "}
+        <code className={inlineCode}>*</code> (Enable all / Disable all) match, then re-executes
+        those queries with a <code className={inlineCode}>&quot;network-only&quot;</code> request
+        policy, bypassing the cache and fetching fresh data from MSW.
       </p>
     </Accordion>
     <div className="mb-6" />
@@ -238,8 +251,10 @@ function UserCard() {
         have a built-in query cache or automatic refetch mechanism. The adapter itself is a no-op
         marker that registers the library with the devtools. To get live updates, you use the{" "}
         <code className={inlineCode}>useMockRefetch</code> hook in your components. This hook
-        listens for mock update events matching a specific operation name and calls your refetch
-        callback when the mock changes, giving you per-operation control over what gets refreshed.
+        listens for mock update events matching a specific operation name (including bulk{" "}
+        <code className={inlineCode}>*</code> Enable all / Disable all via{" "}
+        <code className={inlineCode}>affectsOperation</code>) and calls your refetch callback when
+        the mock changes, giving you per-operation control over what gets refreshed.
       </p>
     </Accordion>
   </section>
