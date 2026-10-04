@@ -17,9 +17,10 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 - **Toggle Mocks** -- Enable or disable individual mock handlers on the fly
 - **Switch Variants** -- Swap between response variants (success, error, empty, custom)
 - **Live Overrides** -- Edit JSON response bodies, status codes, headers, and delays in real time
-- **LIVE Tracking** -- See which operations have been intercepted by MSW
+- **LIVE Tracking** -- See which operations have been intercepted by MSW on the current page
 - **Filter & Sort** -- Filter by type (REST/GraphQL), status (enabled/live), and sort alphabetically
-- **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, and Axios trigger automatic refetches when mock config changes
+- **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, and RTK Query trigger automatic refetches when mock config changes (Axios has no cache to invalidate -- use `useMockRefetch` instead)
+- **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes
 
 ## Installation
 
@@ -37,10 +38,12 @@ npm install @mugenlabs/msw-devtools
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
 | `react-dom` | `^18.0.0 \|\| ^19.0.0` | Yes |
 | `zustand` | `^5.0.0` | Yes |
-| `@tanstack/react-query` | `>=5.0.0` | Only if using TanStack Query adapter |
-| `@urql/core` + `wonka` | `>=5.0.0` / `>=6.0.0` | Only if using URQL adapter |
-| `swr` | `>=2.0.0` | Only if using SWR adapter |
-| `@apollo/client` + `graphql` | `>=3.0.0` / `>=16.0.0` | Only if using Apollo adapter |
+| `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
+| `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.0.0` | Only if using URQL adapter |
+| `swr` | `^2.0.0` | Only if using SWR adapter |
+| `@apollo/client` + `graphql` | `^3.0.0 \|\| ^4.0.0` / `^16.0.0 \|\| ^17.0.0` | Only if using Apollo adapter |
+| `@reduxjs/toolkit` | any | Only if using RTK Query adapter (typed structurally, no peer needed) |
+| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
 
 ## Quick Start
 
@@ -162,6 +165,15 @@ const apolloClient = new ApolloClient({ uri: "/graphql", cache: new InMemoryCach
 registerAdapter(createApolloAdapter(apolloClient));
 ```
 
+**RTK Query:**
+
+```ts
+import { registerAdapter } from "@mugenlabs/msw-devtools";
+import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
+
+registerAdapter(createRtkQueryAdapter(store, pokemonApi));
+```
+
 **Axios / plain fetch:**
 
 Axios has no built-in query cache. Register the adapter as a marker and use `useMockRefetch` in your components:
@@ -234,6 +246,7 @@ All exports come from the `@mugenlabs/msw-devtools` package.
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
 | `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
 | `startWorker(options?)` | Manually start the MSW service worker. |
+| `stopWorker()` | Stop the worker and detach the devtools from it. Registered mocks and persisted config are kept. |
 | `getWorker()` | Get the current MSW `SetupWorker` instance (or `null`). |
 | `refreshHandlers()` | Re-sync MSW handlers after registry changes post-startup. |
 | `mockRegistry` | Singleton registry instance (subscribe, get, unregister). |
@@ -249,6 +262,8 @@ All exports come from the `@mugenlabs/msw-devtools` package.
 | `@mugenlabs/msw-devtools/adapters/urql` | `mockRefetchExchange` | URQL exchange for mock-triggered re-execution |
 | `@mugenlabs/msw-devtools/adapters/swr` | `createSwrAdapter(mutate)` | SWR adapter |
 | `@mugenlabs/msw-devtools/adapters/apollo` | `createApolloAdapter(apolloClient)` | Apollo Client adapter |
+| `@mugenlabs/msw-devtools/adapters/apollo` | `ApolloClientLike` | Structural type for the subset of `ApolloClient` the adapter needs |
+| `@mugenlabs/msw-devtools/adapters/rtk-query` | `createRtkQueryAdapter(store, api)` | RTK Query adapter (resets the API state) |
 | `@mugenlabs/msw-devtools/adapters/axios` | `createAxiosAdapter()` | Axios adapter (use with `useMockRefetch`) |
 
 ### Key Types
@@ -258,15 +273,17 @@ All exports come from the `@mugenlabs/msw-devtools` package.
 | `RestMockDef` | Input for `registerRestMocks` -- `{ handler?, variants?, operationName?, group? }` |
 | `GraphqlMockDef` | Input for `registerGraphqlMocks` -- `{ handler?, variants?, operationName?, operationType?, group? }` |
 | `OperationHandle` | Type-safe reference to a registered operation -- `{ operationName }`. Pass to `useMockRefetch`. |
-| `OperationHandles` | Return type of the register functions: an array of `OperationHandle` also indexable by `operationName`. |
-| `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label }` |
+| `OperationHandlesFor<Defs>` | Return type of the register functions: a tuple of `OperationHandle`s also indexable by the literal `operationName`s. Keys are literal when every def has an explicit `operationName`, so `handles["typo"]` is a type error. |
+| `OperationHandles` | The untyped form: `OperationHandle[]` indexable by any string. |
+| `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label, options? }` |
 | `HandlerVariantInput<H>` | What you pass as a variant: a bare handler or `{ handler, label }` |
-| `RestMockDescriptor` | Internal descriptor for a registered REST operation |
-| `GraphQLMockDescriptor` | Internal descriptor for a registered GraphQL operation |
+| `RestMockDescriptor` | Internal descriptor for a registered REST operation -- `{ type: "rest", method, path: string \| RegExp, operationName, group?, variants }` |
+| `GraphQLMockDescriptor` | Internal descriptor for a registered GraphQL operation -- `{ type: "graphql", operationName, graphqlOperationName, operationType, endpoint, group?, variants }`. `graphqlOperationName` is what the handler matches on; `operationName` is the display name |
 | `MockOperationDescriptor` | Union of `RestMockDescriptor` and `GraphQLMockDescriptor` |
 | `OperationMockConfig` | Per-operation runtime state (enabled, active variant, overrides) |
 | `MswDevToolAdapter` | Interface for creating custom adapters |
-| `MockChangeType` | `"toggle" \| "variant" \| "json-override" \| "enable-all" \| "disable-all"` |
+| `MockChangeType` | `"toggle" \| "variant" \| "json-override" \| "status-override" \| "headers-override" \| "delay-override" \| "error-override" \| "enable-all" \| "disable-all"` |
+| `ALL_OPERATIONS` | Sentinel `operationName` (`"*"`) carried by bulk `enable-all` / `disable-all` events. Use `affectsOperation(event, name)` in custom adapters to match it. |
 | `WorkerOptions` | Configuration for `startWorker()` |
 | `MswDevToolsPluginOptions` | Configuration for `createMswDevToolsPlugin()` |
 
