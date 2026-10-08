@@ -1,17 +1,21 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 
+import {
+  GITHUB_REPO_URL,
+  NPM_URL,
+  ORG_JSON_LD,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "../content/site";
 import { ErrorPage, NotFoundPage } from "../error-page";
 import { Layout } from "../layout";
 import { ThemeProvider } from "../theme-context";
 
-const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
-const SITE_DESCRIPTION =
-  "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.";
-
 const RootComponent = () => (
   <html lang="en">
     <head>
-      <title>@mugenlabs/msw-devtools</title>
+      <title>{SITE_NAME} — Mugenlabs MSW DevTools plugin</title>
       <HeadContent />
       <style
         // biome-ignore lint/security/noDangerouslySetInnerHtml: inline critical styles
@@ -42,7 +46,7 @@ const RootComponent = () => (
 						`,
         }}
       />
-      {/* JSON-LD Structured Data — Organization uses public GitHub/npm facts only; no invented address/phone. */}
+      {/* JSON-LD — Organization contactPoint is GitHub Issues only. */}
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data
         dangerouslySetInnerHTML={{
@@ -51,20 +55,24 @@ const RootComponent = () => (
             "@graph": [
               {
                 "@type": "Organization",
-                name: "Mugenlabs",
-                sameAs: [
-                  "https://github.com/mugenlabs-dev",
-                  "https://github.com/mugenlabs-dev/msw-devtools",
-                  "https://www.npmjs.com/package/@mugenlabs/msw-devtools",
-                ],
-                url: "https://github.com/mugenlabs-dev",
+                contactPoint: ORG_JSON_LD.contactPoint,
+                name: ORG_JSON_LD.name,
+                sameAs: ORG_JSON_LD.sameAs,
+                url: ORG_JSON_LD.url,
               },
               {
                 "@type": "SoftwareApplication",
                 applicationCategory: "DeveloperApplication",
+                author: {
+                  "@type": "Organization",
+                  name: "Mugenlabs",
+                  url: "https://www.mugenlabs.dev/",
+                },
+                codeRepository: GITHUB_REPO_URL,
                 description: SITE_DESCRIPTION,
+                downloadUrl: NPM_URL,
                 license: "https://opensource.org/licenses/MIT",
-                name: "@mugenlabs/msw-devtools",
+                name: SITE_NAME,
                 offers: { "@type": "Offer", price: "0" },
                 operatingSystem: "Web",
                 url: SITE_URL,
@@ -105,20 +113,26 @@ export const Route = createRootRoute({
       { content: "#0a0a0a", name: "theme-color" },
       // Declares demo site type for Is Agentic report lens (not a score change).
       { content: "app", name: "is-agentic-site-type" },
-      // Open Graph (derived from existing title/description/canonical)
-      { content: "@mugenlabs/msw-devtools", property: "og:title" },
+      // Open Graph
+      {
+        content: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
+        property: "og:title",
+      },
       { content: SITE_DESCRIPTION, property: "og:description" },
       { content: `${SITE_URL}og-image.png`, property: "og:image" },
-      { content: "@mugenlabs/msw-devtools", property: "og:site_name" },
+      { content: "Mugenlabs", property: "og:site_name" },
       { content: "website", property: "og:type" },
       { content: SITE_URL, property: "og:url" },
       // Twitter Card
       { content: "summary_large_image", name: "twitter:card" },
-      { content: "@mugenlabs/msw-devtools", name: "twitter:title" },
+      {
+        content: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
+        name: "twitter:title",
+      },
       { content: SITE_DESCRIPTION, name: "twitter:description" },
       { content: `${SITE_URL}og-image.png`, name: "twitter:image" },
     ],
-    title: "@mugenlabs/msw-devtools",
+    title: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
   }),
   notFoundComponent: NotFoundPage,
 });
