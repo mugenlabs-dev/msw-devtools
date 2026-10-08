@@ -37,6 +37,15 @@
       "continue": true
     },
     {
+      "src": "^/404\\.md$",
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept",
+        "X-Robots-Tag": "noindex"
+      },
+      "continue": true
+    },
+    {
       "src": "^/openapi\\.json$",
       "headers": {
         "Access-Control-Allow-Origin": "*",
@@ -68,6 +77,7 @@
     },
     {
       "src": "^/api/v1/site/?$",
+      "methods": ["GET", "HEAD"],
       "dest": "/api/v1/site.json",
       "headers": {
         "Access-Control-Allow-Origin": "*",
@@ -77,8 +87,29 @@
       }
     },
     {
+      "src": "^/api(?:/.*)?$",
+      "dest": "/api/error"
+    },
+    {
       "src": "^/playground(?:/(?:apollo|fetch|query|rtk-query|swr|urql))?/?$",
       "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": "(.*)text/markdown(.*)"
+        }
+      ],
+      "status": 404,
+      "dest": "/404.md",
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept",
+        "X-Robots-Tag": "noindex"
+      }
     },
     {
       "src": "/(.*)",
