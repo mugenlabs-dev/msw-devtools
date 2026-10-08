@@ -160,7 +160,7 @@ export function siteCatalog(origin) {
     name: PACKAGE_NAME,
     npm: NPM_PACKAGE_URL,
     organization: {
-      name: "Mugen Labs",
+      name: "Mugenlabs",
       url: GITHUB_ORG_URL,
     },
     routes: [...KNOWN_HTML_ROUTES],
