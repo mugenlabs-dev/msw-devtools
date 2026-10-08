@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { theme } from "#/plugin/theme";
+import { theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 import type { ErrorOverride } from "#/store/types";
 
@@ -49,7 +49,11 @@ const ErrorOptionButton = ({
         fontSize: theme.fontSize.md,
         fontWeight: isActive ? 600 : 400,
         padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
-        transition: "all 0.15s",
+        transition: [
+          transition("background"),
+          transition("border-color"),
+          transition("color"),
+        ].join(", "),
       }}
       type="button"
       {...hoverProps}

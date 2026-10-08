@@ -2,7 +2,7 @@ import { Debouncer } from "@tanstack/pacer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AlertCircle, RotateCcw } from "./icons";
-import { theme } from "./theme";
+import { focusableInputStyle, theme, transition } from "./theme";
 import { useHover } from "./use-hover";
 
 interface JsonEditorProps {
@@ -133,7 +133,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
                 fontSize: theme.fontSize.md,
                 gap: theme.spacing.xs,
                 padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
-                transition: "background 0.15s",
+                transition: transition("background"),
               }}
               type="button"
               {...resetHover.hoverProps}
@@ -144,6 +144,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
         </div>
       </div>
       <textarea
+        data-msw-dt-input=""
         onChange={handleChange}
         spellCheck={false}
         style={{
@@ -156,7 +157,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
           fontSize: theme.fontSize.base,
           lineHeight: "1.5",
           minHeight: "120px",
-          outline: "none",
+          ...focusableInputStyle,
           padding: theme.spacing.lg,
           resize: "vertical",
         }}

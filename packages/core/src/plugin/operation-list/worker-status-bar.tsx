@@ -1,5 +1,5 @@
 import { EyeOff } from "#/plugin/icons";
-import { theme } from "#/plugin/theme";
+import { theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { WorkerStatusBarProps } from "./types";
@@ -20,7 +20,7 @@ export const WorkerStatusBar = ({
         borderBottom: `1px solid ${theme.colors.border}`,
         display: "flex",
         justifyContent: "space-between",
-        padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+        padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
       }}
     >
       <div style={{ alignItems: "center", display: "flex", gap: theme.spacing.md }}>
@@ -57,8 +57,8 @@ export const WorkerStatusBar = ({
             display: "inline-flex",
             fontSize: theme.fontSize.sm,
             gap: theme.spacing.xs,
-            padding: `1px ${theme.spacing.md}`,
-            transition: "background 0.15s",
+            padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+            transition: transition("background"),
           }}
           type="button"
           {...clearHover.hoverProps}

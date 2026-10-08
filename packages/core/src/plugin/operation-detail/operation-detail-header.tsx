@@ -1,4 +1,4 @@
-import { theme } from "#/plugin/theme";
+import { theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { OperationDetailHeaderProps } from "./types";
@@ -60,7 +60,7 @@ export const OperationDetailHeader = ({
           fontSize: theme.fontSize.base,
           fontWeight: 500,
           padding: `${theme.spacing.sm} ${theme.spacing.xl}`,
-          transition: "background 0.15s",
+          transition: transition("background"),
         }}
         type="button"
         {...toggleHover.hoverProps}
