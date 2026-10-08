@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { memo, useCallback } from "react";
-import { theme } from "#/plugin/theme";
+import { theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { OperationRowProps } from "./types";
@@ -78,7 +78,7 @@ const OperationRowComponent = ({
         display: "flex",
         gap: theme.spacing.lg,
         padding: `${theme.spacing.md} ${theme.spacing.xl}`,
-        transition: "background 0.15s",
+        transition: transition("background"),
       }}
       tabIndex={0}
       {...rowHover.hoverProps}
@@ -100,12 +100,19 @@ const OperationRowComponent = ({
             display: "flex",
             fontSize: theme.fontSize.base,
             gap: theme.spacing.md,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            minWidth: 0,
           }}
         >
-          {descriptor.operationName}
+          <span
+            style={{
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {descriptor.operationName}
+          </span>
           {isSeen ? (
             <span
               style={{
@@ -156,6 +163,7 @@ const OperationRowComponent = ({
       <button
         aria-label={`Toggle ${descriptor.operationName} mock`}
         aria-pressed={isEnabled}
+        data-msw-dt-hit=""
         onClick={onToggleClick}
         onKeyDown={onToggleKeyDown}
         style={{
@@ -166,13 +174,14 @@ const OperationRowComponent = ({
           flexShrink: 0,
           height: "20px",
           position: "relative",
-          transition: "background 0.15s",
+          transition: transition("background"),
           width: "36px",
         }}
         type="button"
         {...toggleHover.hoverProps}
       >
         <span
+          data-msw-dt-motion=""
           style={{
             background: theme.colors.white,
             borderRadius: theme.radius.round,
@@ -180,7 +189,7 @@ const OperationRowComponent = ({
             left: isEnabled ? "18px" : "2px",
             position: "absolute",
             top: "2px",
-            transition: "left 0.15s",
+            transition: transition("left"),
             width: "16px",
           }}
         />

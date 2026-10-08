@@ -1,5 +1,5 @@
 import { ArrowUpDown, Layers } from "#/plugin/icons";
-import { theme } from "#/plugin/theme";
+import { focusableInputStyle, theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { FilterButtonProps, FilterSortBarProps } from "./types";
@@ -26,9 +26,9 @@ const FilterButton = ({ isActive, onClick, opt }: FilterButtonProps) => {
         cursor: "pointer",
         fontSize: theme.fontSize.sm,
         fontWeight: isActive ? 600 : 400,
-        padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
+        padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
         textTransform: "capitalize",
-        transition: "background 0.15s",
+        transition: transition("background"),
       }}
       type="button"
       {...hoverProps}
@@ -61,11 +61,11 @@ export const FilterSortBar = ({
         borderBottom: `1px solid ${theme.colors.border}`,
         display: "flex",
         flexDirection: "column",
-        gap: theme.spacing.md,
-        padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+        gap: theme.spacing.lg,
+        padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
       }}
     >
-      <div style={{ display: "flex", flexWrap: "wrap", gap: theme.spacing.sm }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: theme.spacing.lg }}>
         {(["all", "live", "enabled", "rest", "graphql"] as const).map((opt) => (
           <FilterButton
             isActive={filter === opt}
@@ -77,10 +77,11 @@ export const FilterSortBar = ({
           />
         ))}
       </div>
-      <div style={{ alignItems: "center", display: "flex", gap: theme.spacing.md }}>
+      <div style={{ alignItems: "center", display: "flex", gap: theme.spacing.lg }}>
         <ArrowUpDown color={theme.colors.textMuted} size={12} />
         <select
           aria-label="Sort operations"
+          data-msw-dt-input=""
           onChange={onSortChange}
           style={{
             background: theme.colors.surface,
@@ -89,8 +90,8 @@ export const FilterSortBar = ({
             color: theme.colors.textPrimary,
             cursor: "pointer",
             fontSize: theme.fontSize.sm,
-            outline: "none",
-            padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+            ...focusableInputStyle,
+            padding: `${theme.spacing.sm} ${theme.spacing.md}`,
           }}
           value={sort}
         >
@@ -114,8 +115,8 @@ export const FilterSortBar = ({
             fontWeight: isGrouped ? 600 : 400,
             gap: theme.spacing.xs,
             marginLeft: "auto",
-            padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
-            transition: "background 0.15s",
+            padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+            transition: transition("background"),
           }}
           title={isGrouped ? "Show flat list" : "Show grouped"}
           type="button"
