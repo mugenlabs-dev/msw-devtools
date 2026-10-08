@@ -57,12 +57,16 @@ export default function handler(request: Request): Response {
   const status = request.method === "GET" || request.method === "HEAD" ? 404 : 405;
   const code = status === 404 ? "not_found" : "method_not_allowed";
   const title = status === 404 ? "API route not found" : "Method not allowed";
-  const detail =
-    status === 404
-      ? `No API resource exists at ${url.pathname}.`
-      : isSiteCatalog
-        ? `This endpoint only supports GET and HEAD. Received ${request.method}.`
-        : `Unsupported method ${request.method} for ${url.pathname}.`;
+
+  let detail: string;
+  if (status === 404) {
+    detail = `No API resource exists at ${url.pathname}.`;
+  } else if (isSiteCatalog) {
+    detail = `This endpoint only supports GET and HEAD. Received ${request.method}.`;
+  } else {
+    detail = `Unsupported method ${request.method} for ${url.pathname}.`;
+  }
+
   const resolution = isSiteCatalog
     ? "Retry with GET (or HEAD). See /openapi.json for the site catalog contract."
     : "Use GET /api/v1/site for the public site catalog, or read /openapi.json for the contract.";
