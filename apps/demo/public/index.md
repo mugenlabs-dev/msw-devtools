@@ -8,7 +8,7 @@ This project is a work in progress. The public TypeScript API has not been final
 
 Use `@mugenlabs/msw-devtools` when you already mock network traffic with MSW in a React app and want a DevTools panel to enable/disable handlers, switch variants, override JSON bodies/status codes/headers/delays, filter LIVE operations, and refresh client caches through library adapters.
 
-Do not expect a hosted REST API, OpenAPI document, or CLI that talks to a remote backend. Integration is local: install the package, register handlers, mount the plugin.
+Do not expect a hosted product REST API or CLI that talks to a remote backend. Integration is local: install the package, register handlers, mount the plugin. This site publishes a static OpenAPI catalog and `/api/v1/site` JSON for agent discovery only — not a mock-management API.
 
 ## Start here
 
@@ -18,6 +18,9 @@ Do not expect a hosted REST API, OpenAPI document, or CLI that talks to a remote
 - [npm](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
 - [GitHub](https://github.com/mugenlabs-dev/msw-devtools)
 - [llms.txt](https://msw-devtools.mugenlabs.dev/llms.txt)
+- [OpenAPI (site catalog)](https://msw-devtools.mugenlabs.dev/openapi.json)
+- [Site catalog API](https://msw-devtools.mugenlabs.dev/api/v1/site)
+- [Sitemap](https://msw-devtools.mugenlabs.dev/sitemap.xml)
 
 ## Install
 
