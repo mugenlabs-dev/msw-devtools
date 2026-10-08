@@ -3,6 +3,7 @@ import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 import { useCallback, useEffect } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { CodeBlock } from "../docs/components/code-block";
+import { playgroundCardsGrid } from "../lib/utils";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -257,7 +258,7 @@ export const SwrPage = () => (
           </p>
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className={playgroundCardsGrid}>
         <GarchompCard />
         <LucarioCard />
         <BlazikenCard />

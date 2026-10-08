@@ -3,8 +3,6 @@ import type { ReactNode } from "react";
 
 import { skeletonKeyframes } from "./pokemon-card";
 
-// --- Playground tabs ---
-
 const PLAYGROUND_TABS = [
   { label: "TanStack Query", to: "/playground/query" },
   { label: "SWR", to: "/playground/swr" },
@@ -24,7 +22,7 @@ const PlaygroundTabs = () => {
         const isActive = currentPath === tab.to;
         return (
           <Link
-            className={`rounded-lg border px-4 py-2 font-medium text-[13px] no-underline transition-all duration-150 ${
+            className={`pressable rounded-lg border px-4 py-2 font-medium text-[13px] no-underline transition-[border-color,background-color,color,transform] duration-150 ${
               isActive
                 ? "border-border-tertiary bg-bg-tertiary text-text-primary"
                 : "border-border-secondary text-text-secondary hover:border-border-tertiary hover:text-text-primary"
@@ -40,21 +38,21 @@ const PlaygroundTabs = () => {
   );
 };
 
-// --- Page Shell ---
-
 export const PlaygroundPageShell = ({ children }: { children: ReactNode }) => {
   const matches = useMatches();
   const routeKey = matches.at(-1)?.fullPath ?? "";
 
   return (
-    <div className="mx-auto max-w-[1000px] px-6 pt-12 pb-40 font-sans">
+    <div className="shell shell-wide shell-pad-block pt-12 font-sans">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: skeleton animation keyframes */}
       <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
       <div className="mb-8 text-center">
-        <h1 className="m-0 mb-2 font-bold text-[28px] text-text-primary transition-colors duration-300">
-          @mugenlabs/msw-devtools Playground
+        <h1 className="m-0 mb-2 font-bold text-[clamp(1.375rem,2vw+1rem,1.75rem)] text-text-primary transition-colors duration-300">
+          @mugenlabs/
+          <wbr />
+          msw-devtools Playground
         </h1>
-        <p className="m-0 mb-6 text-sm text-text-muted">
+        <p className="m-0 mb-6 text-pretty text-sm text-text-muted">
           Each page demonstrates a different data-fetching library integrated with
           @mugenlabs/msw-devtools. Toggle mocks in the DevTools panel below to see responses change
           in real-time.

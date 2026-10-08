@@ -43,15 +43,16 @@ const ApiEntry = ({
   signature: string;
 }) => (
   <div
-    className="group rounded-xl border border-border-primary bg-card-bg/50 p-5 transition-all duration-200 hover:border-border-secondary hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)]"
+    className="group concentric rounded-xl border border-border-primary bg-card-bg/50 p-5 transition-[border-color,box-shadow] duration-200 hover:border-border-secondary hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)]"
     id={`api-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+    style={{ ["--_radius" as string]: "0.75rem", ["--_pad" as string]: "1.25rem" }}
   >
     <div className="mb-2 flex flex-wrap items-center gap-2">
       <h4 className="m-0 font-bold font-mono text-[15px] text-accent-purple">{name}</h4>
       {badge ? <Badge variant={badgeVariant}>{badge}</Badge> : null}
     </div>
-    <div className="mb-3 rounded-lg bg-bg-tertiary/60 px-3 py-2">
-      <code className="block overflow-x-auto whitespace-pre font-mono text-[12.5px] text-text-secondary leading-relaxed">
+    <div className="concentric-inner mb-3 bg-bg-tertiary/60 px-3 py-2">
+      <code className="code-scroll-fade block overflow-x-auto whitespace-pre font-mono text-[12.5px] text-text-secondary leading-relaxed">
         {signature}
       </code>
     </div>
@@ -104,7 +105,7 @@ const ParamTable = ({
         <tr className="bg-bg-tertiary/40">
           {["Parameter", "Type", "Default", "Description"].map((h) => (
             <th
-              className="border-border-primary border-b px-3 py-2 text-left font-semibold text-[11px] text-text-muted uppercase tracking-wider"
+              className="border-border-primary border-b px-3 py-2 text-start font-semibold text-[11px] text-text-muted uppercase tracking-wider"
               key={h}
             >
               {h}
