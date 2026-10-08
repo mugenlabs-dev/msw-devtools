@@ -1,13 +1,46 @@
 # @mugenlabs/msw-devtools
 
-A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.
+A TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser. Toggle, customize, and inspect mock handlers in real time — built by Mugenlabs and published on npm as `@mugenlabs/msw-devtools`.
 
-## Links
+This project is a work in progress. The public TypeScript API has not been finalised for 1.0.0; expect breaking changes between minor versions.
 
-- Site: https://msw-devtools.mugenlabs.dev/
-- Playground: https://msw-devtools.mugenlabs.dev/playground
-- npm: https://www.npmjs.com/package/@mugenlabs/msw-devtools
-- GitHub: https://github.com/mugenlabs-dev/msw-devtools
-- OpenAPI: https://msw-devtools.mugenlabs.dev/openapi.json
-- Site catalog API: https://msw-devtools.mugenlabs.dev/api/v1/site
-- Sitemap: https://msw-devtools.mugenlabs.dev/sitemap.xml
+## When to use this library
+
+Use `@mugenlabs/msw-devtools` when you already mock network traffic with MSW in a React app and want a DevTools panel to enable/disable handlers, switch variants, override JSON bodies/status codes/headers/delays, filter LIVE operations, and refresh client caches through library adapters.
+
+Do not expect a hosted product REST API or CLI that talks to a remote backend. Integration is local: install the package, register handlers, mount the plugin. This site publishes a static OpenAPI catalog and `/api/v1/site` JSON for agent discovery only — not a mock-management API.
+
+## Start here
+
+- [Full documentation](https://msw-devtools.mugenlabs.dev/docs) — installation, quick start, adapters, API reference
+- [Developer portal](https://msw-devtools.mugenlabs.dev/developers) — links for agents and humans
+- [Playground](https://msw-devtools.mugenlabs.dev/playground) — live demo with TanStack Query, SWR, URQL, Apollo, RTK Query, fetch
+- [npm](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
+- [GitHub](https://github.com/mugenlabs-dev/msw-devtools)
+- [llms.txt](https://msw-devtools.mugenlabs.dev/llms.txt)
+- [OpenAPI (site catalog)](https://msw-devtools.mugenlabs.dev/openapi.json)
+- [Site catalog API](https://msw-devtools.mugenlabs.dev/api/v1/site)
+- [Sitemap](https://msw-devtools.mugenlabs.dev/sitemap.xml)
+
+## Install
+
+```bash
+npm install @mugenlabs/msw-devtools
+```
+
+Peer dependencies include `msw`, `react`, `react-dom`, and `zustand`. Host the panel with `@tanstack/react-devtools` when you want the visual UI.
+
+## Features
+
+- Toggle mocks without editing handler source
+- Switch response variants (success, empty, error, custom)
+- Live overrides for body, status, headers, and delay
+- LIVE tracking of intercepted operations on the current page
+- Filter and sort the operation list
+- Auto-refetch adapters for popular data libraries
+
+## Trust and contact
+
+- [About](https://msw-devtools.mugenlabs.dev/about)
+- [Contact — GitHub Issues only](https://github.com/mugenlabs-dev/msw-devtools/issues)
+- [Privacy](https://msw-devtools.mugenlabs.dev/privacy)

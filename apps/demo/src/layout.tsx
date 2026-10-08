@@ -167,6 +167,47 @@ export const Layout = ({ children }: { children: ReactNode }) => {
 
       <main id="main-content">{children}</main>
 
+      <footer className="border-border-primary border-t px-6 pt-10 pb-40">
+        <div className="mx-auto flex max-w-[720px] flex-col gap-4 text-sm text-text-muted">
+          <p className="m-0 font-mono text-text-secondary">@mugenlabs/msw-devtools</p>
+          <p className="m-0">
+            Mugenlabs open-source MSW DevTools plugin. Documentation and playground for agents and
+            humans.
+          </p>
+          <nav className="flex flex-wrap gap-x-4 gap-y-2">
+            <Link className="text-accent-blue no-underline hover:underline" to="/docs">
+              Docs
+            </Link>
+            <Link className="text-accent-blue no-underline hover:underline" to="/developers">
+              Developers
+            </Link>
+            <Link className="text-accent-blue no-underline hover:underline" to="/about">
+              About
+            </Link>
+            <Link className="text-accent-blue no-underline hover:underline" to="/contact">
+              Contact
+            </Link>
+            <Link className="text-accent-blue no-underline hover:underline" to="/privacy">
+              Privacy
+            </Link>
+            <a
+              className="text-accent-blue no-underline hover:underline"
+              href={`${import.meta.env.BASE_URL}llms.txt`}
+            >
+              llms.txt
+            </a>
+            <a
+              className="text-accent-blue no-underline hover:underline"
+              href="https://github.com/mugenlabs-dev/msw-devtools"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </footer>
+
       <GradualBlur direction="bottom" height="120px" layers={5} maxBlur={10} />
     </>
   );

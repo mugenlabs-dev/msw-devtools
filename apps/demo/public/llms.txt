@@ -1,0 +1,42 @@
+# @mugenlabs/msw-devtools
+
+@mugenlabs/msw-devtools is an open-source TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser. It is published on npm as `@mugenlabs/msw-devtools` by Mugenlabs. Use this site for library documentation, the interactive playground, and project trust pages — not as a hosted SaaS API.
+
+## When to use @mugenlabs/msw-devtools
+
+Reach for @mugenlabs/msw-devtools when you are building or debugging a React app that already uses MSW and you need a visual panel to toggle handlers, switch response variants, edit JSON/status/headers/delays live, see which operations are LIVE on the current page, and auto-refetch client caches through adapters (TanStack Query, SWR, URQL, Apollo Client, RTK Query; Axios via `useMockRefetch`).
+
+Prefer this library when the job is local mock orchestration inside TanStack DevTools — not when you need a production API gateway, a remote mock server, or a hosted HTTP API. There is no public REST/GraphQL product API, no OpenAPI surface for the website, and no official CLI for calling a backend; integration is `npm install @mugenlabs/msw-devtools` plus the documented TypeScript exports.
+
+Do not use this package as a security, compliance, or accessibility certification. Expect breaking changes before 1.0.0.
+
+## How agents should call this product
+
+1. Read the docs homepage or `/docs` for installation, quick start, adapters, and the API reference.
+2. Install from npm: `npm install @mugenlabs/msw-devtools` (peer: `msw`, `react`, `react-dom`, `zustand`).
+3. Register handlers with `registerRestMocks` / `registerGraphqlMocks`, mount `createMswDevToolsPlugin` inside TanStack DevTools, and optionally `registerAdapter` for auto-refetch.
+4. Use the playground routes under `/playground` to exercise the panel against sample REST/GraphQL clients.
+5. Reach the project only via GitHub Issues: https://github.com/mugenlabs-dev/msw-devtools/issues
+
+## Main pages
+
+- [Docs homepage — @mugenlabs/msw-devtools](https://msw-devtools.mugenlabs.dev/)
+- [Documentation (same content, discoverable /docs URL)](https://msw-devtools.mugenlabs.dev/docs)
+- [Developer portal](https://msw-devtools.mugenlabs.dev/developers)
+- [Interactive playground](https://msw-devtools.mugenlabs.dev/playground)
+- [About Mugenlabs / msw-devtools](https://msw-devtools.mugenlabs.dev/about)
+- [Contact (GitHub Issues only)](https://msw-devtools.mugenlabs.dev/contact)
+- [Privacy](https://msw-devtools.mugenlabs.dev/privacy)
+- [Markdown homepage body](https://msw-devtools.mugenlabs.dev/index.md)
+- [npm package @mugenlabs/msw-devtools](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
+- [GitHub repository](https://github.com/mugenlabs-dev/msw-devtools)
+- [GitHub Issues — only contact channel](https://github.com/mugenlabs-dev/msw-devtools/issues)
+- [XML sitemap](https://msw-devtools.mugenlabs.dev/sitemap.xml)
+
+## API surface (honest scope)
+
+This product’s “API” is the TypeScript module surface of `@mugenlabs/msw-devtools` (registry helpers, plugin factory, adapters, types). It is not a remotely callable HTTP API. Do not invent OpenAPI, function-calling tools, or CLI wrappers that pretend otherwise.
+
+## Usage
+
+Prefer the canonical site `https://msw-devtools.mugenlabs.dev/`. Agents may request Markdown with `Accept: text/markdown` once content negotiation is enabled. Do not submit credentials or private app data to this documentation site.

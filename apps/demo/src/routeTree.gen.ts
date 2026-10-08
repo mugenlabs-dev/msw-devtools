@@ -10,7 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as PlaygroundRouteRouteImport } from './routes/playground/route'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlaygroundIndexRouteImport } from './routes/playground/index'
 import { Route as PlaygroundApolloRouteImport } from './routes/playground/apollo'
 import { Route as PlaygroundFetchRouteImport } from './routes/playground/fetch'
@@ -24,9 +29,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlaygroundRouteRoute = PlaygroundRouteRouteImport.update({
   id: '/playground',
   path: '/playground',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlaygroundIndexRoute = PlaygroundIndexRouteImport.update({
@@ -68,6 +98,11 @@ const PlaygroundUrqlRoute = PlaygroundUrqlRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/playground': typeof PlaygroundRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/developers': typeof DevelopersRoute
+  '/docs': typeof DocsRoute
+  '/privacy': typeof PrivacyRoute
   '/playground/apollo': typeof PlaygroundApolloRoute
   '/playground/fetch': typeof PlaygroundFetchRoute
   '/playground/query': typeof PlaygroundQueryRoute
@@ -78,6 +113,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/developers': typeof DevelopersRoute
+  '/docs': typeof DocsRoute
+  '/privacy': typeof PrivacyRoute
   '/playground/apollo': typeof PlaygroundApolloRoute
   '/playground/fetch': typeof PlaygroundFetchRoute
   '/playground/query': typeof PlaygroundQueryRoute
@@ -90,6 +130,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/playground': typeof PlaygroundRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/developers': typeof DevelopersRoute
+  '/docs': typeof DocsRoute
+  '/privacy': typeof PrivacyRoute
   '/playground/apollo': typeof PlaygroundApolloRoute
   '/playground/fetch': typeof PlaygroundFetchRoute
   '/playground/query': typeof PlaygroundQueryRoute
@@ -103,6 +148,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/playground'
+    | '/about'
+    | '/contact'
+    | '/developers'
+    | '/docs'
+    | '/privacy'
     | '/playground/apollo'
     | '/playground/fetch'
     | '/playground/query'
@@ -113,6 +163,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/contact'
+    | '/developers'
+    | '/docs'
+    | '/privacy'
     | '/playground/apollo'
     | '/playground/fetch'
     | '/playground/query'
@@ -124,6 +179,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/playground'
+    | '/about'
+    | '/contact'
+    | '/developers'
+    | '/docs'
+    | '/privacy'
     | '/playground/apollo'
     | '/playground/fetch'
     | '/playground/query'
@@ -136,6 +196,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PlaygroundRouteRoute: typeof PlaygroundRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  DevelopersRoute: typeof DevelopersRoute
+  DocsRoute: typeof DocsRoute
+  PrivacyRoute: typeof PrivacyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -147,11 +212,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/playground': {
       id: '/playground'
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof PlaygroundRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/playground/': {
@@ -233,6 +333,11 @@ const PlaygroundRouteRouteWithChildren = PlaygroundRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PlaygroundRouteRoute: PlaygroundRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  DevelopersRoute: DevelopersRoute,
+  DocsRoute: DocsRoute,
+  PrivacyRoute: PrivacyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

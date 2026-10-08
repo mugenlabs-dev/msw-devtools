@@ -11,10 +11,12 @@ export default defineConfig({
     tsConfigPaths(),
     tanstackStart({
       pages: [
-        {
-          path: "/",
-          prerender: { enabled: true },
-        },
+        { path: "/", prerender: { enabled: true } },
+        { path: "/docs", prerender: { enabled: true } },
+        { path: "/developers", prerender: { enabled: true } },
+        { path: "/about", prerender: { enabled: true } },
+        { path: "/contact", prerender: { enabled: true } },
+        { path: "/privacy", prerender: { enabled: true } },
       ],
     }),
     react(),
