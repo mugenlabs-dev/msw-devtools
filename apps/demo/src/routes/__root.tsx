@@ -42,20 +42,34 @@ const RootComponent = () => (
 						`,
         }}
       />
-      {/* JSON-LD Structured Data */}
+      {/* JSON-LD Structured Data — Organization uses public GitHub/npm facts only; no invented address/phone. */}
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            applicationCategory: "DeveloperApplication",
-            description: SITE_DESCRIPTION,
-            license: "https://opensource.org/licenses/MIT",
-            name: "@mugenlabs/msw-devtools",
-            offers: { "@type": "Offer", price: "0" },
-            operatingSystem: "Web",
-            url: SITE_URL,
+            "@graph": [
+              {
+                "@type": "Organization",
+                name: "Mugen Labs",
+                sameAs: [
+                  "https://github.com/mugenlabs-dev",
+                  "https://github.com/mugenlabs-dev/msw-devtools",
+                  "https://www.npmjs.com/package/@mugenlabs/msw-devtools",
+                ],
+                url: "https://github.com/mugenlabs-dev",
+              },
+              {
+                "@type": "SoftwareApplication",
+                applicationCategory: "DeveloperApplication",
+                description: SITE_DESCRIPTION,
+                license: "https://opensource.org/licenses/MIT",
+                name: "@mugenlabs/msw-devtools",
+                offers: { "@type": "Offer", price: "0" },
+                operatingSystem: "Web",
+                url: SITE_URL,
+              },
+            ],
           }),
         }}
         type="application/ld+json"
@@ -89,10 +103,13 @@ export const Route = createRootRoute({
       { content: "width=device-width, initial-scale=1.0", name: "viewport" },
       { content: SITE_DESCRIPTION, name: "description" },
       { content: "#0a0a0a", name: "theme-color" },
-      // Open Graph
+      // Declares demo site type for Is Agentic report lens (not a score change).
+      { content: "app", name: "is-agentic-site-type" },
+      // Open Graph (derived from existing title/description/canonical)
       { content: "@mugenlabs/msw-devtools", property: "og:title" },
       { content: SITE_DESCRIPTION, property: "og:description" },
       { content: `${SITE_URL}og-image.png`, property: "og:image" },
+      { content: "@mugenlabs/msw-devtools", property: "og:site_name" },
       { content: "website", property: "og:type" },
       { content: SITE_URL, property: "og:url" },
       // Twitter Card

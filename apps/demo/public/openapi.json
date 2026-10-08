@@ -1,0 +1,151 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "msw-devtools demo site catalog API",
+    "version": "1.0.0",
+    "description": "Read-only discovery API for the @mugenlabs/msw-devtools demo site. It describes public site routes and package links. Browser MSW playground mocks are client-side only and are not HTTP APIs on this host.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "contact": {
+      "name": "Mugen Labs",
+      "url": "https://github.com/mugenlabs-dev/msw-devtools"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://msw-devtools-mugenlabs.vercel.app",
+      "description": "Production demo (Vercel)"
+    },
+    {
+      "url": "https://msw-devtools.mugenlabs.dev",
+      "description": "Canonical custom domain"
+    }
+  ],
+  "paths": {
+    "/api/v1/site": {
+      "get": {
+        "operationId": "getSiteCatalog",
+        "summary": "Get demo site catalog",
+        "description": "Returns public facts about this demo site: package identity, HTML routes, and links to OpenAPI, sitemap, npm, and GitHub.",
+        "tags": ["Site"],
+        "responses": {
+          "200": {
+            "description": "Site catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteCatalog"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SiteCatalog": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "description",
+          "routes",
+          "links",
+          "github",
+          "npm",
+          "organization",
+          "serverApi"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "npm package name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Existing public package/site description"
+          },
+          "routes": {
+            "type": "array",
+            "description": "HTML SPA routes served by this demo",
+            "items": {
+              "type": "string"
+            }
+          },
+          "links": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["homepage", "playground", "openapi", "sitemap"],
+            "properties": {
+              "homepage": { "type": "string", "format": "uri" },
+              "playground": { "type": "string", "format": "uri" },
+              "openapi": { "type": "string", "format": "uri" },
+              "sitemap": { "type": "string", "format": "uri" }
+            }
+          },
+          "github": {
+            "type": "string",
+            "format": "uri"
+          },
+          "npm": {
+            "type": "string",
+            "format": "uri"
+          },
+          "organization": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "url"],
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "type": "string", "format": "uri" }
+            }
+          },
+          "serverApi": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["note", "openapi"],
+            "properties": {
+              "note": {
+                "type": "string",
+                "description": "Clarifies that playground MSW mocks are not server APIs"
+              },
+              "openapi": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["type", "title", "status", "detail", "code", "resolution"],
+        "properties": {
+          "type": { "type": "string", "format": "uri" },
+          "title": { "type": "string" },
+          "status": { "type": "integer" },
+          "detail": { "type": "string" },
+          "instance": { "type": "string", "format": "uri" },
+          "code": { "type": "string" },
+          "resolution": { "type": "string" },
+          "documentation_url": { "type": "string", "format": "uri" }
+        }
+      }
+    }
+  }
+}

@@ -6,8 +6,40 @@
   "outputDirectory": "apps/demo/dist/client",
   "rewrites": [
     {
-      "source": "/((?!assets|mockServiceWorker\\.js).*)",
+      "source": "/((?!api/|assets/|\\.well-known/|mockServiceWorker\\.js).*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/openapi.json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.oai.openapi+json;version=3.1; charset=utf-8"
+        },
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\""
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/linkset+json; charset=utf-8"
+        }
+      ]
     }
   ]
 }
