@@ -71,7 +71,7 @@ export const HeroSection = () => {
           @mugenlabs/msw-devtools
         </h1>
         <p className="mt-0 mr-0 mb-3 ml-0 text-sm text-text-dimmed tracking-wide">
-          Mugen Labs · MSW DevTools plugin for TanStack DevTools
+          Mugenlabs · MSW DevTools plugin for TanStack DevTools
         </p>
         <p className="mt-0 mr-0 mb-8 ml-0 text-lg text-text-muted leading-normal transition-colors duration-300">
           Toggle, customize, and inspect Mock Service Worker handlers in real time.

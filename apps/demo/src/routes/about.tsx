@@ -50,8 +50,7 @@ const AboutPage = () => (
         mugenlabs.dev
       </a>
       . For project history, releases, and contributions, start with the repository README and
-      GitHub Releases. If you need a postal address or dedicated support email for formal contact,
-      use the Contact page — those facts are only published once the maintainer confirms them.
+      GitHub Releases.
     </p>
   </ContentPage>
 );
@@ -62,7 +61,7 @@ export const Route = createFileRoute("/about")({
     meta: [
       {
         content:
-          "About @mugenlabs/msw-devtools — the Mugen Labs TanStack DevTools plugin for MSW mock management.",
+          "About @mugenlabs/msw-devtools — the Mugenlabs TanStack DevTools plugin for MSW mock management.",
         name: "description",
       },
     ],

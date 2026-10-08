@@ -1,6 +1,6 @@
 # @mugenlabs/msw-devtools
 
-A TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser. Toggle, customize, and inspect mock handlers in real time — built by Mugen Labs and published on npm as `@mugenlabs/msw-devtools`.
+A TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser. Toggle, customize, and inspect mock handlers in real time — built by Mugenlabs and published on npm as `@mugenlabs/msw-devtools`.
 
 This project is a work in progress. The public TypeScript API has not been finalised for 1.0.0; expect breaking changes between minor versions.
 
@@ -39,5 +39,5 @@ Peer dependencies include `msw`, `react`, `react-dom`, and `zustand`. Host the p
 ## Trust and contact
 
 - [About](https://msw-devtools.mugenlabs.dev/about)
-- [Contact](https://msw-devtools.mugenlabs.dev/contact)
+- [Contact — GitHub Issues only](https://github.com/mugenlabs-dev/msw-devtools/issues)
 - [Privacy](https://msw-devtools.mugenlabs.dev/privacy)

@@ -1,6 +1,6 @@
 # @mugenlabs/msw-devtools
 
-@mugenlabs/msw-devtools is an open-source TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser. It is published on npm as `@mugenlabs/msw-devtools` by Mugen Labs. Use this site for library documentation, the interactive playground, and project trust pages — not as a hosted SaaS API.
+@mugenlabs/msw-devtools is an open-source TanStack DevTools plugin for managing MSW (Mock Service Worker) mocks in the browser. It is published on npm as `@mugenlabs/msw-devtools` by Mugenlabs. Use this site for library documentation, the interactive playground, and project trust pages — not as a hosted SaaS API.
 
 ## When to use @mugenlabs/msw-devtools
 
@@ -16,7 +16,7 @@ Do not use this package as a security, compliance, or accessibility certificatio
 2. Install from npm: `npm install @mugenlabs/msw-devtools` (peer: `msw`, `react`, `react-dom`, `zustand`).
 3. Register handlers with `registerRestMocks` / `registerGraphqlMocks`, mount `createMswDevToolsPlugin` inside TanStack DevTools, and optionally `registerAdapter` for auto-refetch.
 4. Use the playground routes under `/playground` to exercise the panel against sample REST/GraphQL clients.
-5. File bugs and questions on GitHub Issues — that is the supported contact channel today.
+5. Reach the project only via GitHub Issues: https://github.com/mugenlabs-dev/msw-devtools/issues
 
 ## Main pages
 
@@ -24,13 +24,13 @@ Do not use this package as a security, compliance, or accessibility certificatio
 - [Documentation (same content, discoverable /docs URL)](https://msw-devtools.mugenlabs.dev/docs)
 - [Developer portal](https://msw-devtools.mugenlabs.dev/developers)
 - [Interactive playground](https://msw-devtools.mugenlabs.dev/playground)
-- [About Mugen Labs / msw-devtools](https://msw-devtools.mugenlabs.dev/about)
-- [Contact](https://msw-devtools.mugenlabs.dev/contact)
+- [About Mugenlabs / msw-devtools](https://msw-devtools.mugenlabs.dev/about)
+- [Contact (GitHub Issues only)](https://msw-devtools.mugenlabs.dev/contact)
 - [Privacy](https://msw-devtools.mugenlabs.dev/privacy)
 - [Markdown homepage body](https://msw-devtools.mugenlabs.dev/index.md)
 - [npm package @mugenlabs/msw-devtools](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
 - [GitHub repository](https://github.com/mugenlabs-dev/msw-devtools)
-- [Mugen Labs](https://www.mugenlabs.dev/)
+- [GitHub Issues — only contact channel](https://github.com/mugenlabs-dev/msw-devtools/issues)
 - [XML sitemap](https://msw-devtools.mugenlabs.dev/sitemap.xml)
 
 ## API surface (honest scope)

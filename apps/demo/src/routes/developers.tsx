@@ -77,7 +77,7 @@ export const Route = createFileRoute("/developers")({
     meta: [
       {
         content:
-          "Developer portal for @mugenlabs/msw-devtools — docs, playground, npm, and agent links from Mugen Labs.",
+          "Developer portal for @mugenlabs/msw-devtools — docs, playground, npm, and agent links from Mugenlabs.",
         name: "description",
       },
     ],

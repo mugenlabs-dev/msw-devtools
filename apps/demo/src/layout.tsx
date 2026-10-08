@@ -171,7 +171,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
         <div className="mx-auto flex max-w-[720px] flex-col gap-4 text-sm text-text-muted">
           <p className="m-0 font-mono text-text-secondary">@mugenlabs/msw-devtools</p>
           <p className="m-0">
-            Mugen Labs open-source MSW DevTools plugin. Documentation and playground for agents and
+            Mugenlabs open-source MSW DevTools plugin. Documentation and playground for agents and
             humans.
           </p>
           <nav className="flex flex-wrap gap-x-4 gap-y-2">

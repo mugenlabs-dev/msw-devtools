@@ -4,9 +4,9 @@ export const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
 export const SITE_NAME = "@mugenlabs/msw-devtools";
 
 export const SITE_DESCRIPTION =
-  "Mugen Labs MSW DevTools plugin for TanStack DevTools — toggle, customize, and inspect Mock Service Worker handlers in real time.";
+  "Mugenlabs MSW DevTools plugin for TanStack DevTools — toggle, customize, and inspect Mock Service Worker handlers in real time.";
 
-export const ORG_NAME = "Mugen Labs";
+export const ORG_NAME = "Mugenlabs";
 
 export const GITHUB_REPO_URL = "https://github.com/mugenlabs-dev/msw-devtools";
 
@@ -16,11 +16,7 @@ export const NPM_URL = "https://www.npmjs.com/package/@mugenlabs/msw-devtools";
 
 export const ORG_HOME_URL = "https://www.mugenlabs.dev/";
 
-/**
- * Organization contact facts for JSON-LD.
- * Email, telephone, and postal address are intentionally omitted until Yago
- * supplies authored values — inventing them would fail the honesty bar.
- */
+/** Organization JSON-LD. Contact is GitHub Issues only — no email, phone, or address. */
 export const ORG_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "Organization",

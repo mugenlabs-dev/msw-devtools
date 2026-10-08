@@ -52,6 +52,7 @@ const RootComponent = () => (
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
+<<<<<<< HEAD
             "@graph": [
               {
                 ...ORG_JSON_LD,
@@ -75,6 +76,23 @@ const RootComponent = () => (
                 url: SITE_URL,
               },
             ],
+=======
+            "@type": "SoftwareApplication",
+            applicationCategory: "DeveloperApplication",
+            author: {
+              "@type": "Organization",
+              name: "Mugenlabs",
+              url: "https://www.mugenlabs.dev/",
+            },
+            codeRepository: GITHUB_REPO_URL,
+            description: SITE_DESCRIPTION,
+            downloadUrl: NPM_URL,
+            license: "https://opensource.org/licenses/MIT",
+            name: SITE_NAME,
+            offers: { "@type": "Offer", price: "0" },
+            operatingSystem: "Web",
+            url: SITE_URL,
+>>>>>>> 77c943a (docs(demo): Mugenlabs brand + minimal contact/privacy for Yago)
           }),
         }}
         type="application/ld+json"
@@ -120,6 +138,10 @@ export const Route = createRootRoute({
       { content: "Mugenlabs", property: "og:site_name" },
       { content: "website", property: "og:type" },
       { content: SITE_URL, property: "og:url" },
+<<<<<<< HEAD
+=======
+      { content: "Mugenlabs", property: "og:site_name" },
+>>>>>>> 77c943a (docs(demo): Mugenlabs brand + minimal contact/privacy for Yago)
       // Twitter Card
       { content: "summary_large_image", name: "twitter:card" },
       {

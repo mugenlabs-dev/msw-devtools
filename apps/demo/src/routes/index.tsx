@@ -7,6 +7,6 @@ export const Route = createFileRoute("/")({
   component: DocsPage,
   head: () => ({
     meta: [{ content: SITE_DESCRIPTION, name: "description" }],
-    title: `${SITE_NAME} — Mugen Labs MSW DevTools plugin`,
+    title: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
   }),
 });

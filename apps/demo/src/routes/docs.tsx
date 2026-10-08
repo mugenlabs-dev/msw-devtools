@@ -8,7 +8,7 @@ export const Route = createFileRoute("/docs")({
     meta: [
       {
         content:
-          "@mugenlabs/msw-devtools documentation — install the Mugen Labs MSW DevTools plugin, quick start, adapters, and API reference.",
+          "@mugenlabs/msw-devtools documentation — install the Mugenlabs MSW DevTools plugin, quick start, adapters, and API reference.",
         name: "description",
       },
     ],
