@@ -49,9 +49,11 @@ const ErrorOptionButton = ({
         fontSize: theme.fontSize.md,
         fontWeight: isActive ? 600 : 400,
         padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
-        transition: [transition("background"), transition("border-color"), transition("color")].join(
-          ", "
-        ),
+        transition: [
+          transition("background"),
+          transition("border-color"),
+          transition("color"),
+        ].join(", "),
       }}
       type="button"
       {...hoverProps}
