@@ -15,11 +15,11 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
         <AlertTriangle className="text-red-400" size={28} />
       </div>
       <h1 className="m-0 font-bold text-2xl text-text-primary">Something went wrong</h1>
-      <p className="mt-3 text-sm text-text-muted">
+      <p className="mt-3 text-pretty text-sm text-text-muted">
         {error instanceof Error ? error.message : String(error)}
       </p>
       <button
-        className="mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary transition-colors hover:bg-white/5"
+        className="pressable mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary transition-colors hover:bg-bg-tertiary"
         onClick={() => {
           void router.invalidate();
         }}
@@ -37,9 +37,9 @@ export const NotFoundPage = () => (
       <Compass className="text-accent-blue" size={28} />
     </div>
     <h1 className="m-0 font-bold text-2xl text-text-primary">Page not found</h1>
-    <p className="mt-3 text-sm text-text-muted">There is nothing at this address.</p>
+    <p className="mt-3 text-pretty text-sm text-text-muted">There is nothing at this address.</p>
     <Link
-      className="mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary no-underline transition-colors hover:bg-white/5"
+      className="pressable mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary no-underline transition-colors hover:bg-bg-tertiary"
       to="/"
     >
       Back to the docs

@@ -1,14 +1,8 @@
 import { play } from "cuelume";
 import type { ReactNode } from "react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+
+import { prefersReducedMotion } from "./lib/utils";
 
 type Theme = "dark" | "light";
 
@@ -16,6 +10,8 @@ interface ThemeContextValue {
   theme: Theme;
   toggleTheme: (e?: React.MouseEvent) => void;
 }
+
+const STORAGE_KEY = "msw-devtools-demo-theme";
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "dark",
@@ -26,80 +22,42 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 export const useTheme = () => useContext(ThemeContext);
 
-// ---- CSS variables for each theme ----
-const themeVars: Record<Theme, Record<string, string>> = {
-  dark: {
-    "--accent-blue": "#6cb6ff",
-    "--accent-green": "#4ade80",
-    "--accent-purple": "#a78bfa",
-    "--badge-graphql-bg": "#3a1e5f",
-    "--badge-graphql-color": "#a78bfa",
-    "--badge-lib-bg": "#1a2a1a",
-    "--badge-lib-color": "#4ade80",
-    "--badge-method-bg": "#1e3a5f",
-    "--badge-method-color": "#60a5fa",
-    "--badge-rest-bg": "#1e3a5f",
-    "--badge-rest-color": "#60a5fa",
-    "--bg-primary": "#0a0a0a",
-    "--bg-secondary": "#111",
-    "--bg-tertiary": "#1a1a1a",
-    "--border-primary": "#222",
-    "--border-secondary": "#333",
-    "--border-tertiary": "#444",
-    "--card-bg": "#111",
-    "--code-bg": "rgba(255,255,255,0.06)",
-    "--code-block-bg": "#0d1117",
-    "--header-bg": "rgba(10, 10, 10, 0.85)",
-    "--hero-btn-bg": "#fff",
-    "--hero-btn-color": "#000",
-    "--pill-bg": "#111",
-    "--pill-color": "#aaa",
-    "--text-dimmed": "#666",
-    "--text-muted": "#888",
-    "--text-primary": "#fff",
-    "--text-secondary": "#e0e0e0",
-    "--text-tertiary": "#aaa",
-  },
-  light: {
-    "--accent-blue": "#2563eb",
-    "--accent-green": "#16a34a",
-    "--accent-purple": "#7c3aed",
-    "--badge-graphql-bg": "#ede9fe",
-    "--badge-graphql-color": "#6d28d9",
-    "--badge-lib-bg": "#dcfce7",
-    "--badge-lib-color": "#15803d",
-    "--badge-method-bg": "#dbeafe",
-    "--badge-method-color": "#1d4ed8",
-    "--badge-rest-bg": "#dbeafe",
-    "--badge-rest-color": "#1d4ed8",
-    "--bg-primary": "#f8f8f8",
-    "--bg-secondary": "#fff",
-    "--bg-tertiary": "#eee",
-    "--border-primary": "#ddd",
-    "--border-secondary": "#ccc",
-    "--border-tertiary": "#bbb",
-    "--card-bg": "#fff",
-    "--code-bg": "rgba(0,0,0,0.05)",
-    "--code-block-bg": "#1e293b",
-    "--header-bg": "rgba(248, 248, 248, 0.85)",
-    "--hero-btn-bg": "#1a1a1a",
-    "--hero-btn-color": "#fff",
-    "--pill-bg": "#f0f0f0",
-    "--pill-color": "#555",
-    "--text-dimmed": "#999",
-    "--text-muted": "#777",
-    "--text-primary": "#1a1a1a",
-    "--text-secondary": "#333",
-    "--text-tertiary": "#555",
-  },
+/** Toggle only sets data-theme + color-scheme; tokens live in styles.css. */
+const applyTheme = (theme: Theme) => {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
 };
 
-const applyThemeVars = (theme: Theme) => {
-  const vars = themeVars[theme];
-  for (const [key, value] of Object.entries(vars)) {
-    document.documentElement.style.setProperty(key, value);
+/**
+ * Resolve theme:
+ * 1. Saved preference (localStorage) wins if set
+ * 2. Else follow prefers-color-scheme when the media query clearly matches
+ * 3. Else dark (first-visit default when no preference and no clear system signal)
+ */
+export const resolveTheme = (): Theme => {
+  if (typeof window === "undefined") {
+    return "dark";
   }
-  document.documentElement.dataset.theme = theme;
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved === "light" || saved === "dark") {
+      return saved;
+    }
+  } catch {
+    // ignore quota / private mode
+  }
+  if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+    return "light";
+  }
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "dark";
+};
+
+const readDomTheme = (): Theme => {
+  const fromDom = document.documentElement.dataset.theme;
+  return fromDom === "light" || fromDom === "dark" ? fromDom : resolveTheme();
 };
 
 const animateViewTransition = (x: number, y: number) => {
@@ -121,14 +79,38 @@ const animateViewTransition = (x: number, y: number) => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const initialized = useRef(false);
+  const [theme, setTheme] = useState<Theme>(() =>
+    typeof document === "undefined" ? "dark" : readDomTheme()
+  );
 
   useEffect(() => {
-    if (!initialized.current) {
-      applyThemeVars("dark");
-      initialized.current = true;
-    }
+    applyTheme(theme);
+  }, [theme]);
+
+  // Follow system only when the user has not saved a preference.
+  useEffect(() => {
+    const mqLight = window.matchMedia("(prefers-color-scheme: light)");
+    const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const onChange = () => {
+      let saved: string | null = null;
+      try {
+        saved = window.localStorage.getItem(STORAGE_KEY);
+      } catch {
+        saved = null;
+      }
+      if (saved === "light" || saved === "dark") {
+        return;
+      }
+      setTheme(resolveTheme());
+    };
+
+    mqLight.addEventListener("change", onChange);
+    mqDark.addEventListener("change", onChange);
+    return () => {
+      mqLight.removeEventListener("change", onChange);
+      mqDark.removeEventListener("change", onChange);
+    };
   }, []);
 
   const toggleTheme = useCallback(
@@ -137,25 +119,29 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
       play(next === "light" ? "tick" : "press");
 
-      // get click coordinates for circular reveal
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // ignore
+      }
+
       const x = e?.clientX ?? window.innerWidth / 2;
       const y = e?.clientY ?? 0;
 
-      // use View Transitions API if available
-      if (typeof document.startViewTransition === "function") {
-        const transition = document.startViewTransition(() => {
-          setTheme(next);
-          applyThemeVars(next);
-        });
-
-        void transition.ready.then(() => {
-          animateViewTransition(x, y);
-        });
-      } else {
-        // fallback: just switch instantly
+      const apply = () => {
         setTheme(next);
-        applyThemeVars(next);
+        applyTheme(next);
+      };
+
+      if (prefersReducedMotion() || typeof document.startViewTransition !== "function") {
+        apply();
+        return;
       }
+
+      const transition = document.startViewTransition(apply);
+      void transition.ready.then(() => {
+        animateViewTransition(x, y);
+      });
     },
     [theme]
   );

@@ -1,41 +1,53 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 
-import {
-  GITHUB_REPO_URL,
-  NPM_URL,
-  ORG_JSON_LD,
-  SITE_DESCRIPTION,
-  SITE_NAME,
-  SITE_URL,
-} from "../content/site";
 import { ErrorPage, NotFoundPage } from "../error-page";
 import { Layout } from "../layout";
 import { ThemeProvider } from "../theme-context";
 
+const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
+const SITE_DESCRIPTION =
+  "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.";
+
+const THEME_BOOT_SCRIPT = `(function(){try{var k="msw-devtools-demo-theme";var s=localStorage.getItem(k);var t;if(s==="light"||s==="dark")t=s;else if(window.matchMedia("(prefers-color-scheme: light)").matches)t="light";else if(window.matchMedia("(prefers-color-scheme: dark)").matches)t="dark";else t="dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.dataset.theme="dark";document.documentElement.style.colorScheme="dark";}})();`;
+
 const RootComponent = () => (
   <html lang="en">
     <head>
-      <title>{SITE_NAME} — Mugenlabs MSW DevTools plugin</title>
+      <title>@mugenlabs/msw-devtools</title>
       <HeadContent />
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: FOUC-safe theme boot before paint
+        dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
+      />
       <style
         // biome-ignore lint/security/noDangerouslySetInnerHtml: inline critical styles
         dangerouslySetInnerHTML={{
           __html: `
 							:root {
-								--accent-blue:#6cb6ff;--accent-green:#4ade80;--accent-purple:#a78bfa;
-								--badge-graphql-bg:#3a1e5f;--badge-graphql-color:#a78bfa;
-								--badge-lib-bg:#1a2a1a;--badge-lib-color:#4ade80;
-								--badge-method-bg:#1e3a5f;--badge-method-color:#60a5fa;
-								--badge-rest-bg:#1e3a5f;--badge-rest-color:#60a5fa;
-								--bg-primary:#0a0a0a;--bg-secondary:#111;--bg-tertiary:#1a1a1a;
-								--border-primary:#222;--border-secondary:#333;--border-tertiary:#444;
-								--card-bg:#111;--code-bg:rgba(255,255,255,0.06);--code-block-bg:#0d1117;
-								--header-bg:rgba(10,10,10,0.85);--hero-btn-bg:#fff;--hero-btn-color:#000;
-								--pill-bg:#111;--pill-color:#aaa;
-								--text-dimmed:#666;--text-muted:#888;--text-primary:#fff;
-								--text-secondary:#e0e0e0;--text-tertiary:#aaa;
+								color-scheme: dark;
+								--header-height: 60px;
+								--safe-top: env(safe-area-inset-top, 0px);
+								--safe-right: env(safe-area-inset-right, 0px);
+								--safe-bottom: env(safe-area-inset-bottom, 0px);
+								--safe-left: env(safe-area-inset-left, 0px);
+								--accent-blue: light-dark(oklch(54.6% 0.215 262.9), oklch(75.8% 0.129 249.6));
+								--accent-green: light-dark(oklch(62.7% 0.17 149.2), oklch(80% 0.182 151.7));
+								--accent-purple: light-dark(oklch(54.1% 0.247 293), oklch(70.9% 0.159 293.5));
+								--bg-primary: light-dark(oklch(97.9% 0 0), oklch(14.5% 0 0));
+								--bg-secondary: light-dark(oklch(100% 0 0), oklch(17.8% 0 0));
+								--bg-tertiary: light-dark(oklch(94.9% 0 0), oklch(21.8% 0 0));
+								--border-primary: light-dark(oklch(89.8% 0 0), oklch(25.2% 0 0));
+								--border-secondary: light-dark(oklch(84.5% 0 0), oklch(32.1% 0 0));
+								--card-bg: light-dark(oklch(100% 0 0), oklch(17.8% 0 0));
+								--header-bg: light-dark(color-mix(in oklch, oklch(97.9% 0 0) 85%, transparent), color-mix(in oklch, oklch(14.5% 0 0) 85%, transparent));
+								--text-primary: light-dark(oklch(21.8% 0 0), oklch(100% 0 0));
+								--text-secondary: light-dark(oklch(32.1% 0 0), oklch(90.7% 0 0));
+								--text-muted: light-dark(oklch(56.9% 0 0), oklch(62.7% 0 0));
 							}
-							body { margin: 0; background: var(--bg-primary); transition: background 0.3s; }
+							html[data-theme="light"] { color-scheme: light; }
+							html[data-theme="dark"] { color-scheme: dark; }
+							body { margin: 0; min-height: 100svh; background: var(--bg-primary); }
 							::view-transition-old(root),
 							::view-transition-new(root) {
 								animation: none;
@@ -46,49 +58,32 @@ const RootComponent = () => (
 						`,
         }}
       />
-      {/* JSON-LD — Organization contactPoint is GitHub Issues only. */}
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "Organization",
-                contactPoint: ORG_JSON_LD.contactPoint,
-                name: ORG_JSON_LD.name,
-                sameAs: ORG_JSON_LD.sameAs,
-                url: ORG_JSON_LD.url,
-              },
-              {
-                "@type": "SoftwareApplication",
-                applicationCategory: "DeveloperApplication",
-                author: {
-                  "@type": "Organization",
-                  name: "Mugenlabs",
-                  url: "https://www.mugenlabs.dev/",
-                },
-                codeRepository: GITHUB_REPO_URL,
-                description: SITE_DESCRIPTION,
-                downloadUrl: NPM_URL,
-                license: "https://opensource.org/licenses/MIT",
-                name: SITE_NAME,
-                offers: { "@type": "Offer", price: "0" },
-                operatingSystem: "Web",
-                url: SITE_URL,
-              },
-            ],
+            "@type": "SoftwareApplication",
+            applicationCategory: "DeveloperApplication",
+            description: SITE_DESCRIPTION,
+            license: "https://opensource.org/licenses/MIT",
+            name: "@mugenlabs/msw-devtools",
+            offers: { "@type": "Offer", price: "0" },
+            operatingSystem: "Web",
+            url: SITE_URL,
           }),
         }}
         type="application/ld+json"
       />
     </head>
-    <body className="min-h-screen font-sans">
-      <ThemeProvider>
-        <Layout>
-          <Outlet />
-        </Layout>
-      </ThemeProvider>
+    <body className="min-h-svh font-sans">
+      <MotionConfig reducedMotion="user">
+        <ThemeProvider>
+          <Layout>
+            <Outlet />
+          </Layout>
+        </ThemeProvider>
+      </MotionConfig>
       <Scripts />
     </body>
   </html>
@@ -108,31 +103,25 @@ export const Route = createRootRoute({
     ],
     meta: [
       { charSet: "utf8" },
-      { content: "width=device-width, initial-scale=1.0", name: "viewport" },
-      { content: SITE_DESCRIPTION, name: "description" },
-      { content: "#0a0a0a", name: "theme-color" },
-      // Declares demo site type for Is Agentic report lens (not a score change).
-      { content: "app", name: "is-agentic-site-type" },
-      // Open Graph
       {
-        content: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
-        property: "og:title",
+        content: "width=device-width, initial-scale=1.0, viewport-fit=cover",
+        name: "viewport",
       },
+      { content: SITE_DESCRIPTION, name: "description" },
+      { content: "oklch(14.5% 0 0)", name: "theme-color" },
+      // Open Graph
+      { content: "@mugenlabs/msw-devtools", property: "og:title" },
       { content: SITE_DESCRIPTION, property: "og:description" },
       { content: `${SITE_URL}og-image.png`, property: "og:image" },
-      { content: "Mugenlabs", property: "og:site_name" },
       { content: "website", property: "og:type" },
       { content: SITE_URL, property: "og:url" },
       // Twitter Card
       { content: "summary_large_image", name: "twitter:card" },
-      {
-        content: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
-        name: "twitter:title",
-      },
+      { content: "@mugenlabs/msw-devtools", name: "twitter:title" },
       { content: SITE_DESCRIPTION, name: "twitter:description" },
       { content: `${SITE_URL}og-image.png`, name: "twitter:image" },
     ],
-    title: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
+    title: "@mugenlabs/msw-devtools",
   }),
   notFoundComponent: NotFoundPage,
 });
