@@ -167,7 +167,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
 
       <main id="main-content">{children}</main>
 
-      <footer className="border-border-primary border-t px-6 py-10">
+      <footer className="border-border-primary border-t px-6 pt-10 pb-40">
         <div className="mx-auto flex max-w-[720px] flex-col gap-4 text-sm text-text-muted">
           <p className="m-0 font-mono text-text-secondary">@mugenlabs/msw-devtools</p>
           <p className="m-0">

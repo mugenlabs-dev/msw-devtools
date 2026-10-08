@@ -10,7 +10,8 @@ const ContactPage = () => (
       <a href={GITHUB_ISSUES_URL} rel="noopener noreferrer" target="_blank">
         GitHub Issue
       </a>{" "}
-      on the project repository.
+      on the project repository. That is the only contact method. This is an open-source project
+      with no support guarantees.
     </p>
   </ContentPage>
 );
