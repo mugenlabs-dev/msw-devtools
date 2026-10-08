@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 
 import { dispatchMockUpdate } from "#/adapter/event-bus";
 import { ChevronDown } from "#/plugin/icons";
-import { theme } from "#/plugin/theme";
+import { theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 import type { MockOperationDescriptor } from "#/registry/types";
 import { resolveActiveVariant } from "#/registry/types";
@@ -38,22 +38,25 @@ const GroupHeader = ({
         cursor: "pointer",
         display: "flex",
         gap: theme.spacing.md,
-        padding: `5px ${theme.spacing.xl}`,
+        // ~8px vertical breathing room so packed toolbar targets don't collide
+        padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
         textAlign: "left",
-        transition: "background 0.15s",
+        transition: transition("background"),
         width: "100%",
       }}
       type="button"
       {...hoverProps}
     >
-      <ChevronDown
-        color={theme.colors.textSecondary}
-        size={12}
+      <span
+        data-msw-dt-motion=""
         style={{
+          display: "inline-flex",
           transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
-          transition: "transform 0.15s",
+          transition: transition("transform"),
         }}
-      />
+      >
+        <ChevronDown color={theme.colors.textSecondary} size={12} />
+      </span>
       <span
         style={{
           color: theme.colors.textSecondary,
@@ -69,6 +72,7 @@ const GroupHeader = ({
         style={{
           color: theme.colors.textDimmed,
           fontSize: theme.fontSize.xs,
+          fontVariantNumeric: "tabular-nums",
           marginLeft: "auto",
         }}
       >
@@ -77,6 +81,12 @@ const GroupHeader = ({
     </button>
   );
 };
+
+const scrollerStyle = {
+  flex: 1,
+  overflow: "auto",
+  overscrollBehavior: "contain",
+} as const;
 
 export const GroupedOperationList = ({
   descriptors,
@@ -123,11 +133,11 @@ export const GroupedOperationList = ({
   );
   // If grouping is off or no named groups exist, render flat list
   if (!hasNamedGroups) {
-    return <div style={{ flex: 1, overflow: "auto" }}>{descriptors.map(renderRow)}</div>;
+    return <div style={scrollerStyle}>{descriptors.map(renderRow)}</div>;
   }
 
   return (
-    <div style={{ flex: 1, overflow: "auto" }}>
+    <div style={scrollerStyle}>
       {groups.map((group) => {
         if (group.name === null) {
           return group.items.map(renderRow);

@@ -1,4 +1,4 @@
-import { theme } from "#/plugin/theme";
+import { focusableInputStyle, theme } from "#/plugin/theme";
 
 import type { VariantSelectorProps } from "./types";
 
@@ -21,6 +21,7 @@ export const VariantSelector = ({
       Variant
     </label>
     <select
+      data-msw-dt-input=""
       id={`variant-${operationName}`}
       onChange={onVariantChange}
       style={{
@@ -31,7 +32,7 @@ export const VariantSelector = ({
         cursor: "pointer",
         flex: 1,
         fontSize: theme.fontSize.base,
-        outline: "none",
+        ...focusableInputStyle,
         padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
       }}
       value={activeVariantId}
