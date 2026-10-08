@@ -1,7 +1,7 @@
 import { useQuery as useTanStackQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-
 import { CodeBlock } from "../docs/components/code-block";
+import { playgroundCardsGrid } from "../lib/utils";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -290,7 +290,7 @@ export const QueryPage = () => (
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className={playgroundCardsGrid}>
         <CharizardCard />
         <GengarCard />
         <TyranitarCard />

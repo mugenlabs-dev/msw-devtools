@@ -5,15 +5,10 @@ import { CheckIcon } from "../../components/icons/check";
 import { CopyIcon } from "../../components/icons/copy";
 import { WindowDots } from "./window-dots";
 
-// ---------------------------------------------------------------------------
-// Shiki highlighter (loaded once, cached)
-// ---------------------------------------------------------------------------
 type WebHighlighter = HighlighterGeneric<BundledLanguage, BundledTheme>;
 
 let highlighterPromise: Promise<WebHighlighter> | null = null;
 
-// The web bundle only carries browser-relevant grammars, and the dynamic
-// import keeps shiki out of the initial landing-page chunk.
 const getHighlighter = () => {
   highlighterPromise ??= import("shiki/bundle/web").then(({ createHighlighter }) =>
     createHighlighter({
@@ -24,34 +19,6 @@ const getHighlighter = () => {
   return highlighterPromise;
 };
 
-// ---------------------------------------------------------------------------
-// Global style injection (once) -- fixes shiki pre styling
-// ---------------------------------------------------------------------------
-let stylesInjected = false;
-const injectShikiStyles = () => {
-  if (stylesInjected) {
-    return;
-  }
-  stylesInjected = true;
-  const style = document.createElement("style");
-  style.textContent = `
-		.shiki-wrapper pre.shiki {
-			margin: 0 !important;
-			padding: 16px 20px !important;
-			border-radius: 0 !important;
-			background: var(--code-block-bg) !important;
-			overflow-x: auto !important;
-		}
-		.shiki-wrapper code {
-			font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace !important;
-		}
-	`;
-  document.head.append(style);
-};
-
-// ---------------------------------------------------------------------------
-// CopyButton -- copies text to clipboard with check feedback
-// ---------------------------------------------------------------------------
 const CopyButton = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
 
@@ -63,61 +30,26 @@ const CopyButton = ({ text }: { text: string }) => {
     }, 2000);
   }, [text]);
 
-  const handleMouseEnter = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!copied) {
-        e.currentTarget.style.opacity = "1";
-      }
-    },
-    [copied]
-  );
-
-  const handleMouseLeave = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!copied) {
-        e.currentTarget.style.opacity = "0.6";
-      }
-    },
-    [copied]
-  );
-
   return (
     <button
       aria-label="Copy code"
+      className={`hit-44 pressable absolute end-2.5 top-2.5 z-[1] flex cursor-pointer items-center justify-center rounded-md border p-[5px_6px] transition-[opacity,background,border-color,color,transform] duration-150 ${
+        copied
+          ? "border-[rgba(74,222,128,0.3)] bg-[rgba(74,222,128,0.15)] text-accent-green opacity-100"
+          : "border-white/10 bg-white/5 text-[#888] opacity-60 hover:opacity-100"
+      }`}
       onClick={handleCopy}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        alignItems: "center",
-        background: copied ? "rgba(74, 222, 128, 0.15)" : "rgba(255,255,255,0.06)",
-        border: "1px solid",
-        borderColor: copied ? "rgba(74, 222, 128, 0.3)" : "rgba(255,255,255,0.1)",
-        borderRadius: 6,
-        color: copied ? "var(--accent-green)" : "#888",
-        cursor: "pointer",
-        display: "flex",
-        justifyContent: "center",
-        opacity: copied ? 1 : 0.6,
-        padding: "5px 6px",
-        position: "absolute",
-        right: 10,
-        top: 10,
-        transition: "all 0.15s",
-      }}
       type="button"
     >
       {copied ? (
-        <CheckIcon aria-hidden className="flex" size={14} />
+        <CheckIcon aria-hidden className="icon-flex-none flex size-[1cap]" size={14} />
       ) : (
-        <CopyIcon aria-hidden className="flex" size={14} />
+        <CopyIcon aria-hidden className="icon-flex-none flex size-[1cap]" size={14} />
       )}
     </button>
   );
 };
 
-// ---------------------------------------------------------------------------
-// CodeBlock -- async syntax-highlighted code with copy button
-// ---------------------------------------------------------------------------
 export const CodeBlock = ({
   children,
   lang = "typescript",
@@ -129,7 +61,6 @@ export const CodeBlock = ({
   const trimmed = children.trim();
 
   useEffect(() => {
-    injectShikiStyles();
     let cancelled = false;
     const loadHighlighter = async () => {
       const hl = await getHighlighter();
@@ -150,62 +81,24 @@ export const CodeBlock = ({
 
   return (
     <div
-      style={{
-        background: "var(--code-block-bg)",
-        border: "1px solid var(--border-secondary)",
-        borderRadius: 12,
-        boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)",
-        overflow: "hidden",
-        position: "relative",
-      }}
+      className="code-chrome concentric"
+      style={{ ["--_radius" as string]: "12px", ["--_pad" as string]: "0px" }}
     >
-      <div
-        style={{
-          alignItems: "center",
-          background: "rgba(255, 255, 255, 0.02)",
-          borderBottom: "1px solid var(--border-secondary)",
-          display: "flex",
-          gap: 6,
-          padding: "12px 16px",
-        }}
-      >
+      <div className="code-chrome__header flex items-center gap-1.5 bg-white/[0.02] px-4 py-3">
         <WindowDots />
-        <span
-          style={{
-            color: "var(--text-dimmed)",
-            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 12,
-            marginLeft: "auto",
-          }}
-        >
-          {lang}
-        </span>
+        <span className="ml-auto font-mono text-text-dimmed text-xs">{lang}</span>
       </div>
-      <div style={{ position: "relative" }}>
+      <div className="concentric-inner relative" style={{ ["--_radius" as string]: "12px" }}>
         <CopyButton text={trimmed} />
         {html == null ? (
-          <pre
-            style={{
-              background: "transparent",
-              color: "#e0e0e0",
-              fontFamily: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace",
-              fontSize: 13,
-              lineHeight: 1.6,
-              margin: 0,
-              padding: "16px 20px",
-            }}
-          >
+          <pre className="code-scroll-fade m-0 bg-transparent p-4 px-5 font-mono text-[#e0e0e0] text-[13px] leading-relaxed">
             <code>{trimmed}</code>
           </pre>
         ) : (
           <div
-            className="shiki-wrapper"
+            className="shiki-wrapper code-scroll-fade text-[13px] leading-relaxed"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: shiki syntax highlighting output
             dangerouslySetInnerHTML={{ __html: html }}
-            style={{
-              fontSize: 13,
-              lineHeight: 1.6,
-            }}
           />
         )}
       </div>
