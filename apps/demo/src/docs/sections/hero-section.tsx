@@ -1,5 +1,8 @@
+import { Link } from "@tanstack/react-router";
 import { PenLine, Radio, RefreshCw, Shuffle, SlidersHorizontal, ToggleRight } from "lucide-react";
 import type { ReactNode } from "react";
+
+import { ArrowRightIcon } from "../../components/icons/arrow-right";
 
 // ---------------------------------------------------------------------------
 // Feature pill — compact feature badge for the hero area
@@ -75,10 +78,19 @@ export const HeroSection = () => {
           <br />
           Library docs and API reference live on this site — install from npm, not a hosted API.
         </p>
-        <p className="mx-auto mb-12 max-w-[480px] rounded-lg border border-accent-purple/30 bg-accent-purple/10 px-4 py-2.5 text-[13px] text-text-muted">
+        <p className="mx-auto mb-8 max-w-[480px] rounded-lg border border-accent-purple/30 bg-accent-purple/10 px-4 py-2.5 text-[13px] text-text-muted">
           This project is a work in progress &mdash; the API has not been finalised yet, which is
           why we haven&apos;t reached 1.0.0. Expect breaking changes between minor versions.
         </p>
+        <div className="mb-12 flex justify-center gap-3">
+          <Link
+            className="inline-flex items-center gap-2 rounded-lg bg-hero-btn-bg px-6 py-2.5 font-semibold text-hero-btn-color text-sm no-underline transition-[opacity,background,color] duration-300"
+            to="/playground"
+          >
+            Open Playground
+            <ArrowRightIcon aria-hidden className="flex" size={14} />
+          </Link>
+        </div>
 
         {/* Features grid */}
         <div className="mx-auto mb-8 grid max-w-[600px] grid-cols-2 gap-2.5 text-left sm:grid-cols-3">
