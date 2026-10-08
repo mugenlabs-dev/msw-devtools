@@ -48,13 +48,12 @@ export const GradualBlur = ({
     <div
       style={{
         [direction]: 0,
-        background: `linear-gradient(${gradientDir}, transparent 0%, var(--bg-primary, #0a0a0a) 100%)`,
+        background: `linear-gradient(${gradientDir}, transparent 0%, var(--bg-primary) 100%)`,
         height,
+        insetInline: 0,
         isolation: "isolate",
-        left: 0,
         pointerEvents: "none",
         position: "fixed",
-        right: 0,
         zIndex: 40,
       }}
     >

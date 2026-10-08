@@ -2,12 +2,10 @@ import type { LucideIcon } from "lucide-react";
 import { Code2, FileCode, Package, Plug, Zap } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Responsive sidebar visibility is handled by the CSS rule in styles.css:
-// @media (max-width: 1200px) { .docs-sidebar { display: none !important; } }
+import { smoothScrollBehavior } from "../../lib/utils";
 
-// ---------------------------------------------------------------------------
-// Section definitions
-// ---------------------------------------------------------------------------
+// Responsive sidebar visibility: styles.css @media (min-width: 1048px)
+
 interface SectionDef {
   icon: LucideIcon;
   id: string;
@@ -22,9 +20,6 @@ const sections: SectionDef[] = [
   { icon: Code2, id: "api-reference", label: "API Reference" },
 ];
 
-// ---------------------------------------------------------------------------
-// Sidebar Nav Item
-// ---------------------------------------------------------------------------
 const NavItem = ({
   active,
   icon: Icon,
@@ -37,37 +32,33 @@ const NavItem = ({
   onClick: () => void;
 }) => (
   <button
-    className="flex w-full cursor-pointer items-center gap-2 border-none bg-transparent px-3 py-2 text-left text-[13px] transition-all duration-200 ease-in-out"
+    className={`pressable flex w-full cursor-pointer items-center gap-2 border-none bg-transparent px-3 py-2 text-start text-[13px] transition-[color,opacity,transform,border-color] duration-200 ${
+      active
+        ? "translate-x-0.5 font-semibold text-text-primary opacity-100"
+        : "font-normal text-text-muted opacity-70 hover:text-text-secondary hover:opacity-100"
+    }`}
     onClick={onClick}
     style={{
-      borderLeft: `2px solid ${active ? "var(--accent-purple, #7c3aed)" : "transparent"}`,
-      color: active ? "var(--text-primary)" : "var(--text-muted)",
-      fontWeight: active ? 600 : 400,
-      opacity: active ? 1 : 0.7,
-      transform: active ? "translateX(2px)" : "translateX(0)",
+      borderInlineStart: `2px solid ${active ? "var(--accent-purple)" : "transparent"}`,
     }}
     type="button"
   >
     <Icon
-      className="shrink-0 transition-colors duration-200"
+      aria-hidden
+      className={`icon-flex-none size-[1cap] shrink-0 transition-colors duration-200 ${
+        active ? "text-accent-purple" : "text-text-dimmed"
+      }`}
       size={15}
-      style={{
-        color: active ? "var(--accent-purple, #7c3aed)" : "var(--text-dimmed)",
-      }}
     />
     {label}
   </button>
 );
 
-// ---------------------------------------------------------------------------
-// Sidebar Nav
-// ---------------------------------------------------------------------------
 export const SidebarNav = () => {
   const [activeId, setActiveId] = useState("");
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isClickScrolling = useRef(false);
 
-  // Set up IntersectionObserver to track active section
   useEffect(() => {
     const headings = sections
       .map((s) => document.getElementById(s.id))
@@ -79,7 +70,6 @@ export const SidebarNav = () => {
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        // Skip observer updates during programmatic (click) scrolls
         if (isClickScrolling.current) {
           return;
         }
@@ -107,13 +97,10 @@ export const SidebarNav = () => {
   const handleClick = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (el) {
-      // Immediately update the active state
       setActiveId(id);
-      // Pause observer during the smooth scroll to prevent flickering
       isClickScrolling.current = true;
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({ behavior: smoothScrollBehavior() });
       window.history.replaceState(null, "", `#${id}`);
-      // Resume observer after scroll animation settles
       setTimeout(() => {
         isClickScrolling.current = false;
       }, 800);
@@ -121,7 +108,7 @@ export const SidebarNav = () => {
   }, []);
 
   return (
-    <nav className="sticky top-[80px] flex flex-col gap-0.5">
+    <nav className="sticky top-[calc(var(--header-height)+20px)] flex flex-col gap-1.5">
       <span className="mb-2 px-3 font-semibold text-[11px] text-text-dimmed uppercase tracking-wide">
         On this page
       </span>

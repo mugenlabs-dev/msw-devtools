@@ -1,8 +1,8 @@
 import { useMockRefetch } from "@mugenlabs/msw-devtools";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-
 import { CodeBlock } from "../docs/components/code-block";
+import { playgroundCardsGrid } from "../lib/utils";
 import { dragoniteOp, espeonOp, mewtwoOp, mimikyuOp, sylveonOp, umbreonOp } from "../mocks/setup";
 import type { PokemonData } from "../pokemon-card";
 import { mapRestPokemon, PokemonCard, REST_BADGE } from "../pokemon-card";
@@ -276,7 +276,7 @@ export const FetchPage = () => (
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className={playgroundCardsGrid}>
         <MimikyuCard />
         <UmbreonCard />
         <EspeonCard />
