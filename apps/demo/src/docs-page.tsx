@@ -46,7 +46,7 @@ const FloatingButtons = () => {
   return (
     <>
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex justify-center transition-[opacity,transform] duration-300"
+        className="floating-chrome pointer-events-none fixed z-50 flex justify-center transition-[opacity,transform] duration-300"
         style={{
           opacity: showDocs ? 1 : 0,
           transform: `translateY(${showDocs ? "0" : "20px"})`,
@@ -76,7 +76,7 @@ const FloatingButtons = () => {
       </div>
 
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-8 z-50 mx-auto flex max-w-[1000px] justify-end px-6 transition-[opacity,transform] duration-300"
+        className="floating-chrome pointer-events-none fixed z-50 mx-auto flex w-full max-w-[var(--shell-wide)] justify-end transition-[opacity,transform] duration-300"
         style={{
           opacity: showTop ? 1 : 0,
           transform: `translateY(${showTop ? "0" : "20px"})`,
@@ -121,12 +121,12 @@ export const DocsPage = () => {
         <HeroSection />
         <FeaturesSection />
 
-        <div className="mx-auto flex max-w-[1000px] gap-12 px-6 pb-40">
+        <div className="shell shell-wide flex gap-12 pb-40">
           <aside className="docs-sidebar w-[200px] shrink-0">
             <SidebarNav />
           </aside>
 
-          <div className="min-w-0 max-w-[720px] flex-1">
+          <div className="min-w-0 max-w-[var(--shell-content)] flex-1">
             <InstallationSection />
             <QuickStartSection />
             <AdapterSection />

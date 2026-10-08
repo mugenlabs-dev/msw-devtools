@@ -58,21 +58,21 @@ export const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <a
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-lg focus:bg-bg-primary focus:px-4 focus:py-2 focus:text-text-primary focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-[100] focus:rounded-lg focus:bg-bg-primary focus:px-4 focus:py-2 focus:text-text-primary focus:shadow-lg"
         href="#main-content"
       >
         Skip to content
       </a>
       <motion.header
         animate={hidden ? "hidden" : "visible"}
-        className="sticky top-0 z-50 h-[var(--header-height)] border-border-primary border-b bg-header-bg shadow-[0_4px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-[background,border-color,box-shadow] duration-300"
+        className="site-header sticky top-0 z-50 border-border-primary border-b bg-header-bg shadow-[0_4px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-[background,border-color,box-shadow] duration-300"
         transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeInOut" }}
         variants={{
           hidden: { y: "-100%" },
           visible: { y: 0 },
         }}
       >
-        <div className="mx-auto flex h-[var(--header-height)] max-w-[720px] items-center justify-between px-6">
+        <div className="site-header__inner shell shell-content flex items-center justify-between">
           <Link
             className="pressable flex items-center gap-3 no-underline transition-transform duration-200 hover:scale-[1.02]"
             to="/"
@@ -85,7 +85,8 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               width={32}
             />
             <span className="font-bold font-mono text-lg text-text-primary tracking-tight transition-colors duration-300">
-              @mugenlabs/msw-devtools
+              <span className="max-sm:hidden">@mugenlabs/</span>
+              msw-devtools
             </span>
           </Link>
 
@@ -130,7 +131,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               </NavIcon>
             </a>
 
-            <div className="ml-1">
+            <div className="ms-1">
               <ThemeToggle />
             </div>
           </nav>

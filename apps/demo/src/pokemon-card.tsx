@@ -247,6 +247,7 @@ export const PokemonCard = ({
               <img
                 alt={data.name}
                 className="h-24 w-24"
+                data-sprite="default"
                 height={96}
                 src={data.sprite}
                 style={{ imageRendering: "pixelated" }}
@@ -254,8 +255,10 @@ export const PokemonCard = ({
               />
               {hasShiny ? (
                 <img
-                  alt={`${data.name} shiny`}
+                  alt=""
+                  aria-hidden
                   className="pokemon-card__shiny absolute inset-0 m-auto h-24 w-24"
+                  data-sprite="shiny"
                   height={96}
                   src={data.shinySprite}
                   style={{ imageRendering: "pixelated" }}

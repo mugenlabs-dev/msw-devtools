@@ -1,14 +1,6 @@
 import { play } from "cuelume";
 import type { ReactNode } from "react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { prefersReducedMotion } from "./lib/utils";
 
@@ -19,6 +11,8 @@ interface ThemeContextValue {
   toggleTheme: (e?: React.MouseEvent) => void;
 }
 
+const STORAGE_KEY = "msw-devtools-demo-theme";
+
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "dark",
   toggleTheme: () => {
@@ -28,10 +22,42 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 export const useTheme = () => useContext(ThemeContext);
 
-/** Toggle only sets data-theme + color-scheme; hex tokens live in styles.css via light-dark(). */
+/** Toggle only sets data-theme + color-scheme; tokens live in styles.css. */
 const applyTheme = (theme: Theme) => {
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
+};
+
+/**
+ * Resolve theme:
+ * 1. Saved preference (localStorage) wins if set
+ * 2. Else follow prefers-color-scheme when the media query clearly matches
+ * 3. Else dark (first-visit default when no preference and no clear system signal)
+ */
+export const resolveTheme = (): Theme => {
+  if (typeof window === "undefined") {
+    return "dark";
+  }
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved === "light" || saved === "dark") {
+      return saved;
+    }
+  } catch {
+    // ignore quota / private mode
+  }
+  if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+    return "light";
+  }
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "dark";
+};
+
+const readDomTheme = (): Theme => {
+  const fromDom = document.documentElement.dataset.theme;
+  return fromDom === "light" || fromDom === "dark" ? fromDom : resolveTheme();
 };
 
 const animateViewTransition = (x: number, y: number) => {
@@ -53,14 +79,38 @@ const animateViewTransition = (x: number, y: number) => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const initialized = useRef(false);
+  const [theme, setTheme] = useState<Theme>(() =>
+    typeof document === "undefined" ? "dark" : readDomTheme()
+  );
 
   useEffect(() => {
-    if (!initialized.current) {
-      applyTheme("dark");
-      initialized.current = true;
-    }
+    applyTheme(theme);
+  }, [theme]);
+
+  // Follow system only when the user has not saved a preference.
+  useEffect(() => {
+    const mqLight = window.matchMedia("(prefers-color-scheme: light)");
+    const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const onChange = () => {
+      let saved: string | null = null;
+      try {
+        saved = window.localStorage.getItem(STORAGE_KEY);
+      } catch {
+        saved = null;
+      }
+      if (saved === "light" || saved === "dark") {
+        return;
+      }
+      setTheme(resolveTheme());
+    };
+
+    mqLight.addEventListener("change", onChange);
+    mqDark.addEventListener("change", onChange);
+    return () => {
+      mqLight.removeEventListener("change", onChange);
+      mqDark.removeEventListener("change", onChange);
+    };
   }, []);
 
   const toggleTheme = useCallback(
@@ -68,6 +118,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const next = theme === "dark" ? "light" : "dark";
 
       play(next === "light" ? "tick" : "press");
+
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // ignore
+      }
 
       const x = e?.clientX ?? window.innerWidth / 2;
       const y = e?.clientY ?? 0;

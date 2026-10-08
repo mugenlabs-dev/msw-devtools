@@ -33,7 +33,7 @@ const CopyButton = ({ text }: { text: string }) => {
   return (
     <button
       aria-label="Copy code"
-      className={`hit-44 pressable absolute top-2.5 right-2.5 z-[1] flex cursor-pointer items-center justify-center rounded-md border p-[5px_6px] transition-[opacity,background,border-color,color,transform] duration-150 ${
+      className={`hit-44 pressable absolute end-2.5 top-2.5 z-[1] flex cursor-pointer items-center justify-center rounded-md border p-[5px_6px] transition-[opacity,background,border-color,color,transform] duration-150 ${
         copied
           ? "border-[rgba(74,222,128,0.3)] bg-[rgba(74,222,128,0.15)] text-accent-green opacity-100"
           : "border-white/10 bg-white/5 text-[#888] opacity-60 hover:opacity-100"

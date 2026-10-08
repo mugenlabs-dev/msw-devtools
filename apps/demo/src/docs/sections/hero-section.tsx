@@ -12,28 +12,61 @@ const FeaturePill = ({ icon, label }: { icon: ReactNode; label: string }) => (
 );
 
 const LIBRARY_BRANDS: Record<string, { accent: string; hoverBg: string }> = {
-  "Apollo Client": { accent: "#311C87", hoverBg: "rgba(49,28,135,0.12)" },
-  Axios: { accent: "#5A29E4", hoverBg: "rgba(90,41,228,0.12)" },
-  fetch: { accent: "#F7DF1E", hoverBg: "rgba(247,223,30,0.10)" },
-  "RTK Query": { accent: "#764ABC", hoverBg: "rgba(118,74,188,0.12)" },
-  // Theme-aware: white border on dark, near-black on light (fixes light-mode slip)
-  SWR: {
-    accent: "light-dark(#111111, #ffffff)",
-    hoverBg: "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
+  "Apollo Client": {
+    accent: "oklch(32% 0.18 290)",
+    hoverBg: "color-mix(in oklch, oklch(32% 0.18 290) 12%, transparent)",
   },
-  "TanStack Query": { accent: "#EF4444", hoverBg: "rgba(239,68,68,0.12)" },
-  URQL: { accent: "#6C63FF", hoverBg: "rgba(108,99,255,0.12)" },
+  Axios: {
+    accent: "oklch(48% 0.24 290)",
+    hoverBg: "color-mix(in oklch, oklch(48% 0.24 290) 12%, transparent)",
+  },
+  fetch: {
+    accent: "oklch(90% 0.18 105)",
+    hoverBg: "color-mix(in oklch, oklch(90% 0.18 105) 12%, transparent)",
+  },
+  "RTK Query": {
+    accent: "oklch(50% 0.2 300)",
+    hoverBg: "color-mix(in oklch, oklch(50% 0.2 300) 12%, transparent)",
+  },
+  SWR: {
+    accent: "light-dark(oklch(21.8% 0 0), oklch(100% 0 0))",
+    hoverBg:
+      "light-dark(color-mix(in oklch, oklch(0% 0 0) 6%, transparent), color-mix(in oklch, oklch(100% 0 0) 6%, transparent))",
+  },
+  "TanStack Query": {
+    accent: "oklch(63% 0.22 25)",
+    hoverBg: "color-mix(in oklch, oklch(63% 0.22 25) 12%, transparent)",
+  },
+  URQL: {
+    accent: "oklch(60% 0.22 285)",
+    hoverBg: "color-mix(in oklch, oklch(60% 0.22 285) 12%, transparent)",
+  },
 };
 
 export const HeroSection = () => (
-  <section className="relative mb-0 overflow-clip px-6 pt-[60px] pb-16 text-center">
+  <section className="relative mb-0 overflow-clip px-[var(--shell-gutter)] pt-[calc(var(--header-height)+var(--safe-top))] pb-16 text-center">
     <div className="pointer-events-none absolute inset-0 overflow-clip">
-      <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-[#5F4B8B]/[0.07] blur-[100px]" />
-      <div className="absolute top-[10%] right-[-10%] h-[400px] w-[400px] rounded-full bg-[#7B68AE]/[0.05] blur-[120px]" />
-      <div className="absolute bottom-[-10%] left-[30%] h-[350px] w-[350px] rounded-full bg-[#3D2D6B]/[0.06] blur-[100px]" />
+      <div
+        className="absolute start-[-10%] top-[-20%] h-[500px] w-[500px] rounded-full blur-[100px]"
+        style={{
+          background: "color-mix(in oklch, var(--accent-purple) 14%, transparent)",
+        }}
+      />
+      <div
+        className="absolute end-[-10%] top-[10%] h-[400px] w-[400px] rounded-full blur-[120px]"
+        style={{
+          background: "color-mix(in oklch, var(--accent-purple) 10%, transparent)",
+        }}
+      />
+      <div
+        className="absolute start-[30%] bottom-[-10%] h-[350px] w-[350px] rounded-full blur-[100px]"
+        style={{
+          background: "color-mix(in oklch, var(--accent-purple) 12%, transparent)",
+        }}
+      />
     </div>
 
-    <div className="relative z-[2] mx-auto max-w-[720px]">
+    <div className="relative z-[2] mx-auto w-full max-w-[var(--shell-content)]">
       <div className="mb-6 flex justify-center">
         <img
           alt="msw-devtools logo"
@@ -43,12 +76,12 @@ export const HeroSection = () => (
           width={96}
         />
       </div>
-      <h1 className="mt-0 mr-0 mb-4 ml-0 font-extrabold font-mono text-[clamp(1.75rem,4vw+1rem,2.5rem)] text-text-primary tracking-[-0.03em] transition-colors duration-300">
+      <h1 className="m-0 mb-4 font-extrabold font-mono text-[clamp(1.75rem,4vw+1rem,2.5rem)] text-text-primary tracking-[-0.03em] transition-colors duration-300">
         @mugenlabs/
         <wbr />
         msw-devtools
       </h1>
-      <p className="mt-0 mr-0 mb-8 ml-0 text-pretty text-lg text-text-muted leading-normal transition-colors duration-300">
+      <p className="m-0 mb-8 text-pretty text-lg text-text-muted leading-normal transition-colors duration-300">
         A TanStack DevTools plugin for managing MSW mocks.
         <br />
         Toggle, customize, and inspect your mock handlers in real time.
@@ -67,7 +100,7 @@ export const HeroSection = () => (
         </Link>
       </div>
 
-      <div className="mx-auto mb-8 grid max-w-[600px] grid-cols-2 gap-2.5 text-left sm:grid-cols-3">
+      <div className="mx-auto mb-8 grid max-w-[600px] grid-cols-2 gap-2.5 text-start sm:grid-cols-3">
         <FeaturePill icon={<ToggleRight size={15} />} label="Toggle Mocks" />
         <FeaturePill icon={<Shuffle size={15} />} label="Switch Variants" />
         <FeaturePill icon={<PenLine size={15} />} label="Live Overrides" />

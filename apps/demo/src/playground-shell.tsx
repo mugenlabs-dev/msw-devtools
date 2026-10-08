@@ -43,7 +43,7 @@ export const PlaygroundPageShell = ({ children }: { children: ReactNode }) => {
   const routeKey = matches.at(-1)?.fullPath ?? "";
 
   return (
-    <div className="mx-auto max-w-[1000px] px-6 pt-12 pb-40 font-sans">
+    <div className="shell shell-wide shell-pad-block pt-12 font-sans">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: skeleton animation keyframes */}
       <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
       <div className="mb-8 text-center">

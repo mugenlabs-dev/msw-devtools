@@ -32,14 +32,14 @@ const NavItem = ({
   onClick: () => void;
 }) => (
   <button
-    className={`pressable flex w-full cursor-pointer items-center gap-2 border-none bg-transparent px-3 py-2 text-left text-[13px] transition-[color,opacity,transform,border-color] duration-200 ${
+    className={`pressable flex w-full cursor-pointer items-center gap-2 border-none bg-transparent px-3 py-2 text-start text-[13px] transition-[color,opacity,transform,border-color] duration-200 ${
       active
         ? "translate-x-0.5 font-semibold text-text-primary opacity-100"
         : "font-normal text-text-muted opacity-70 hover:text-text-secondary hover:opacity-100"
     }`}
     onClick={onClick}
     style={{
-      borderLeft: `2px solid ${active ? "var(--accent-purple)" : "transparent"}`,
+      borderInlineStart: `2px solid ${active ? "var(--accent-purple)" : "transparent"}`,
     }}
     type="button"
   >

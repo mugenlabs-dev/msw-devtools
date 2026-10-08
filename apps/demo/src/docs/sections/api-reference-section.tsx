@@ -105,7 +105,7 @@ const ParamTable = ({
         <tr className="bg-bg-tertiary/40">
           {["Parameter", "Type", "Default", "Description"].map((h) => (
             <th
-              className="border-border-primary border-b px-3 py-2 text-left font-semibold text-[11px] text-text-muted uppercase tracking-wider"
+              className="border-border-primary border-b px-3 py-2 text-start font-semibold text-[11px] text-text-muted uppercase tracking-wider"
               key={h}
             >
               {h}

@@ -51,42 +51,71 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Theme tokens via light-dark() — keep existing hex values (no OKLCH shift).
-   Toggle only flips data-theme / color-scheme on <html>.
+   Theme tokens via light-dark() + OKLCH / color-mix (demo palette).
+   Toggle sets data-theme / color-scheme; values track previous hex intent.
 --------------------------------------------------------------------------- */
 :root {
   --header-height: 60px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --shell-gutter: max(1.5rem, var(--safe-left), var(--safe-right));
+  --shell-content: 45rem; /* 720px */
+  --shell-breakout: 55rem; /* 880px */
+  --shell-wide: 62.5rem; /* 1000px */
 
-  --accent-blue: light-dark(#2563eb, #6cb6ff);
-  --accent-green: light-dark(#16a34a, #4ade80);
-  --accent-purple: light-dark(#7c3aed, #a78bfa);
-  --badge-graphql-bg: light-dark(#ede9fe, #3a1e5f);
-  --badge-graphql-color: light-dark(#6d28d9, #a78bfa);
-  --badge-lib-bg: light-dark(#dcfce7, #1a2a1a);
-  --badge-lib-color: light-dark(#15803d, #4ade80);
-  --badge-method-bg: light-dark(#dbeafe, #1e3a5f);
-  --badge-method-color: light-dark(#1d4ed8, #60a5fa);
-  --badge-rest-bg: light-dark(#dbeafe, #1e3a5f);
-  --badge-rest-color: light-dark(#1d4ed8, #60a5fa);
-  --bg-primary: light-dark(#f8f8f8, #0a0a0a);
-  --bg-secondary: light-dark(#fff, #111);
-  --bg-tertiary: light-dark(#eee, #1a1a1a);
-  --border-primary: light-dark(#ddd, #222);
-  --border-secondary: light-dark(#ccc, #333);
-  --border-tertiary: light-dark(#bbb, #444);
-  --card-bg: light-dark(#fff, #111);
-  --code-bg: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.06));
-  --code-block-bg: light-dark(#1e293b, #0d1117);
-  --header-bg: light-dark(rgba(248, 248, 248, 0.85), rgba(10, 10, 10, 0.85));
-  --hero-btn-bg: light-dark(#1a1a1a, #fff);
-  --hero-btn-color: light-dark(#fff, #000);
-  --pill-bg: light-dark(#f0f0f0, #111);
-  --pill-color: light-dark(#555, #aaa);
-  --text-dimmed: light-dark(#999, #666);
-  --text-muted: light-dark(#777, #888);
-  --text-primary: light-dark(#1a1a1a, #fff);
-  --text-secondary: light-dark(#333, #e0e0e0);
-  --text-tertiary: light-dark(#555, #aaa);
+  --accent-blue: light-dark(oklch(54.6% 0.215 262.9), oklch(75.8% 0.129 249.6));
+  --accent-green: light-dark(oklch(62.7% 0.17 149.2), oklch(80% 0.182 151.7));
+  --accent-purple: light-dark(oklch(54.1% 0.247 293), oklch(70.9% 0.159 293.5));
+  --badge-graphql-bg: light-dark(
+    color-mix(in oklch, var(--accent-purple) 14%, oklch(100% 0 0)),
+    color-mix(in oklch, var(--accent-purple) 42%, oklch(20% 0 0))
+  );
+  --badge-graphql-color: light-dark(
+    oklch(49.1% 0.241 292.6),
+    var(--accent-purple)
+  );
+  --badge-lib-bg: light-dark(
+    color-mix(in oklch, var(--accent-green) 16%, oklch(100% 0 0)),
+    color-mix(in oklch, var(--accent-green) 22%, oklch(18% 0 0))
+  );
+  --badge-lib-color: light-dark(oklch(52.7% 0.137 150.1), var(--accent-green));
+  --badge-method-bg: light-dark(
+    color-mix(in oklch, var(--accent-blue) 14%, oklch(100% 0 0)),
+    color-mix(in oklch, var(--accent-blue) 28%, oklch(22% 0 0))
+  );
+  --badge-method-color: light-dark(
+    oklch(48.8% 0.217 264.4),
+    oklch(71.4% 0.143 254.6)
+  );
+  --badge-rest-bg: var(--badge-method-bg);
+  --badge-rest-color: var(--badge-method-color);
+  --bg-primary: light-dark(oklch(97.9% 0 0), oklch(14.5% 0 0));
+  --bg-secondary: light-dark(oklch(100% 0 0), oklch(17.8% 0 0));
+  --bg-tertiary: light-dark(oklch(94.9% 0 0), oklch(21.8% 0 0));
+  --border-primary: light-dark(oklch(89.8% 0 0), oklch(25.2% 0 0));
+  --border-secondary: light-dark(oklch(84.5% 0 0), oklch(32.1% 0 0));
+  --border-tertiary: light-dark(oklch(79.2% 0 0), oklch(38.7% 0 0));
+  --card-bg: light-dark(oklch(100% 0 0), oklch(17.8% 0 0));
+  --code-bg: light-dark(
+    color-mix(in oklch, oklch(0% 0 0) 5%, transparent),
+    color-mix(in oklch, oklch(100% 0 0) 6%, transparent)
+  );
+  --code-block-bg: light-dark(oklch(27.9% 0.037 260), oklch(17.6% 0.014 258.4));
+  --header-bg: light-dark(
+    color-mix(in oklch, oklch(97.9% 0 0) 85%, transparent),
+    color-mix(in oklch, oklch(14.5% 0 0) 85%, transparent)
+  );
+  --hero-btn-bg: light-dark(oklch(21.8% 0 0), oklch(100% 0 0));
+  --hero-btn-color: light-dark(oklch(100% 0 0), oklch(0% 0 0));
+  --pill-bg: light-dark(oklch(95.5% 0 0), oklch(17.8% 0 0));
+  --pill-color: light-dark(oklch(45% 0 0), oklch(73.8% 0 0));
+  --text-dimmed: light-dark(oklch(68.3% 0 0), oklch(51% 0 0));
+  --text-muted: light-dark(oklch(56.9% 0 0), oklch(62.7% 0 0));
+  --text-primary: light-dark(oklch(21.8% 0 0), oklch(100% 0 0));
+  --text-secondary: light-dark(oklch(32.1% 0 0), oklch(90.7% 0 0));
+  --text-tertiary: light-dark(oklch(45% 0 0), oklch(73.8% 0 0));
   color-scheme: dark;
 }
 
@@ -110,7 +139,7 @@ html[data-theme="dark"] {
 html {
   interpolate-size: allow-keywords;
   scrollbar-gutter: stable;
-  scroll-padding-top: calc(var(--header-height) + 0.5rem);
+  scroll-padding-top: calc(var(--header-height) + var(--safe-top) + 0.5rem);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -262,6 +291,86 @@ button.bg-hero-btn-bg:focus-visible,
   animation: playground-enter 0.3s var(--ease-out) both;
 }
 
+/* Content shells — unify 720 / 880 / 1000 with shared gutters */
+.shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--shell-max, var(--shell-wide));
+  padding-inline: var(--shell-gutter);
+  margin-inline: auto;
+}
+
+.shell-content {
+  --shell-max: var(--shell-content);
+}
+
+.shell-breakout {
+  --shell-max: var(--shell-breakout);
+}
+
+.shell-wide {
+  --shell-max: var(--shell-wide);
+}
+
+.shell-pad-block {
+  padding-block: 3rem 10rem;
+}
+
+/* Optional breakout grid for full-bleed sections inside a content column */
+.content-grid {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(0, 1fr)
+    [wide-start] minmax(0, calc((var(--shell-wide) - var(--shell-content)) / 2))
+    [breakout-start] minmax(
+      0,
+      calc((var(--shell-breakout) - var(--shell-content)) / 2)
+    )
+    [content-start] min(var(--shell-content), 100%)
+    [content-end] minmax(
+      0,
+      calc((var(--shell-breakout) - var(--shell-content)) / 2)
+    )
+    [breakout-end] minmax(
+      0,
+      calc((var(--shell-wide) - var(--shell-content)) / 2)
+    )
+    [wide-end] minmax(0, 1fr)
+    [full-end];
+}
+
+.content-grid > .col-content {
+  grid-column: content;
+}
+
+.content-grid > .col-breakout {
+  grid-column: breakout;
+}
+
+.content-grid > .col-wide {
+  grid-column: wide;
+}
+
+.content-grid > .col-full {
+  grid-column: full;
+}
+
+/* Sticky header + floating chrome respect safe-area (with viewport-fit=cover) */
+.site-header {
+  height: calc(var(--header-height) + var(--safe-top));
+  padding-top: var(--safe-top);
+}
+
+.site-header__inner {
+  height: var(--header-height);
+}
+
+.floating-chrome {
+  inset-inline: 0;
+  bottom: calc(2rem + var(--safe-bottom));
+  padding-inline: var(--shell-gutter);
+}
+
 /* Docs sidebar — show from ~1048px when it fits beside content */
 .docs-sidebar {
   display: none;
@@ -402,14 +511,14 @@ button.bg-hero-btn-bg:focus-visible,
   overflow-x: auto;
   overscroll-behavior-x: contain;
   background:
-    linear-gradient(to right, var(--code-block-bg) 30%, transparent) left center
-    / 28px 100% no-repeat local,
-    linear-gradient(to left, var(--code-block-bg) 30%, transparent) right center
-    / 28px 100% no-repeat local,
-    linear-gradient(to right, rgba(0, 0, 0, 0.35), transparent) left center /
-    14px 100% no-repeat scroll,
-    linear-gradient(to left, rgba(0, 0, 0, 0.35), transparent) right center /
-    14px 100% no-repeat scroll;
+    linear-gradient(to inline-end, var(--code-block-bg) 30%, transparent)
+    inline-start center / 28px 100% no-repeat local,
+    linear-gradient(to inline-start, var(--code-block-bg) 30%, transparent)
+    inline-end center / 28px 100% no-repeat local,
+    linear-gradient(to inline-end, rgba(0, 0, 0, 0.35), transparent)
+    inline-start center / 14px 100% no-repeat scroll,
+    linear-gradient(to inline-start, rgba(0, 0, 0, 0.35), transparent)
+    inline-end center / 14px 100% no-repeat scroll;
 }
 
 .shiki-wrapper pre.shiki {
@@ -423,14 +532,14 @@ button.bg-hero-btn-bg:focus-visible,
 
 .shiki-wrapper.code-scroll-fade pre.shiki {
   background:
-    linear-gradient(to right, var(--code-block-bg) 30%, transparent) left center
-    / 28px 100% no-repeat local,
-    linear-gradient(to left, var(--code-block-bg) 30%, transparent) right center
-    / 28px 100% no-repeat local,
-    linear-gradient(to right, rgba(0, 0, 0, 0.35), transparent) left center /
-    14px 100% no-repeat scroll,
-    linear-gradient(to left, rgba(0, 0, 0, 0.35), transparent) right center /
-    14px 100% no-repeat scroll;
+    linear-gradient(to inline-end, var(--code-block-bg) 30%, transparent)
+    inline-start center / 28px 100% no-repeat local,
+    linear-gradient(to inline-start, var(--code-block-bg) 30%, transparent)
+    inline-end center / 28px 100% no-repeat local,
+    linear-gradient(to inline-end, rgba(0, 0, 0, 0.35), transparent)
+    inline-start center / 14px 100% no-repeat scroll,
+    linear-gradient(to inline-start, rgba(0, 0, 0, 0.35), transparent)
+    inline-end center / 14px 100% no-repeat scroll;
 }
 
 .shiki-wrapper code {

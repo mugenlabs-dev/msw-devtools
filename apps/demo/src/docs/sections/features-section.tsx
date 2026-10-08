@@ -149,8 +149,8 @@ const FEATURES: {
 ];
 
 export const FeaturesSection = () => (
-  <section className="px-6 py-20">
-    <div className="mx-auto max-w-[880px]">
+  <section className="py-20">
+    <div className="shell shell-breakout">
       <h2 className="mb-4 text-center font-extrabold text-[clamp(1.375rem,2vw+1rem,1.75rem)] text-text-primary tracking-tight transition-colors duration-300">
         Why @mugenlabs/msw-devtools?
       </h2>

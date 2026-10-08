@@ -9,11 +9,17 @@ const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
 const SITE_DESCRIPTION =
   "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.";
 
+const THEME_BOOT_SCRIPT = `(function(){try{var k="msw-devtools-demo-theme";var s=localStorage.getItem(k);var t;if(s==="light"||s==="dark")t=s;else if(window.matchMedia("(prefers-color-scheme: light)").matches)t="light";else if(window.matchMedia("(prefers-color-scheme: dark)").matches)t="dark";else t="dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.dataset.theme="dark";document.documentElement.style.colorScheme="dark";}})();`;
+
 const RootComponent = () => (
-  <html data-theme="dark" lang="en" style={{ colorScheme: "dark" }}>
+  <html lang="en">
     <head>
       <title>@mugenlabs/msw-devtools</title>
       <HeadContent />
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: FOUC-safe theme boot before paint
+        dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
+      />
       <style
         // biome-ignore lint/security/noDangerouslySetInnerHtml: inline critical styles
         dangerouslySetInnerHTML={{
@@ -21,36 +27,23 @@ const RootComponent = () => (
 							:root {
 								color-scheme: dark;
 								--header-height: 60px;
-								--accent-blue: light-dark(#2563eb, #6cb6ff);
-								--accent-green: light-dark(#16a34a, #4ade80);
-								--accent-purple: light-dark(#7c3aed, #a78bfa);
-								--badge-graphql-bg: light-dark(#ede9fe, #3a1e5f);
-								--badge-graphql-color: light-dark(#6d28d9, #a78bfa);
-								--badge-lib-bg: light-dark(#dcfce7, #1a2a1a);
-								--badge-lib-color: light-dark(#15803d, #4ade80);
-								--badge-method-bg: light-dark(#dbeafe, #1e3a5f);
-								--badge-method-color: light-dark(#1d4ed8, #60a5fa);
-								--badge-rest-bg: light-dark(#dbeafe, #1e3a5f);
-								--badge-rest-color: light-dark(#1d4ed8, #60a5fa);
-								--bg-primary: light-dark(#f8f8f8, #0a0a0a);
-								--bg-secondary: light-dark(#fff, #111);
-								--bg-tertiary: light-dark(#eee, #1a1a1a);
-								--border-primary: light-dark(#ddd, #222);
-								--border-secondary: light-dark(#ccc, #333);
-								--border-tertiary: light-dark(#bbb, #444);
-								--card-bg: light-dark(#fff, #111);
-								--code-bg: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06));
-								--code-block-bg: light-dark(#1e293b, #0d1117);
-								--header-bg: light-dark(rgba(248,248,248,0.85), rgba(10,10,10,0.85));
-								--hero-btn-bg: light-dark(#1a1a1a, #fff);
-								--hero-btn-color: light-dark(#fff, #000);
-								--pill-bg: light-dark(#f0f0f0, #111);
-								--pill-color: light-dark(#555, #aaa);
-								--text-dimmed: light-dark(#999, #666);
-								--text-muted: light-dark(#777, #888);
-								--text-primary: light-dark(#1a1a1a, #fff);
-								--text-secondary: light-dark(#333, #e0e0e0);
-								--text-tertiary: light-dark(#555, #aaa);
+								--safe-top: env(safe-area-inset-top, 0px);
+								--safe-right: env(safe-area-inset-right, 0px);
+								--safe-bottom: env(safe-area-inset-bottom, 0px);
+								--safe-left: env(safe-area-inset-left, 0px);
+								--accent-blue: light-dark(oklch(54.6% 0.215 262.9), oklch(75.8% 0.129 249.6));
+								--accent-green: light-dark(oklch(62.7% 0.17 149.2), oklch(80% 0.182 151.7));
+								--accent-purple: light-dark(oklch(54.1% 0.247 293), oklch(70.9% 0.159 293.5));
+								--bg-primary: light-dark(oklch(97.9% 0 0), oklch(14.5% 0 0));
+								--bg-secondary: light-dark(oklch(100% 0 0), oklch(17.8% 0 0));
+								--bg-tertiary: light-dark(oklch(94.9% 0 0), oklch(21.8% 0 0));
+								--border-primary: light-dark(oklch(89.8% 0 0), oklch(25.2% 0 0));
+								--border-secondary: light-dark(oklch(84.5% 0 0), oklch(32.1% 0 0));
+								--card-bg: light-dark(oklch(100% 0 0), oklch(17.8% 0 0));
+								--header-bg: light-dark(color-mix(in oklch, oklch(97.9% 0 0) 85%, transparent), color-mix(in oklch, oklch(14.5% 0 0) 85%, transparent));
+								--text-primary: light-dark(oklch(21.8% 0 0), oklch(100% 0 0));
+								--text-secondary: light-dark(oklch(32.1% 0 0), oklch(90.7% 0 0));
+								--text-muted: light-dark(oklch(56.9% 0 0), oklch(62.7% 0 0));
 							}
 							html[data-theme="light"] { color-scheme: light; }
 							html[data-theme="dark"] { color-scheme: dark; }
@@ -65,7 +58,6 @@ const RootComponent = () => (
 						`,
         }}
       />
-      {/* JSON-LD Structured Data */}
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data
         dangerouslySetInnerHTML={{
@@ -111,9 +103,12 @@ export const Route = createRootRoute({
     ],
     meta: [
       { charSet: "utf8" },
-      { content: "width=device-width, initial-scale=1.0", name: "viewport" },
+      {
+        content: "width=device-width, initial-scale=1.0, viewport-fit=cover",
+        name: "viewport",
+      },
       { content: SITE_DESCRIPTION, name: "description" },
-      { content: "#0a0a0a", name: "theme-color" },
+      { content: "oklch(14.5% 0 0)", name: "theme-color" },
       // Open Graph
       { content: "@mugenlabs/msw-devtools", property: "og:title" },
       { content: SITE_DESCRIPTION, property: "og:description" },
