@@ -1,6 +1,5 @@
 import { Separator } from "@base-ui/react/separator";
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useState } from "react";
+import type { CSSProperties } from "react";
 
 // --- Type Colors ---
 
@@ -167,8 +166,6 @@ export const mapRestPokemon = (json: RestPokemonResponseNormalized): PokemonData
   };
 };
 
-// --- Card Component ---
-
 // --- Glow color helper ---
 
 const getTypeGlowColor = (types: string[] | undefined): string => {
@@ -179,7 +176,6 @@ const getTypeGlowColor = (types: string[] | undefined): string => {
   if (primary == null) {
     return "rgba(128,128,128,0.08)";
   }
-  // Convert hex to rgba with low opacity for subtle glow
   const hex = primary.bg;
   const r = Number.parseInt(hex.slice(1, 3), 16);
   const g = Number.parseInt(hex.slice(3, 5), 16);
@@ -196,32 +192,15 @@ export const PokemonCard = ({
   error,
   onRefetch,
 }: PokemonCardProps) => {
-  const [hovered, setHovered] = useState(false);
-
-  const handleMouseEnter = useCallback(() => {
-    setHovered(true);
-  }, []);
-  const handleMouseLeave = useCallback(() => {
-    setHovered(false);
-  }, []);
-
   const glowColor = getTypeGlowColor(data?.types);
+  const hasShiny = data?.shinySprite != null && data.shinySprite !== "";
 
   return (
-    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: hover events are cosmetic only
-    // biome-ignore lint/a11y/noStaticElementInteractions: hover events are cosmetic only
     <div
-      className="overflow-hidden rounded-2xl border border-border-primary bg-card-bg transition-[border-color,box-shadow,background,transform] duration-200"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        borderColor: hovered ? "var(--border-secondary)" : undefined,
-        boxShadow: hovered ? `0 0 24px ${glowColor}, 0 0 48px ${glowColor}` : undefined,
-        transform: hovered ? "translateY(-2px)" : undefined,
-      }}
+      className="pokemon-card overflow-clip rounded-2xl border border-border-primary bg-card-bg"
+      style={{ "--type-glow": glowColor } as CSSProperties}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-[18px] py-3.5">
+      <div className="flex items-center justify-between gap-3 px-[18px] py-3.5">
         <div className="flex flex-wrap items-center gap-1.5">
           <span
             className="rounded-md px-2 py-[3px] font-bold text-[10px] uppercase tracking-wide"
@@ -237,7 +216,7 @@ export const PokemonCard = ({
           </span>
         </div>
         <button
-          className="cursor-pointer rounded-lg border border-border-secondary bg-transparent px-3 py-1 font-medium text-[10px] text-text-dimmed transition-all duration-150 hover:border-border-tertiary hover:text-text-secondary"
+          className="hit-44 pressable cursor-pointer rounded-lg border border-border-secondary bg-transparent px-3 py-1 font-medium text-[10px] text-text-dimmed transition-[border-color,color,transform] duration-150 hover:border-border-tertiary hover:text-text-secondary"
           onClick={onRefetch}
           type="button"
         >
@@ -247,7 +226,6 @@ export const PokemonCard = ({
 
       <Separator className="m-0 h-px border-none bg-border-primary" />
 
-      {/* Body */}
       <div
         className="flex min-h-[220px] flex-col items-center justify-center px-[18px] py-6 pb-7"
         style={{ gap: loading ? 12 : 0 }}
@@ -265,10 +243,7 @@ export const PokemonCard = ({
 
         {!loading && error == null && data != null && (
           <>
-            <div
-              className="relative mb-4 flex h-[120px] w-[120px] items-center justify-center rounded-full bg-bg-primary transition-[background,transform] duration-200"
-              style={{ transform: hovered ? "scale(1.1)" : undefined }}
-            >
+            <div className="pokemon-card__sprite-wrap relative mb-4 flex h-[120px] w-[120px] items-center justify-center rounded-full bg-bg-primary">
               <img
                 alt={data.name}
                 className="h-24 w-24"
@@ -277,22 +252,16 @@ export const PokemonCard = ({
                 style={{ imageRendering: "pixelated" }}
                 width={96}
               />
-              <AnimatePresence>
-                {hovered && data.shinySprite != null && data.shinySprite !== "" && (
-                  <motion.img
-                    alt={`${data.name} shiny`}
-                    animate={{ opacity: 1 }}
-                    className="absolute inset-0 m-auto h-24 w-24"
-                    exit={{ opacity: 0 }}
-                    height={96}
-                    initial={{ opacity: 0 }}
-                    src={data.shinySprite}
-                    style={{ imageRendering: "pixelated" }}
-                    transition={{ duration: 0.3 }}
-                    width={96}
-                  />
-                )}
-              </AnimatePresence>
+              {hasShiny ? (
+                <img
+                  alt={`${data.name} shiny`}
+                  className="pokemon-card__shiny absolute inset-0 m-auto h-24 w-24"
+                  height={96}
+                  src={data.shinySprite}
+                  style={{ imageRendering: "pixelated" }}
+                  width={96}
+                />
+              ) : null}
             </div>
 
             <h3 className="m-0 mb-3 font-bold text-text-primary text-xl capitalize tracking-wide">

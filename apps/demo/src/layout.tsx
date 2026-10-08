@@ -2,74 +2,48 @@ import { Link } from "@tanstack/react-router";
 import { BookOpen, Gamepad2 } from "lucide-react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import type { ReactNode } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { GithubIcon } from "./components/icons/github";
 import { GradualBlur } from "./gradual-blur";
+import { prefersReducedMotion } from "./lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 
-// --- Hover handlers ---
-
-const handleLogoMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-  e.currentTarget.style.transform = "scale(1.02)";
-};
-
-const handleLogoMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-  e.currentTarget.style.transform = "scale(1)";
-};
-
-const handleNavIconMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-  const el = e.currentTarget;
-  if (el.dataset.active !== "true") {
-    el.style.color = "var(--text-secondary)";
-    el.style.background = "var(--bg-tertiary)";
-  }
-  el.style.transform = "translateY(-1px)";
-};
-
-const handleNavIconMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-  const el = e.currentTarget;
-  if (el.dataset.active !== "true") {
-    el.style.color = "var(--text-muted)";
-    el.style.background = "transparent";
-  }
-  el.style.transform = "translateY(0)";
-};
-
-// --- NavIcon ---
-
 const navIconBase =
-  "flex items-center justify-center rounded-lg text-sm font-medium h-8 w-8 transition-[color,background,transform,box-shadow] duration-150";
+  "hit-44 pressable flex items-center justify-center rounded-lg text-sm font-medium h-8 w-8 text-text-muted transition-[color,background,transform,box-shadow] duration-150 hover:text-text-secondary hover:bg-bg-tertiary hover:-translate-y-px data-[active=true]:bg-bg-tertiary data-[active=true]:text-text-primary data-[active=true]:shadow-[0_0_0_1px_var(--border-secondary)]";
 
 const NavIcon = ({ children, isActive }: { children: ReactNode; isActive: boolean }) => (
-  // biome-ignore lint/a11y/noStaticElementInteractions: cosmetic hover effects only
-  <span
-    className={navIconBase}
-    data-active={isActive}
-    onMouseEnter={handleNavIconMouseEnter}
-    onMouseLeave={handleNavIconMouseLeave}
-    role="presentation"
-    style={{
-      background: isActive ? "var(--bg-tertiary)" : "transparent",
-      boxShadow: isActive ? "0 0 0 1px var(--border-secondary)" : "none",
-      color: isActive ? "var(--text-primary)" : "var(--text-muted)",
-    }}
-  >
+  <span className={navIconBase} data-active={isActive}>
     {children}
   </span>
 );
 
-// --- Layout ---
-
 export const Layout = ({ children }: { children: ReactNode }) => {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    setReduceMotion(prefersReducedMotion());
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => {
+      setReduceMotion(mq.matches);
+    };
+    mq.addEventListener("change", onChange);
+    return () => {
+      mq.removeEventListener("change", onChange);
+    };
+  }, []);
 
   useMotionValueEvent(
     scrollY,
     "change",
     useCallback(
       (latest: number) => {
+        if (reduceMotion) {
+          setHidden(false);
+          return;
+        }
         const previous = scrollY.getPrevious() ?? 0;
         if (latest > previous && latest > 100) {
           setHidden(true);
@@ -77,7 +51,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
           setHidden(false);
         }
       },
-      [scrollY]
+      [scrollY, reduceMotion]
     )
   );
 
@@ -91,18 +65,16 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       </a>
       <motion.header
         animate={hidden ? "hidden" : "visible"}
-        className="sticky top-0 z-50 border-border-primary border-b bg-header-bg shadow-[0_4px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-[background,border-color,box-shadow] duration-300"
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="sticky top-0 z-50 h-[var(--header-height)] border-border-primary border-b bg-header-bg shadow-[0_4px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-[background,border-color,box-shadow] duration-300"
+        transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeInOut" }}
         variants={{
           hidden: { y: "-100%" },
           visible: { y: 0 },
         }}
       >
-        <div className="mx-auto flex h-[60px] max-w-[720px] items-center justify-between px-6">
+        <div className="mx-auto flex h-[var(--header-height)] max-w-[720px] items-center justify-between px-6">
           <Link
-            className="flex items-center gap-3 no-underline transition-transform duration-200"
-            onMouseEnter={handleLogoMouseEnter}
-            onMouseLeave={handleLogoMouseLeave}
+            className="pressable flex items-center gap-3 no-underline transition-transform duration-200 hover:scale-[1.02]"
             to="/"
           >
             <img
@@ -117,7 +89,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-0.5">
+          <nav className="flex items-center gap-2">
             <Link
               activeOptions={{ exact: true }}
               aria-label="Docs"
@@ -127,7 +99,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             >
               {({ isActive }) => (
                 <NavIcon isActive={isActive}>
-                  <BookOpen size={16} />
+                  <BookOpen aria-hidden className="icon-flex-none size-[1lh]" size={16} />
                 </NavIcon>
               )}
             </Link>
@@ -140,7 +112,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             >
               {({ isActive }) => (
                 <NavIcon isActive={isActive}>
-                  <Gamepad2 size={16} />
+                  <Gamepad2 aria-hidden className="icon-flex-none size-[1lh]" size={16} />
                 </NavIcon>
               )}
             </Link>
@@ -154,7 +126,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               title="GitHub"
             >
               <NavIcon isActive={false}>
-                <GithubIcon aria-hidden className="flex" size={16} />
+                <GithubIcon aria-hidden className="icon-flex-none flex size-[1lh]" size={16} />
               </NavIcon>
             </a>
 
@@ -166,47 +138,6 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       </motion.header>
 
       <main id="main-content">{children}</main>
-
-      <footer className="border-border-primary border-t px-6 pt-10 pb-40">
-        <div className="mx-auto flex max-w-[720px] flex-col gap-4 text-sm text-text-muted">
-          <p className="m-0 font-mono text-text-secondary">@mugenlabs/msw-devtools</p>
-          <p className="m-0">
-            Mugenlabs open-source MSW DevTools plugin. Documentation and playground for agents and
-            humans.
-          </p>
-          <nav className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link className="text-accent-blue no-underline hover:underline" to="/docs">
-              Docs
-            </Link>
-            <Link className="text-accent-blue no-underline hover:underline" to="/developers">
-              Developers
-            </Link>
-            <Link className="text-accent-blue no-underline hover:underline" to="/about">
-              About
-            </Link>
-            <Link className="text-accent-blue no-underline hover:underline" to="/contact">
-              Contact
-            </Link>
-            <Link className="text-accent-blue no-underline hover:underline" to="/privacy">
-              Privacy
-            </Link>
-            <a
-              className="text-accent-blue no-underline hover:underline"
-              href={`${import.meta.env.BASE_URL}llms.txt`}
-            >
-              llms.txt
-            </a>
-            <a
-              className="text-accent-blue no-underline hover:underline"
-              href="https://github.com/mugenlabs-dev/msw-devtools"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              GitHub
-            </a>
-          </nav>
-        </div>
-      </footer>
 
       <GradualBlur direction="bottom" height="120px" layers={5} maxBlur={10} />
     </>

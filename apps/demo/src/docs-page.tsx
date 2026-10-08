@@ -9,10 +9,8 @@ import { FeaturesSection } from "./docs/sections/features-section";
 import { HeroSection } from "./docs/sections/hero-section";
 import { InstallationSection } from "./docs/sections/installation-section";
 import { QuickStartSection } from "./docs/sections/quick-start-section";
+import { smoothScrollBehavior } from "./lib/utils";
 
-// ---------------------------------------------------------------------------
-// Floating nav buttons
-// ---------------------------------------------------------------------------
 const FloatingButtons = () => {
   const [showDocs, setShowDocs] = useState(true);
   const [showTop, setShowTop] = useState(false);
@@ -25,10 +23,8 @@ const FloatingButtons = () => {
 
     const update = () => {
       const rect = docsEl.getBoundingClientRect();
-      // Docs section is below the viewport → show "Go to Docs"
       const docsBelowViewport = rect.top > window.innerHeight;
       setShowDocs(docsBelowViewport);
-      // User has scrolled past the hero into docs → show "Scroll to Top"
       setShowTop(!docsBelowViewport && window.scrollY > 200);
     };
 
@@ -40,18 +36,17 @@ const FloatingButtons = () => {
   }, []);
 
   const scrollToDocs = useCallback(() => {
-    document.querySelector("#installation")?.scrollIntoView({ behavior: "smooth" });
+    document.querySelector("#installation")?.scrollIntoView({ behavior: smoothScrollBehavior() });
   }, []);
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ behavior: "smooth", top: 0 });
+    window.scrollTo({ behavior: smoothScrollBehavior(), top: 0 });
   }, []);
 
   return (
     <>
-      {/* Go to Docs — fixed bottom center */}
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex justify-center transition-all duration-300"
+        className="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex justify-center transition-[opacity,transform] duration-300"
         style={{
           opacity: showDocs ? 1 : 0,
           transform: `translateY(${showDocs ? "0" : "20px"})`,
@@ -59,13 +54,14 @@ const FloatingButtons = () => {
       >
         <button
           aria-label="Scroll to documentation"
-          className="pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border border-accent-purple/30 bg-bg-primary/80 px-5 py-2.5 font-semibold text-accent-purple text-sm shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-md transition-colors duration-200 hover:border-accent-purple/50 hover:bg-bg-primary"
+          className="pressable pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border border-accent-purple/30 bg-bg-primary/80 px-5 py-2.5 font-semibold text-accent-purple text-sm shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-md transition-[border-color,background,color,transform] duration-200 hover:border-accent-purple/50 hover:bg-bg-primary"
           onClick={scrollToDocs}
           style={{ pointerEvents: showDocs ? "auto" : "none" }}
           type="button"
         >
           <svg
             aria-hidden="true"
+            className="icon-flex-none size-[1cap]"
             fill="none"
             height={14}
             stroke="currentColor"
@@ -79,9 +75,8 @@ const FloatingButtons = () => {
         </button>
       </div>
 
-      {/* Scroll to top — aligned with right edge of page container */}
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-8 z-50 mx-auto flex max-w-[1000px] justify-end px-6 transition-all duration-300"
+        className="pointer-events-none fixed inset-x-0 bottom-8 z-50 mx-auto flex max-w-[1000px] justify-end px-6 transition-[opacity,transform] duration-300"
         style={{
           opacity: showTop ? 1 : 0,
           transform: `translateY(${showTop ? "0" : "20px"})`,
@@ -89,13 +84,14 @@ const FloatingButtons = () => {
       >
         <button
           aria-label="Scroll to top"
-          className="pointer-events-auto flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-[0_4px_16px_rgba(0,0,0,0.2)] backdrop-blur-md transition-colors duration-200 hover:border-accent-purple/40 hover:text-accent-purple"
+          className="hit-44 pressable pointer-events-auto flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-[0_4px_16px_rgba(0,0,0,0.2)] backdrop-blur-md transition-[border-color,color,transform] duration-200 hover:border-accent-purple/40 hover:text-accent-purple"
           onClick={scrollToTop}
           style={{ pointerEvents: showTop ? "auto" : "none" }}
           type="button"
         >
           <svg
             aria-hidden="true"
+            className="icon-flex-none size-[1cap]"
             fill="none"
             height={16}
             stroke="currentColor"
@@ -111,15 +107,11 @@ const FloatingButtons = () => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// Docs Page
-// ---------------------------------------------------------------------------
 export const DocsPage = () => {
-  // Scroll to hash on mount
   useEffect(() => {
     if (window.location.hash) {
       const el = document.querySelector(window.location.hash);
-      el?.scrollIntoView({ behavior: "smooth" });
+      el?.scrollIntoView({ behavior: smoothScrollBehavior() });
     }
   }, []);
 
@@ -130,12 +122,10 @@ export const DocsPage = () => {
         <FeaturesSection />
 
         <div className="mx-auto flex max-w-[1000px] gap-12 px-6 pb-40">
-          {/* Sidebar — hidden below 1200px via CSS media query */}
           <aside className="docs-sidebar w-[200px] shrink-0">
             <SidebarNav />
           </aside>
 
-          {/* Main content */}
           <div className="min-w-0 max-w-[720px] flex-1">
             <InstallationSection />
             <QuickStartSection />

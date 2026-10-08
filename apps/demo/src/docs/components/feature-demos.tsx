@@ -55,7 +55,7 @@ const DemoShell = ({ caption, children }: { caption: string; children: ReactNode
   <div className="w-full rounded-xl border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
     <div className="flex h-[152px] flex-col justify-center gap-2">{children}</div>
     <div className="mt-3 border-[#2a2a2a] border-t pt-2.5">
-      <p className="m-0 h-[30px] overflow-hidden font-sans text-[#888] text-[11px] leading-[15px]">
+      <p className="m-0 h-[30px] overflow-clip font-sans text-[#888] text-[11px] leading-[15px]">
         {caption}
       </p>
     </div>
@@ -341,7 +341,7 @@ export const FilterSortDemo = () => {
             const visible = rowVisible(row, chip);
             return (
               <div
-                className={`flex items-center justify-between gap-2 overflow-hidden rounded-md bg-[#1a1a1a] px-2.5 transition-all duration-300 ${visible ? "max-h-8 py-1.5 opacity-100" : "max-h-0 py-0 opacity-0"}`}
+                className={`flex items-center justify-between gap-2 overflow-clip rounded-md bg-[#1a1a1a] px-2.5 transition-[max-height,padding,opacity] duration-300 ${visible ? "max-h-8 py-1.5 opacity-100" : "max-h-0 py-0 opacity-0"}`}
                 key={row.name}
               >
                 <span className="flex min-w-0 items-center gap-1.5">

@@ -4,8 +4,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { useCallback, useEffect } from "react";
 import { Provider } from "react-redux";
-
 import { CodeBlock } from "../docs/components/code-block";
+import { playgroundCardsGrid } from "../lib/utils";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -280,7 +280,7 @@ const RtkQueryPageContent = () => (
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className={playgroundCardsGrid}>
         <InfernapeCard />
         <WeavileCard />
         <ZoroarkCard />

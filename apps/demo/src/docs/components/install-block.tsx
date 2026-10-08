@@ -24,7 +24,10 @@ const getInstallCommand = (pm: PackageManager, packages: string): string => {
   }
 };
 
-const pmIcons: Record<PackageManager, ComponentType<{ size: number; color: string }>> = {
+const pmIcons: Record<
+  PackageManager,
+  ComponentType<{ className?: string; color: string; size: number | string }>
+> = {
   bun: SiBun,
   npm: SiNpm,
   pnpm: SiPnpm,
@@ -44,31 +47,19 @@ const PmButton = ({
     onSelect(manager);
   }, [manager, onSelect]);
 
+  const Icon = pmIcons[manager];
+
   return (
     <button
+      className={`pressable hit-44 flex cursor-pointer items-center gap-1.5 rounded-md border px-3 py-1 font-mono font-semibold text-xs transition-[background,border-color,color,transform] duration-150 ${
+        active
+          ? "border-border-tertiary bg-bg-tertiary text-text-primary"
+          : "border-transparent bg-transparent text-text-dimmed hover:text-text-secondary"
+      }`}
       onClick={handleClick}
-      style={{
-        alignItems: "center",
-        background: active ? "var(--bg-tertiary)" : "transparent",
-        border: "1px solid",
-        borderColor: active ? "var(--border-tertiary)" : "transparent",
-        borderRadius: 6,
-        color: active ? "var(--text-primary)" : "var(--text-dimmed)",
-        cursor: "pointer",
-        display: "flex",
-        fontFamily: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace",
-        fontSize: 12,
-        fontWeight: 600,
-        gap: 6,
-        padding: "4px 12px",
-        transition: "all 0.15s",
-      }}
       type="button"
     >
-      {(() => {
-        const Icon = pmIcons[manager];
-        return <Icon color="currentColor" size={14} />;
-      })()}
+      <Icon className="icon-flex-none size-[1cap]" color="currentColor" size="1cap" />
       {manager}
     </button>
   );
@@ -80,13 +71,7 @@ export const InstallBlock = ({ packages }: { packages: string }) => {
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          gap: 2,
-          marginBottom: 8,
-        }}
-      >
+      <div className="mb-2 flex gap-1">
         {packageManagers.map((manager) => (
           <PmButton active={pm === manager} key={manager} manager={manager} onSelect={setPm} />
         ))}
