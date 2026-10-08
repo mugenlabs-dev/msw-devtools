@@ -4,42 +4,86 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build && pnpm --filter demo run build",
   "outputDirectory": "apps/demo/dist/client",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/((?!api/|assets/|\\.well-known/|mockServiceWorker\\.js).*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/openapi.json",
-      "headers": [
+      "src": "^/$",
+      "has": [
         {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/vnd.oai.openapi+json;version=3.1; charset=utf-8"
-        },
-        {
-          "key": "Link",
-          "value": "</.well-known/api-catalog>; rel=\"api-catalog\""
+          "type": "header",
+          "key": "accept",
+          "value": "(.*)text/markdown(.*)"
         }
-      ]
+      ],
+      "dest": "/index.md",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept"
+      }
     },
     {
-      "source": "/.well-known/api-catalog",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/linkset+json; charset=utf-8"
-        }
-      ]
+      "src": "^/$",
+      "headers": {
+        "Vary": "Accept"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/index\\.md$",
+      "headers": {
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/openapi\\.json$",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/vnd.oai.openapi+json;version=3.1; charset=utf-8",
+        "Link": "</.well-known/api-catalog>; rel=\"api-catalog\""
+      },
+      "continue": true
+    },
+    {
+      "src": "^/\\.well-known/api-catalog$",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/linkset+json; charset=utf-8"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/api/v1/site\\.json$",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=300",
+        "Content-Type": "application/json; charset=utf-8",
+        "Link": "</openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json\", </.well-known/api-catalog>; rel=\"api-catalog\""
+      },
+      "continue": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/api/v1/site/?$",
+      "dest": "/api/v1/site.json",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=300",
+        "Content-Type": "application/json; charset=utf-8",
+        "Link": "</openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json\", </.well-known/api-catalog>; rel=\"api-catalog\""
+      }
+    },
+    {
+      "src": "^/playground(?:/(?:apollo|fetch|query|rtk-query|swr|urql))?/?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "status": 404,
+      "dest": "/404.html"
     }
   ]
 }

@@ -1,0 +1,31 @@
+{
+  "description": "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.",
+  "github": "https://github.com/mugenlabs-dev/msw-devtools",
+  "links": {
+    "homepage": "https://msw-devtools.mugenlabs.dev/",
+    "openapi": "https://msw-devtools.mugenlabs.dev/openapi.json",
+    "playground": "https://msw-devtools.mugenlabs.dev/playground",
+    "sitemap": "https://msw-devtools.mugenlabs.dev/sitemap.xml"
+  },
+  "name": "@mugenlabs/msw-devtools",
+  "npm": "https://www.npmjs.com/package/@mugenlabs/msw-devtools",
+  "organization": {
+    "name": "Mugenlabs",
+    "url": "https://github.com/mugenlabs-dev"
+  },
+  "routes": [
+    "/",
+    "/playground",
+    "/playground/",
+    "/playground/apollo",
+    "/playground/fetch",
+    "/playground/query",
+    "/playground/rtk-query",
+    "/playground/swr",
+    "/playground/urql"
+  ],
+  "serverApi": {
+    "note": "This host exposes a small read-only site catalog for agent discovery. Browser MSW mocks in the playground are client-side only and are not served as HTTP APIs here.",
+    "openapi": "https://msw-devtools.mugenlabs.dev/openapi.json"
+  }
+}
