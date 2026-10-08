@@ -1,5 +1,8 @@
-import { siteCatalog } from "../../agentic/public-facts.js";
-
+/**
+ * Single serverless function kept for Is Agentic `json-error-responses`.
+ * Static files cannot return application/problem+json for unknown /api/*
+ * paths or unsupported methods on /api/v1/site.
+ */
 export const config = {
   runtime: "edge",
 };
@@ -37,7 +40,6 @@ function problem(
 
 export default function handler(request: Request): Response {
   const url = new URL(request.url);
-  const instance = url.href;
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
@@ -51,25 +53,23 @@ export default function handler(request: Request): Response {
     });
   }
 
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    return problem(
-      405,
-      "method_not_allowed",
-      "Method not allowed",
-      `This endpoint only supports GET and HEAD. Received ${request.method}.`,
-      instance,
-      "Retry with GET (or HEAD). See /openapi.json for the site catalog contract."
-    );
+  const isSiteCatalog = url.pathname === "/api/v1/site" || url.pathname === "/api/v1/site/";
+  const status = request.method === "GET" || request.method === "HEAD" ? 404 : 405;
+  const code = status === 404 ? "not_found" : "method_not_allowed";
+  const title = status === 404 ? "API route not found" : "Method not allowed";
+
+  let detail: string;
+  if (status === 404) {
+    detail = `No API resource exists at ${url.pathname}.`;
+  } else if (isSiteCatalog) {
+    detail = `This endpoint only supports GET and HEAD. Received ${request.method}.`;
+  } else {
+    detail = `Unsupported method ${request.method} for ${url.pathname}.`;
   }
 
-  const body = JSON.stringify(siteCatalog(url.origin));
-  return new Response(request.method === "HEAD" ? null : body, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "public, max-age=300",
-      "Content-Type": "application/json; charset=utf-8",
-      Link: '</openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", </.well-known/api-catalog>; rel="api-catalog"',
-    },
-    status: 200,
-  });
+  const resolution = isSiteCatalog
+    ? "Retry with GET (or HEAD). See /openapi.json for the site catalog contract."
+    : "Use GET /api/v1/site for the public site catalog, or read /openapi.json for the contract.";
+
+  return problem(status, code, title, detail, url.href, resolution);
 }
