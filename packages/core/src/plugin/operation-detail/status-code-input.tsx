@@ -1,5 +1,5 @@
 import { RotateCcw } from "#/plugin/icons";
-import { theme } from "#/plugin/theme";
+import { focusableInputStyle, theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { StatusCodeInputProps } from "./types";
@@ -31,6 +31,7 @@ export const StatusCodeInput = ({
         Status
       </label>
       <input
+        data-msw-dt-input=""
         id={`status-${operationName}`}
         max={599}
         min={200}
@@ -41,7 +42,7 @@ export const StatusCodeInput = ({
           borderRadius: theme.radius.lg,
           color: theme.colors.textPrimary,
           fontSize: theme.fontSize.base,
-          outline: "none",
+          ...focusableInputStyle,
           padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
           width: "70px",
         }}
@@ -62,7 +63,7 @@ export const StatusCodeInput = ({
             gap: theme.spacing.xs,
             opacity: resetHover.isHovered ? 0.7 : 1,
             padding: 0,
-            transition: "opacity 0.15s",
+            transition: transition("opacity"),
           }}
           type="button"
           {...resetHover.hoverProps}

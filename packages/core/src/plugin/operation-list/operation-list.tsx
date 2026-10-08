@@ -44,7 +44,7 @@ export const OperationList = ({ selectedOperation, onSelectOperation }: Operatio
         display: "flex",
         flexDirection: "column",
         minWidth: "280px",
-        overflow: "hidden",
+        overflow: "clip",
         width: "280px",
       }}
     >

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { MousePointerClick } from "#/plugin/icons";
 import { JsonEditor } from "#/plugin/json-editor";
-import { theme } from "#/plugin/theme";
+import { focusableInputStyle, theme } from "#/plugin/theme";
 import { mockRegistry } from "#/registry/registry";
 import { resolveActiveVariant } from "#/registry/types";
 import { useMockStore } from "#/store/store";
@@ -70,6 +70,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
           flexDirection: "column",
           gap: theme.spacing.xl,
           overflow: "auto",
+          overscrollBehavior: "contain",
           padding: theme.spacing.xl,
         }}
       >
@@ -111,6 +112,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
             Delay
           </label>
           <input
+            data-msw-dt-input=""
             id={`delay-${operationName}`}
             min={0}
             onChange={handlers.handleDelayChange}
@@ -121,7 +123,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
               borderRadius: theme.radius.lg,
               color: theme.colors.textPrimary,
               fontSize: theme.fontSize.base,
-              outline: "none",
+              ...focusableInputStyle,
               padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
               width: "70px",
             }}

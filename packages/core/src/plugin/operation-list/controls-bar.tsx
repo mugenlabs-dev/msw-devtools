@@ -1,5 +1,5 @@
 import { ToggleLeft, ToggleRight } from "#/plugin/icons";
-import { theme } from "#/plugin/theme";
+import { theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { ControlsBarProps } from "./types";
@@ -20,13 +20,19 @@ export const ControlsBar = ({
         borderBottom: `1px solid ${theme.colors.border}`,
         display: "flex",
         justifyContent: "space-between",
-        padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+        padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
       }}
     >
-      <span style={{ color: theme.colors.textSecondary, fontSize: theme.fontSize.md }}>
+      <span
+        style={{
+          color: theme.colors.textSecondary,
+          fontSize: theme.fontSize.md,
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
         {enabledCount}/{descriptorCount} active
       </span>
-      <div style={{ display: "flex", gap: theme.spacing.sm }}>
+      <div style={{ display: "flex", gap: theme.spacing.lg }}>
         <button
           onClick={onEnableAll}
           style={{
@@ -39,8 +45,8 @@ export const ControlsBar = ({
             display: "inline-flex",
             fontSize: theme.fontSize.md,
             gap: theme.spacing.xs,
-            padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
-            transition: "background 0.15s",
+            padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+            transition: transition("background"),
           }}
           type="button"
           {...onHover.hoverProps}
@@ -61,8 +67,8 @@ export const ControlsBar = ({
             display: "inline-flex",
             fontSize: theme.fontSize.md,
             gap: theme.spacing.xs,
-            padding: `${theme.spacing.xs} ${theme.spacing.lg}`,
-            transition: "background 0.15s",
+            padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+            transition: transition("background"),
           }}
           type="button"
           {...offHover.hoverProps}

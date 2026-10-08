@@ -1,7 +1,7 @@
 import { Debouncer } from "@tanstack/pacer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, RotateCcw } from "#/plugin/icons";
-import { theme } from "#/plugin/theme";
+import { focusableInputStyle, theme, transition } from "#/plugin/theme";
 import { useHover } from "#/plugin/use-hover";
 
 import type { HeadersEditorProps } from "./types";
@@ -142,7 +142,7 @@ export const HeadersEditor = ({
               gap: theme.spacing.xs,
               opacity: resetHover.isHovered ? 0.7 : 1,
               padding: 0,
-              transition: "opacity 0.15s",
+              transition: transition("opacity"),
             }}
             type="button"
             {...resetHover.hoverProps}
@@ -152,6 +152,7 @@ export const HeadersEditor = ({
         ) : null}
       </div>
       <textarea
+        data-msw-dt-input=""
         id={`headers-${operationName}`}
         onChange={handleChange}
         rows={3}
@@ -163,7 +164,7 @@ export const HeadersEditor = ({
           color: theme.colors.textPrimary,
           fontFamily: "monospace",
           fontSize: theme.fontSize.md,
-          outline: "none",
+          ...focusableInputStyle,
           padding: `${theme.spacing.md} ${theme.spacing.lg}`,
           resize: "vertical",
         }}
