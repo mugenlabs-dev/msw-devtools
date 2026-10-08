@@ -51,7 +51,7 @@ const RootComponent = () => (
             "@graph": [
               {
                 "@type": "Organization",
-                name: "Mugen Labs",
+                name: "Mugenlabs",
                 sameAs: [
                   "https://github.com/mugenlabs-dev",
                   "https://github.com/mugenlabs-dev/msw-devtools",
