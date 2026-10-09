@@ -1,8 +1,10 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, Scripts, useLocation } from "@tanstack/react-router";
 import { MotionConfig } from "motion/react";
+import { useEffect } from "react";
 
 import { ErrorPage, NotFoundPage } from "../error-page";
 import { Layout } from "../layout";
+import { capturePageview } from "../lib/analytics";
 import { ThemeProvider } from "../theme-context";
 
 const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
@@ -10,6 +12,19 @@ const SITE_DESCRIPTION =
   "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.";
 
 const THEME_BOOT_SCRIPT = `(function(){try{var k="msw-devtools-demo-theme";var s=localStorage.getItem(k);var t;if(s==="light"||s==="dark")t=s;else if(window.matchMedia("(prefers-color-scheme: light)").matches)t="light";else if(window.matchMedia("(prefers-color-scheme: dark)").matches)t="dark";else t="dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.dataset.theme="dark";document.documentElement.style.colorScheme="dark";}})();`;
+
+const Analytics = () => {
+  const href = useLocation({ select: (location) => location.href });
+
+  useEffect(() => {
+    if (!href) {
+      return;
+    }
+    capturePageview();
+  }, [href]);
+
+  return null;
+};
 
 const RootComponent = () => (
   <html lang="en">
@@ -79,6 +94,7 @@ const RootComponent = () => (
     <body className="min-h-svh font-sans">
       <MotionConfig reducedMotion="user">
         <ThemeProvider>
+          <Analytics />
           <Layout>
             <Outlet />
           </Layout>
