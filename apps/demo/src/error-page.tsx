@@ -1,5 +1,8 @@
 import { type ErrorComponentProps, Link, useRouter } from "@tanstack/react-router";
 import { AlertTriangle, Compass } from "lucide-react";
+import { useEffect } from "react";
+
+import { captureException } from "./lib/analytics";
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
   <div className="mx-auto flex max-w-xl flex-col items-center justify-center px-6 py-24 text-center">
@@ -9,6 +12,11 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 
 export const ErrorPage = ({ error }: ErrorComponentProps) => {
   const router = useRouter();
+
+  useEffect(() => {
+    captureException(error);
+  }, [error]);
+
   return (
     <Shell>
       <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-red-500/15">

@@ -6,7 +6,11 @@ import { GITHUB_ISSUES_URL, SITE_NAME } from "../content/site";
 const PrivacyPage = () => (
   <ContentPage description={`Privacy for ${SITE_NAME}.`} title="Privacy">
     <p>This documentation site does not require an account.</p>
-    <p>The project adds no analytics or tracking.</p>
+    <p>
+      The site uses PostHog (EU) to count page visits and catch errors. It runs without cookies or
+      persistent identifiers and is not used to identify you. The npm library itself sends nothing
+      to Mugenlabs.
+    </p>
     <p>The library stores mock configuration in your browser and sends nothing to Mugenlabs.</p>
     <p>
       Links to GitHub, npm, and Vercel are governed by those services&apos; own privacy policies.
@@ -24,7 +28,7 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       {
-        content: `Privacy for ${SITE_NAME} — no accounts, no analytics, local browser settings only.`,
+        content: `Privacy for ${SITE_NAME} — PostHog (EU) for page visits and errors; cookieless; npm library sends nothing to Mugenlabs.`,
         name: "description",
       },
     ],
