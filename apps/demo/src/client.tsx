@@ -6,6 +6,10 @@ import "./styles.css";
 // Register mocks — the worker auto-starts when the devtools plugin mounts
 import "./mocks/setup";
 
+import { initPostHog } from "./lib/analytics";
+
+initPostHog();
+
 hydrateRoot(
   document,
   <StrictMode>
