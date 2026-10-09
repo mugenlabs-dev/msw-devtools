@@ -37,6 +37,10 @@ Do not use this package as a security, compliance, or accessibility certificatio
 
 This product’s “API” is the TypeScript module surface of `@mugenlabs/msw-devtools` (registry helpers, plugin factory, adapters, types). It is not a remotely callable HTTP API. Do not invent OpenAPI, function-calling tools, or CLI wrappers that pretend otherwise.
 
+## Privacy
+
+The site uses PostHog (EU) to count page visits and catch errors. It runs without cookies or persistent identifiers and is not used to identify you. The npm library itself sends nothing to Mugenlabs.
+
 ## Usage
 
 Prefer the canonical site `https://msw-devtools.mugenlabs.dev/`. Agents may request Markdown with `Accept: text/markdown` once content negotiation is enabled. Do not submit credentials or private app data to this documentation site.
