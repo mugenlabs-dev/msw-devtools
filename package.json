@@ -21,11 +21,11 @@
     "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.12",
+    "@biomejs/biome": "^2.5.15",
     "@changesets/cli": "^2.31.1",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.64.1",
     "@resvg/resvg-js": "^2.6.2",
-    "@storybook/addon-vitest": "^10.6.0",
+    "@storybook/addon-vitest": "^10.6.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^22.20.1",
@@ -35,9 +35,9 @@
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
     "jsdom": "^28.1.0",
-    "satori": "^0.26.0",
+    "satori": "^0.62.0",
     "tsup": "^8.5.1",
-    "tsx": "^4.23.13",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "ultracite": "^7.10.7",
     "vitest": "^4.1.11"
