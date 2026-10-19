@@ -20,7 +20,7 @@ const Analytics = () => {
     if (!href) {
       return;
     }
-    capturePageview();
+    capturePageview(window.location.origin + href);
   }, [href]);
 
   return null;

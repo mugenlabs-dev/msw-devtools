@@ -1,6 +1,7 @@
 import { SiBun, SiNpm, SiPnpm, SiYarn } from "@icons-pack/react-simple-icons";
 import { type ComponentType, useCallback } from "react";
 
+import { trackEvent } from "../../lib/analytics";
 import { type PackageManager, packageManagers, usePm } from "../pm-context";
 import { CodeBlock } from "./code-block";
 
@@ -68,6 +69,9 @@ const PmButton = ({
 export const InstallBlock = ({ packages }: { packages: string }) => {
   const { pm, setPm } = usePm();
   const command = getInstallCommand(pm, packages);
+  const handleCopy = useCallback(() => {
+    trackEvent("install_command_copied", { package_manager: pm });
+  }, [pm]);
 
   return (
     <div>
@@ -76,7 +80,9 @@ export const InstallBlock = ({ packages }: { packages: string }) => {
           <PmButton active={pm === manager} key={manager} manager={manager} onSelect={setPm} />
         ))}
       </div>
-      <CodeBlock lang="bash">{command}</CodeBlock>
+      <CodeBlock lang="bash" onCopy={handleCopy}>
+        {command}
+      </CodeBlock>
     </div>
   );
 };

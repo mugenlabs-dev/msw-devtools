@@ -1,5 +1,11 @@
 import { ApolloProvider } from "@apollo/client";
-import { createMswDevToolsPlugin, registerAdapter, useMockStore } from "@mugenlabs/msw-devtools";
+import {
+  createMswDevToolsPlugin,
+  mockRegistry,
+  onMockUpdate,
+  registerAdapter,
+  useMockStore,
+} from "@mugenlabs/msw-devtools";
 import { createApolloAdapter } from "@mugenlabs/msw-devtools/adapters/apollo";
 import { createAxiosAdapter } from "@mugenlabs/msw-devtools/adapters/axios";
 import { createTanStackQueryAdapter } from "@mugenlabs/msw-devtools/adapters/tanstack-query";
@@ -8,11 +14,13 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { SWRConfig } from "swr";
 import { Provider as UrqlProvider } from "urql";
 
 import { apolloClient } from "./graphql/apollo-client";
 import { urqlClient } from "./graphql/client";
+import { trackEvent } from "./lib/analytics";
 import { PlaygroundPageShell } from "./playground-shell";
 
 // Create TanStack Query client
@@ -45,19 +53,50 @@ const WorkerGate = ({ children }: { children: ReactNode }) => {
   return children;
 };
 
-export const PlaygroundLayout = () => (
-  <QueryClientProvider client={queryClient}>
-    <SWRConfig value={{ revalidateOnFocus: false }}>
-      <ApolloProvider client={apolloClient}>
-        <UrqlProvider value={urqlClient}>
-          <PlaygroundPageShell>
-            <WorkerGate>
-              <Outlet />
-            </WorkerGate>
-          </PlaygroundPageShell>
-          <TanStackDevtools config={{ defaultOpen: true }} plugins={[createMswDevToolsPlugin()]} />
-        </UrqlProvider>
-      </ApolloProvider>
-    </SWRConfig>
-  </QueryClientProvider>
-);
+/** Override editors emit on every debounced change; report those once per operation. */
+const reportedContinuousChanges = new Set<string>();
+
+/** Reports every change made from the devtools panel, so we learn which features get used. */
+const useMockUpdateTracking = () => {
+  useEffect(
+    () =>
+      onMockUpdate((event) => {
+        if (event.changeType === "json-override" || event.changeType === "headers-override") {
+          const dedupeKey = `${event.changeType}:${event.operationName}`;
+          if (reportedContinuousChanges.has(dedupeKey)) {
+            return;
+          }
+          reportedContinuousChanges.add(dedupeKey);
+        }
+        trackEvent("mock_updated", {
+          change_type: event.changeType,
+          operation: event.operationName,
+          operation_type: mockRegistry.get(event.operationName)?.type ?? null,
+        });
+      }),
+    []
+  );
+};
+
+export const PlaygroundLayout = () => {
+  useMockUpdateTracking();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SWRConfig value={{ revalidateOnFocus: false }}>
+        <ApolloProvider client={apolloClient}>
+          <UrqlProvider value={urqlClient}>
+            <PlaygroundPageShell>
+              <WorkerGate>
+                <Outlet />
+              </WorkerGate>
+            </PlaygroundPageShell>
+            <TanStackDevtools
+              config={{ defaultOpen: true }}
+              plugins={[createMswDevToolsPlugin()]}
+            />
+          </UrqlProvider>
+        </ApolloProvider>
+      </SWRConfig>
+    </QueryClientProvider>
+  );
+};

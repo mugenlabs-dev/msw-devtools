@@ -14,7 +14,19 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    captureException(error);
+    const { pathname } = window.location;
+    // Loaded lazily so the landing page bundle does not pull in the plugin.
+    import("@mugenlabs/msw-devtools")
+      .then(({ useMockStore }) => {
+        captureException(error, {
+          library: pathname.split("/")[2] ?? null,
+          route: pathname,
+          worker_status: useMockStore.getState().workerStatus,
+        });
+      })
+      .catch(() => {
+        captureException(error, { route: pathname });
+      });
   }, [error]);
 
   return (

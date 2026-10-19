@@ -39,7 +39,7 @@ This product’s “API” is the TypeScript module surface of `@mugenlabs/msw-d
 
 ## Privacy
 
-The site uses PostHog (EU) to count page visits and catch errors. It runs without cookies or persistent identifiers and is not used to identify you. The npm library itself sends nothing to Mugenlabs.
+The site uses PostHog (EU) to count page visits, record anonymous feature use (such as copying a snippet or changing a mock in the playground), and catch errors. It runs without cookies or persistent identifiers, honours Do Not Track, and is not used to identify you. The npm library itself sends nothing to Mugenlabs.
 
 ## Usage
 

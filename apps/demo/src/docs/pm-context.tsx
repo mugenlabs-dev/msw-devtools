@@ -1,5 +1,7 @@
 import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
 
+import { trackEvent } from "../lib/analytics";
+
 export const packageManagers = ["npm", "yarn", "pnpm", "bun"] as const;
 export type PackageManager = (typeof packageManagers)[number];
 
@@ -29,6 +31,7 @@ export const PmProvider = ({ children }: { children: ReactNode }) => {
 
   const setPm = useCallback((next: PackageManager) => {
     setPmState(next);
+    trackEvent("package_manager_selected", { package_manager: next });
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {

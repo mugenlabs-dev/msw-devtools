@@ -3,6 +3,7 @@ import type { BundledLanguage, BundledTheme, HighlighterGeneric } from "shiki/bu
 
 import { CheckIcon } from "../../components/icons/check";
 import { CopyIcon } from "../../components/icons/copy";
+import { trackEvent } from "../../lib/analytics";
 import { WindowDots } from "./window-dots";
 
 type WebHighlighter = HighlighterGeneric<BundledLanguage, BundledTheme>;
@@ -19,16 +20,30 @@ const getHighlighter = () => {
   return highlighterPromise;
 };
 
-const CopyButton = ({ text }: { text: string }) => {
+const CopyButton = ({
+  language,
+  onCopy,
+  text,
+}: {
+  language: string;
+  onCopy?: () => void;
+  text: string;
+}) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(text);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      return; // clipboard not available
+    }
+    trackEvent("snippet_copied", { language });
+    onCopy?.();
     setCopied(true);
     setTimeout(() => {
       setCopied(false);
     }, 2000);
-  }, [text]);
+  }, [language, onCopy, text]);
 
   return (
     <button
@@ -53,9 +68,12 @@ const CopyButton = ({ text }: { text: string }) => {
 export const CodeBlock = ({
   children,
   lang = "typescript",
+  onCopy,
 }: {
   children: string;
   lang?: "typescript" | "tsx" | "bash";
+  /** Called after the snippet was copied, in addition to the generic snippet event. */
+  onCopy?: () => void;
 }) => {
   const [html, setHtml] = useState<string | null>(null);
   const trimmed = children.trim();
@@ -89,7 +107,7 @@ export const CodeBlock = ({
         <span className="ml-auto font-mono text-text-dimmed text-xs">{lang}</span>
       </div>
       <div className="concentric-inner relative" style={{ ["--_radius" as string]: "12px" }}>
-        <CopyButton text={trimmed} />
+        <CopyButton language={lang} onCopy={onCopy} text={trimmed} />
         {html == null ? (
           <pre className="code-scroll-fade m-0 bg-transparent p-4 px-5 font-mono text-[#e0e0e0] text-[13px] leading-relaxed">
             <code>{trimmed}</code>

@@ -3,13 +3,19 @@ import { useCallback, useState } from "react";
 
 import { CheckIcon } from "../../components/icons/check";
 import { LinkIcon } from "../../components/icons/link";
+import { trackEvent } from "../../lib/analytics";
 
 export const SectionTitle = ({ children, id }: { children: ReactNode; id: string }) => {
   const [copied, setCopied] = useState(false);
 
   const handleClick = useCallback(async () => {
     const url = `${window.location.origin}${window.location.pathname}#${id}`;
-    await navigator.clipboard.writeText(url);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      return; // clipboard not available
+    }
+    trackEvent("section_link_copied", { section: id });
     setCopied(true);
     window.history.replaceState(null, "", `#${id}`);
     setTimeout(() => {

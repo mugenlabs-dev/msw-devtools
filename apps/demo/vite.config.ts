@@ -6,9 +6,6 @@ import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? "/",
-  define: {
-    "import.meta.env.VERCEL_ENV": JSON.stringify(process.env.VERCEL_ENV ?? ""),
-  },
   plugins: [
     tailwindcss(),
     tsConfigPaths(),

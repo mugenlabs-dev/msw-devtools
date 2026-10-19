@@ -7,9 +7,10 @@ const PrivacyPage = () => (
   <ContentPage description={`Privacy for ${SITE_NAME}.`} title="Privacy">
     <p>This documentation site does not require an account.</p>
     <p>
-      The site uses PostHog (EU) to count page visits and catch errors. It runs without cookies or
-      persistent identifiers and is not used to identify you. The npm library itself sends nothing
-      to Mugenlabs.
+      The site uses PostHog (EU) to count page visits, record anonymous feature use (such as copying
+      a snippet or changing a mock in the playground), and catch errors. It runs without cookies or
+      persistent identifiers, honours Do Not Track, and is not used to identify you. The npm library
+      itself sends nothing to Mugenlabs.
     </p>
     <p>The library stores mock configuration in your browser and sends nothing to Mugenlabs.</p>
     <p>
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       {
-        content: `Privacy for ${SITE_NAME} — PostHog (EU) for page visits and errors; cookieless; npm library sends nothing to Mugenlabs.`,
+        content: `Privacy for ${SITE_NAME} — PostHog (EU) for page visits, anonymous feature use, and errors; cookieless; npm library sends nothing to Mugenlabs.`,
         name: "description",
       },
     ],

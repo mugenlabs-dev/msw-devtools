@@ -1,8 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VERCEL_ENV?: string;
-  readonly VITE_PUBLIC_POSTHOG_HOST?: string;
+  /** PostHog project key. Analytics stay off when unset or off the production domain. */
   readonly VITE_PUBLIC_POSTHOG_KEY?: string;
 }
 

@@ -2,6 +2,7 @@ import { play } from "cuelume";
 import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+import { trackEvent } from "./lib/analytics";
 import { prefersReducedMotion } from "./lib/utils";
 
 type Theme = "dark" | "light";
@@ -117,6 +118,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     (e?: React.MouseEvent) => {
       const next = theme === "dark" ? "light" : "dark";
 
+      trackEvent("theme_toggled", { theme: next });
       play(next === "light" ? "tick" : "press");
 
       try {
