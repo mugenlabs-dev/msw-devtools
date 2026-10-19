@@ -1,23 +1,57 @@
 name: CI/CD
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+  schedule:
+    - cron: "17 6 * * *"
 
 concurrency:
-  group: ci-${{ github.ref }}
-  # Do not cancel in-flight main deploys / promote / publish.
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # ─────────────────────────────────────────────
-  # Job 1: Lint, Format & Unit Tests
-  # ─────────────────────────────────────────────
+  changes:
+    name: Path filter
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "${EVENT_NAME}" == "schedule" || -z "${BASE_SHA:-}" || "${BASE_SHA}" =~ ^0+$ ]]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+            files="$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}")"
+          else
+            files="$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}")"
+          fi
+          printf '%s\n' "${files}"
+          if printf '%s\n' "${files}" | bash scripts/docs-only.sh; then
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
   check:
     name: 🔍 Lint & Unit Tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
 
@@ -26,16 +60,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
       - name: Lint & Format
         run: pnpm lint
 
-      # GHSA-vfj7-8cjw-p6xm (@changesets/cli → micromatch → braces) is ignored in
-      # package.json pnpm.auditConfig.ignoreGhsas — not in the published dist.
-      # pnpm audit does not support --filter; --dir scopes to the published package.
+      # GHSA-vfj7-8cjw-p6xm is ignored in package.json pnpm.auditConfig.ignoreGhsas.
+      # The advisory is in @changesets/cli, not in the published dist.
+      # pnpm audit has no --filter. --dir limits the audit to the published package.
       - name: Audit published package
         run: pnpm --dir packages/core audit --prod --audit-level=moderate
 
@@ -46,12 +79,15 @@ jobs:
       - name: Run unit tests
         run: pnpm test:ci
 
-  # ─────────────────────────────────────────────
-  # Job 2: Storybook interaction tests
-  # ─────────────────────────────────────────────
+      - name: Docs-only classifier
+        run: bash scripts/docs-only.test.sh
+
   storybook:
     name: 📖 Storybook Tests
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -60,34 +96,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install Playwright deps (cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
 
       - name: Run Storybook tests
         run: pnpm test-storybook
 
-  # ─────────────────────────────────────────────
-  # Job 3: Build & Typecheck
-  # ─────────────────────────────────────────────
   build:
     name: 📦 Build & Typecheck
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
 
@@ -96,7 +119,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -106,13 +128,12 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsgo -p packages/core --noEmit && pnpm exec tsgo -p apps/demo --noEmit
 
-  # ─────────────────────────────────────────────
-  # Job 4: Require a changeset with packages/core PRs
-  # ─────────────────────────────────────────────
   changeset:
     name: 📝 Changeset
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
         with:
@@ -124,13 +145,12 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: bash scripts/check-changeset.sh "$BASE_SHA" "$HEAD_SHA"
 
-  # ─────────────────────────────────────────────
-  # Job 5: E2E against local demo (PRs)
-  # ─────────────────────────────────────────────
   e2e-local:
     name: 🎭 E2E Tests (local)
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: needs.changes.outputs.code == 'true' && (github.event_name == 'pull_request' || github.event_name == 'schedule')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -139,24 +159,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install Playwright deps (cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
 
       - name: Run E2E tests (local webServer)
         run: pnpm test:e2e
@@ -171,14 +178,12 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-  # ─────────────────────────────────────────────
-  # Job 6: Deploy Preview to Vercel
-  # ─────────────────────────────────────────────
   deploy-preview:
     name: 🚀 Deploy Preview
     runs-on: ubuntu-latest
-    needs: [check, storybook, build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [changes, check, storybook, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.code == 'true'
+    timeout-minutes: 4
     outputs:
       preview-url: ${{ steps.deploy.outputs.preview-url }}
     env:
@@ -192,7 +197,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -g vercel
@@ -203,17 +207,14 @@ jobs:
       - name: Deploy preview
         id: deploy
         run: |
-          # Preview deploy (no --prod). --skip-domain is production-only in Vercel CLI.
           url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
-  # ─────────────────────────────────────────────
-  # Job 7: E2E tests against preview (main)
-  # ─────────────────────────────────────────────
   e2e:
     name: 🎭 E2E Tests
     needs: deploy-preview
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001
@@ -225,7 +226,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -244,25 +244,21 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # ─────────────────────────────────────────────
-  # Job 8: Promote to Production
-  # ─────────────────────────────────────────────
   promote:
     name: 👑 Promote to Production
     runs-on: ubuntu-latest
     needs: [e2e, deploy-preview]
+    timeout-minutes: 2
     steps:
       - run: npm add -g vercel
       - name: Promote preview to production
         run: vercel promote ${{ needs.deploy-preview.outputs.preview-url }} --yes --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }}
 
-  # ─────────────────────────────────────────────
-  # Job 9: Version PR or npm publish (after full CI graph)
-  # ─────────────────────────────────────────────
   release:
     name: Release
     runs-on: ubuntu-latest
     needs: [promote]
+    timeout-minutes: 2
     permissions:
       contents: write
       pull-requests: write
@@ -280,7 +276,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
