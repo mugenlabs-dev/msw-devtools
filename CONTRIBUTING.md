@@ -76,4 +76,3 @@ The demo app is ignored by Changesets and is never versioned or published.
 - **Tests**: [Vitest](https://vitest.dev). Unit tests are colocated with their source. Behaviour changes should come with a test.
 - **Keep the docs in sync**: the public API is documented in three places — `packages/core/README.md`, the docs site (`apps/demo/src/docs/sections/*`), and the JSDoc on the exported functions. Update all three when an option changes.
 - **Commits**: no strict convention enforced; a clear imperative subject line is enough.
-- **Docs sync**: the `validate-and-sync-docs` Claude Code skill in `.claude/skills` runs the test suites and checks the README and docs site against the code.
