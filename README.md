@@ -4,6 +4,10 @@
 
 # @mugenlabs/msw-devtools
 
+[![npm](https://img.shields.io/npm/v/@mugenlabs/msw-devtools)](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
+[![CI](https://github.com/mugenlabs-dev/msw-devtools/actions/workflows/ci.yml/badge.svg)](https://github.com/mugenlabs-dev/msw-devtools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/npm/l/@mugenlabs/msw-devtools)](LICENSE)
+
 A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](https://mswjs.io/) (Mock Service Worker) mocks in the browser. Register your existing MSW handlers, then toggle, customize, and inspect them from a visual panel -- no changes to your handler code required.
 
 > **Note:** This project is a work in progress -- the API has not been finalised yet, which is why we haven't reached 1.0.0. Expect breaking changes between minor versions.
@@ -42,6 +46,8 @@ Everything ships in a single package. Adapters are available via subpath exports
 ```bash
 npm install @mugenlabs/msw-devtools
 ```
+
+The package is ESM-only and runs in the browser: MSW needs Service Worker support, so serve the app over HTTPS or from `localhost`.
 
 ### Peer dependencies
 
@@ -120,6 +126,19 @@ The MSW service worker starts automatically when the plugin mounts.
 > import { startWorker } from "@mugenlabs/msw-devtools";
 > void startWorker({ serviceWorkerUrl: "/custom-path/mockServiceWorker.js" });
 > ```
+
+### Keep it out of production
+
+The plugin bundles MSW and your mock data, and it starts a service worker that intercepts requests. Load it only in development, for example with a dynamic import so production bundles never include it:
+
+```tsx
+// main.tsx (Vite)
+if (import.meta.env.DEV) {
+  await import("./mocks/setup");
+}
+```
+
+Render `<TanStackDevtools>` behind the same check, and leave `mockServiceWorker.js` out of production deploys unless you mean to mock there.
 
 ### 3. (Optional) Register an adapter for auto-refetch
 
@@ -340,7 +359,8 @@ pnpm test:e2e
 ### Project Structure
 
 ```
-msw-devtool/
+msw-devtools/
+  api/                 # Edge function for the demo site's API error responses
   apps/
     demo/              # Demo application & documentation site
   packages/

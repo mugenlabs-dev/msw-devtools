@@ -38,7 +38,7 @@ All of these run from the repo root:
 | `pnpm dev` | Rebuilds the package on change |
 | `pnpm dev:demo` | Runs the demo site on port 3001 |
 | `pnpm typecheck` | Builds, then typechecks `packages/core` and `apps/demo` |
-| `pnpm test --run` | Unit tests (Vitest, jsdom) |
+| `pnpm test:ci` | Unit tests (Vitest, jsdom) |
 | `pnpm test-storybook` | Storybook component tests (Vitest browser mode, Chromium) |
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
@@ -52,7 +52,7 @@ All of these run from the repo root:
 ```bash
 pnpm lint:fix
 pnpm typecheck
-pnpm test --run
+pnpm test:ci
 ```
 
 Run `pnpm test-storybook` and `pnpm test:e2e` too if you touched the panel UI. CI runs the same checks.

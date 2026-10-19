@@ -1,0 +1,35 @@
+name: Bug report
+description: Something in @mugenlabs/msw-devtools doesn't work as documented.
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: A minimal repository, StackBlitz link, or the steps and handler code needed to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: "@mugenlabs/msw-devtools version"
+      placeholder: "0.7.3"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Versions of msw, react, the data library you use (TanStack Query, SWR, Apollo, urql, RTK Query, Axios), your framework and browser.
+      placeholder: |
+        msw 2.15.0, react 19.2.0, @tanstack/react-query 5.90.0
+        Vite 7, Chrome 141
+    validations:
+      required: true

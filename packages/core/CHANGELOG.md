@@ -1,4 +1,4 @@
-# msw-devtools-plugin
+# @mugenlabs/msw-devtools
 
 ## 0.7.3
 
