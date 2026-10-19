@@ -1,5 +1,5 @@
 {
-  "name": "@mugenlabs/msw-devtools",
+  "name": "msw-devtools-monorepo",
   "private": true,
   "scripts": {
     "audit": "pnpm --dir packages/core audit --prod --audit-level=moderate",
