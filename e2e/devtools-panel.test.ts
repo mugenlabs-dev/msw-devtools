@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import {
   enableAllMocksViaStorage,
   openDevToolsPanel,
+  TOTAL_OPERATIONS,
   waitForDemoReady,
   waitForLiveBadges,
 } from "./helpers";
@@ -23,9 +24,9 @@ test.describe("DevTools Panel", () => {
     });
   });
 
-  test("lists all 36 registered operations", async ({ page }) => {
+  test("lists every registered operation", async ({ page }) => {
     const opRows = page.locator("[data-testid='operation-row']");
-    await expect(opRows).toHaveCount(36, { timeout: 10_000 });
+    await expect(opRows).toHaveCount(TOTAL_OPERATIONS, { timeout: 10_000 });
 
     const pageText = await page.textContent("body");
     expect(pageText).toContain("GetSnorlax");
@@ -49,7 +50,9 @@ test.describe("DevTools Panel", () => {
   });
 
   test("shows active/enabled count", async ({ page }) => {
-    await expect(page.locator("text=/\\d+\\/36 active/").first()).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`\\d+/${TOTAL_OPERATIONS} active`)).first()
+    ).toBeVisible();
   });
 
   test("has All On and All Off buttons", async ({ page }) => {

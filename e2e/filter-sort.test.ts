@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 import {
   enableAllMocksViaStorage,
   openDevToolsPanel,
+  TOTAL_OPERATIONS,
   waitForDemoReady,
   waitForLiveBadges,
   waitForOperationCount,
@@ -108,10 +109,10 @@ test.describe("Filter & Sort", () => {
 
   test("Enabled filter shows only enabled operations", async ({ page }) => {
     await page.locator("button").filter({ hasText: ENABLED_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 36);
+    await waitForOperationCount(page, TOTAL_OPERATIONS);
 
     const opTexts = await page.locator("[data-testid='operation-row']").allTextContents();
-    expect(opTexts).toHaveLength(36);
+    expect(opTexts).toHaveLength(TOTAL_OPERATIONS);
 
     const combinedText = opTexts.join(" ");
     expect(combinedText).toContain("GetSnorlax");
@@ -123,11 +124,11 @@ test.describe("Filter & Sort", () => {
   test("A-Z sort orders operations alphabetically", async ({ page }) => {
     await page.locator("[data-testid='group-toggle']").click();
     // Wait for grouping to toggle off — row count stays at 30
-    await waitForOperationCount(page, 36);
+    await waitForOperationCount(page, TOTAL_OPERATIONS);
 
     await page.locator("select").first().selectOption("a-z");
     // Wait for sort to apply — still 30 rows, just reordered
-    await waitForOperationCount(page, 36);
+    await waitForOperationCount(page, TOTAL_OPERATIONS);
 
     const texts = await collectOperationTexts(page);
 
@@ -138,10 +139,10 @@ test.describe("Filter & Sort", () => {
 
   test("Z-A sort orders operations in reverse", async ({ page }) => {
     await page.locator("[data-testid='group-toggle']").click();
-    await waitForOperationCount(page, 36);
+    await waitForOperationCount(page, TOTAL_OPERATIONS);
 
     await page.locator("select").first().selectOption("z-a");
-    await waitForOperationCount(page, 36);
+    await waitForOperationCount(page, TOTAL_OPERATIONS);
 
     const texts = await collectOperationTexts(page);
 
@@ -155,10 +156,10 @@ test.describe("Filter & Sort", () => {
     await waitForOperationCount(page, 15);
 
     await page.locator("button").filter({ hasText: ALL_FILTER_REGEX }).first().click();
-    await waitForOperationCount(page, 36);
+    await waitForOperationCount(page, TOTAL_OPERATIONS);
 
     const opTexts = await page.locator("[data-testid='operation-row']").allTextContents();
-    expect(opTexts).toHaveLength(36);
+    expect(opTexts).toHaveLength(TOTAL_OPERATIONS);
 
     const combinedText = opTexts.join(" ");
     expect(combinedText).toContain("GetSnorlax");

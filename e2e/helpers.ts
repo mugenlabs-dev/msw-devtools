@@ -48,6 +48,9 @@ export const ALL_OPERATION_NAMES = [
   "GET Dragonite",
 ];
 
+/** Number of operations the demo registers. */
+export const TOTAL_OPERATIONS = ALL_OPERATION_NAMES.length;
+
 /** Operation names per playground page — for LIVE badge assertions. */
 export const PAGE_OPERATIONS: Record<string, string[]> = {
   apollo: ["GetRayquaza", "GetMetagross", "GetMilotic", "GetAbsol", "GetFlygon", "GetAggron"],
