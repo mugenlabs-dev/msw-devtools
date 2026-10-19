@@ -7,6 +7,9 @@ dist/
 .DS_Store
 *.log
 .turbo/
+.tanstack/
+.vercel/
+*.tgz
 test-results/
 playwright-report/
 .playwright-mcp/
@@ -14,3 +17,6 @@ app.config.timestamp_*
 .claude/
 storybook-static/
 coverage/
+# Screenshots belong in a docs folder; only the README screenshot lives at the root
+/*.png
+!/screenshot.png
