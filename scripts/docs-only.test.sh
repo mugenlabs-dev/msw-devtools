@@ -21,6 +21,27 @@ expect() {
   fi
 }
 
+expect_code() {
+  local want="$1"
+  shift
+  local out
+  out="$(mktemp)"
+  set +e
+  env GITHUB_OUTPUT="${out}" "$@" >/tmp/docs-only-test.out 2>&1
+  local got=$?
+  set -e
+  if [[ "${got}" -ne 0 ]]; then
+    echo "command: $*" >&2
+    cat /tmp/docs-only-test.out >&2
+    fail "exit ${got}, want 0"
+  fi
+  if ! grep -qx "code=${want}" "${out}"; then
+    echo "command: $*" >&2
+    cat /tmp/docs-only-test.out >&2
+    fail "GITHUB_OUTPUT=$(cat "${out}"), want code=${want}"
+  fi
+}
+
 expect 0 bash -c "printf '%s\n' 'README.md' 'docs/guide.md' 'docs/assets/diagram.png' | bash '${root}/docs-only.sh'"
 expect 1 bash -c "printf '%s\n' 'README.md' 'packages/core/src/store.ts' | bash '${root}/docs-only.sh'"
 expect 1 bash -c "printf '%s\n' 'pnpm-lock.yaml' | bash '${root}/docs-only.sh'"
@@ -57,5 +78,28 @@ expect 0 env VERCEL_ENV=preview VERCEL_GIT_PREVIOUS_SHA="${parent}" VERCEL_GIT_C
   bash -c "cd '${tmp}' && '${root}/vercel-ignore.sh'"
 expect 1 env VERCEL_ENV=preview VERCEL_GIT_PREVIOUS_SHA="${docs_sha}" VERCEL_GIT_COMMIT_SHA="${code_sha}" \
   bash -c "cd '${tmp}' && '${root}/vercel-ignore.sh'"
+
+expect_code false env EVENT_NAME=push BASE_SHA="${parent}" HEAD_SHA="${docs_sha}" \
+  bash -c "cd '${tmp}' && '${root}/path-filter.sh'"
+expect_code true env EVENT_NAME=push BASE_SHA="${docs_sha}" HEAD_SHA="${code_sha}" \
+  bash -c "cd '${tmp}' && '${root}/path-filter.sh'"
+expect_code true env EVENT_NAME=push BASE_SHA="${zero}" HEAD_SHA="${docs_sha}" \
+  bash -c "cd '${tmp}' && '${root}/path-filter.sh'"
+expect_code true env EVENT_NAME=schedule BASE_SHA="${parent}" HEAD_SHA="${docs_sha}" \
+  bash -c "cd '${tmp}' && '${root}/path-filter.sh'"
+
+missing="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+expect_code true env EVENT_NAME=push BASE_SHA="${missing}" HEAD_SHA="${docs_sha}" \
+  bash -c "cd '${tmp}' && '${root}/path-filter.sh'"
+
+echo "gone" > "${tmp}/gone.md"
+git -C "${tmp}" add gone.md
+git -C "${tmp}" commit -qm "gone"
+gone_sha="$(git -C "${tmp}" rev-parse HEAD)"
+git -C "${tmp}" reset --hard "${docs_sha}"
+git -C "${tmp}" reflog expire --expire=now --all
+git -C "${tmp}" -c gc.reflogExpire=now -c gc.reflogExpireUnreachable=now gc --prune=now --quiet
+expect_code true env EVENT_NAME=push BASE_SHA="${gone_sha}" HEAD_SHA="${docs_sha}" \
+  bash -c "cd '${tmp}' && '${root}/path-filter.sh'"
 
 echo "docs-only tests passed"
