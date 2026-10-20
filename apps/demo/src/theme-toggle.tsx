@@ -12,11 +12,9 @@ export const ThemeToggle = () => {
       onClick={toggleTheme}
       type="button"
     >
-      {theme === "dark" ? (
-        <SunIcon aria-hidden className="icon-flex-none flex size-[1cap]" size={15} />
-      ) : (
-        <MoonIcon aria-hidden className="icon-flex-none flex size-[1cap]" size={15} />
-      )}
+      {/* Both icons render; styles.css shows the one for the current data-theme from first paint. */}
+      <SunIcon aria-hidden className="theme-icon-sun icon-flex-none flex size-[1cap]" size={15} />
+      <MoonIcon aria-hidden className="theme-icon-moon icon-flex-none flex size-[1cap]" size={15} />
     </button>
   );
 };

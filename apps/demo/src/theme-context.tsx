@@ -1,6 +1,13 @@
 import { play } from "cuelume";
 import type { ReactNode } from "react";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 
 import { trackEvent } from "./lib/analytics";
 import { prefersReducedMotion } from "./lib/utils";
@@ -61,6 +68,16 @@ const readDomTheme = (): Theme => {
   return fromDom === "light" || fromDom === "dark" ? fromDom : resolveTheme();
 };
 
+/** The boot script and applyTheme write data-theme on <html>; re-render when it changes. */
+const subscribeToDomTheme = (onChange: () => void) => {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributeFilter: ["data-theme"] });
+  return () => observer.disconnect();
+};
+
+/** The prerendered HTML is always dark, so hydration must start from dark too. */
+const getServerTheme = (): Theme => "dark";
+
 const animateViewTransition = (x: number, y: number) => {
   const maxRadius = Math.hypot(
     Math.max(x, window.innerWidth - x),
@@ -80,13 +97,7 @@ const animateViewTransition = (x: number, y: number) => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(() =>
-    typeof document === "undefined" ? "dark" : readDomTheme()
-  );
-
-  useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+  const theme = useSyncExternalStore(subscribeToDomTheme, readDomTheme, getServerTheme);
 
   // Follow system only when the user has not saved a preference.
   useEffect(() => {
@@ -103,7 +114,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       if (saved === "light" || saved === "dark") {
         return;
       }
-      setTheme(resolveTheme());
+      applyTheme(resolveTheme());
     };
 
     mqLight.addEventListener("change", onChange);
@@ -130,10 +141,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const x = e?.clientX ?? window.innerWidth / 2;
       const y = e?.clientY ?? 0;
 
-      const apply = () => {
-        setTheme(next);
-        applyTheme(next);
-      };
+      const apply = () => applyTheme(next);
 
       if (prefersReducedMotion() || typeof document.startViewTransition !== "function") {
         apply();

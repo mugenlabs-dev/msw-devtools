@@ -27,7 +27,8 @@ const Analytics = () => {
 };
 
 const RootComponent = () => (
-  <html lang="en">
+  // The theme boot script sets data-theme and color-scheme on <html> before hydration.
+  <html lang="en" suppressHydrationWarning>
     <head>
       <title>@mugenlabs/msw-devtools</title>
       <HeadContent />

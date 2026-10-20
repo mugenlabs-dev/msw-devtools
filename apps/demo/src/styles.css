@@ -127,6 +127,11 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
+html[data-theme="light"] .theme-icon-sun,
+html:not([data-theme="light"]) .theme-icon-moon {
+  display: none;
+}
+
 /* ---------------------------------------------------------------------------
    Incremental good-css reset slice
 --------------------------------------------------------------------------- */
