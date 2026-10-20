@@ -20,3 +20,4 @@ Use pnpm and the root scripts, not the underlying tools directly.
 - A change to library behaviour needs a test and a changeset.
 - Update the README, the docs site, and the JSDoc when the public API changes.
 - Don't add dependencies without a clear reason.
+- On GitHub, author must be `<6538706+Yagogc@users.noreply.github.com>`; never add `Co-authored-by`. Committer may be that address or `noreply@github.com` (GitHub squash-merge). CI enforces this on new commits.

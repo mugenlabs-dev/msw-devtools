@@ -33,6 +33,25 @@ jobs:
           HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: bash scripts/path-filter.sh
 
+  commit-author:
+    name: Commit author
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Check new commits
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: bash scripts/check-commit-author.sh
+
+      - name: Prove check rejects bad commits
+        run: bash scripts/check-commit-author.test.sh
+
   check:
     name: 🔍 Lint & Unit Tests
     needs: changes
