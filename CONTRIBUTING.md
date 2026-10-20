@@ -42,6 +42,7 @@ All of these run from the repo root:
 | `pnpm test-storybook` | Storybook component tests (Vitest browser mode, Chromium) |
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
+| `pnpm lint:package` | Checks the built package's `exports` and types with publint and are-the-types-wrong (run `pnpm build` first) |
 | `pnpm storybook` | Storybook dev server on port 6006 |
 | `pnpm changeset` | Adds a changeset for your change |
 
