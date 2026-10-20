@@ -120,7 +120,7 @@
     },
     {
       "src": "^/playground(?:/(?:apollo|fetch|query|rtk-query|swr|urql))?/?$",
-      "dest": "/index.html"
+      "dest": "/playground/index.html"
     },
     {
       "src": "/(.*)",
