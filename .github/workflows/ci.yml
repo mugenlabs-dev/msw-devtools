@@ -55,19 +55,20 @@ jobs:
 
       # GHSA-vfj7-8cjw-p6xm is ignored in package.json pnpm.auditConfig.ignoreGhsas.
       # The advisory is in @changesets/cli, not in the published dist.
-      # pnpm audit has no --filter. --dir limits the audit to the published package.
+      # pnpm audit has no --filter; --dir does not limit a workspace audit.
+      # scripts/audit-published.sh keeps only packages/core production paths.
       - name: Audit published package
-        run: pnpm --dir packages/core audit --prod --audit-level=moderate
+        run: pnpm run audit
 
       - name: Audit workspace (non-blocking)
         continue-on-error: true
-        run: pnpm audit --audit-level=moderate
+        run: pnpm run audit:workspace
 
       - name: Run unit tests
         run: pnpm test:ci
 
       - name: Docs-only classifier
-        run: bash scripts/docs-only.test.sh
+        run: bash scripts/docs-only.test.sh && bash scripts/audit-published.test.sh
 
   storybook:
     name: 📖 Storybook Tests
