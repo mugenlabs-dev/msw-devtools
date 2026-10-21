@@ -17,10 +17,22 @@ if (!file) {
 }
 
 const report = JSON.parse(readFileSync(file, "utf8"));
-const advisories = report.advisories ?? {};
+
+// Fail closed: a registry/pnpm failure must not look like a clean audit.
+if ("error" in report || !("actions" in report) || !("advisories" in report)) {
+  console.error(
+    "Published package audit failed closed: report is missing actions/advisories or has an error field."
+  );
+  if ("error" in report) {
+    console.error(typeof report.error === "string" ? report.error : JSON.stringify(report.error));
+  }
+  process.exit(1);
+}
+
+const { actions, advisories } = report;
 
 const hits = [];
-for (const action of report.actions ?? []) {
+for (const action of actions) {
   for (const resolve of action.resolves ?? []) {
     const path = resolve.path ?? "";
     if (!path.startsWith(PUBLISHED_PREFIX)) {
@@ -38,7 +50,7 @@ for (const action of report.actions ?? []) {
   }
 }
 
-const workspaceOnly = (report.actions ?? []).flatMap((action) =>
+const workspaceOnly = actions.flatMap((action) =>
   (action.resolves ?? [])
     .map((resolve) => resolve.path ?? "")
     .filter((path) => path && !path.startsWith(PUBLISHED_PREFIX))

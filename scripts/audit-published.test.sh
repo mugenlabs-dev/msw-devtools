@@ -101,10 +101,28 @@ expect 1 env AUDIT_JSON="${tmp}/core-hit.json" bash "${root}/audit-published.sh"
 grep -q "packages__core>@tanstack/pacer>left-pad" /tmp/audit-published-test.out \
   || fail "expected core path in output"
 
-# Empty report is clean.
+# Empty actions/advisories with both keys present is clean.
 cat >"${tmp}/clean.json" <<'EOF'
 { "actions": [], "advisories": {} }
 EOF
 expect 0 env AUDIT_JSON="${tmp}/clean.json" bash "${root}/audit-published.sh"
+
+# Missing keys or an error field must fail closed.
+cat >"${tmp}/missing-actions.json" <<'EOF'
+{ "advisories": {} }
+EOF
+expect 1 env AUDIT_JSON="${tmp}/missing-actions.json" bash "${root}/audit-published.sh"
+
+cat >"${tmp}/missing-advisories.json" <<'EOF'
+{ "actions": [] }
+EOF
+expect 1 env AUDIT_JSON="${tmp}/missing-advisories.json" bash "${root}/audit-published.sh"
+
+cat >"${tmp}/error-field.json" <<'EOF'
+{ "error": "registry unavailable", "actions": [], "advisories": {} }
+EOF
+expect 1 env AUDIT_JSON="${tmp}/error-field.json" bash "${root}/audit-published.sh"
+grep -q "failed closed" /tmp/audit-published-test.out \
+  || fail "expected fail-closed message in output"
 
 echo "audit-published tests passed"
