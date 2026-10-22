@@ -252,7 +252,16 @@ const createGraphQLHandler = (
   descriptor: Extract<MockOperationDescriptor, { type: "graphql" }>
 ) => {
   const link = graphql.link(descriptor.endpoint);
-  const gqlMethod = descriptor.operationType === "query" ? link.query : link.mutation;
+  const gqlMethods = {
+    mutation: link.mutation,
+    operation: (
+      _name: string | RegExp,
+      resolver: Parameters<typeof link.operation>[0],
+      options?: Parameters<typeof link.operation>[1]
+    ) => link.operation(resolver, options),
+    query: link.query,
+  };
+  const gqlMethod = gqlMethods[descriptor.operationType];
 
   return gqlMethod(
     descriptor.graphqlOperationName,

@@ -103,6 +103,56 @@ describe("createDynamicHandler", () => {
     });
   });
 
+  describe("catch-all handlers", () => {
+    it("serves every method for an http.all mock", async () => {
+      const descriptor = restDescriptor({
+        method: "all",
+        variants: [
+          {
+            handler: http.all("http://localhost/api/users", () => HttpResponse.json({ ok: true })),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+      configure(descriptor.operationName);
+
+      const response = await run(
+        createDynamicHandler(descriptor),
+        new Request("http://localhost/api/users", { method: "POST" })
+      );
+
+      await expect(response?.json()).resolves.toStrictEqual({ ok: true });
+    });
+
+    it("serves mutations for a graphql.operation mock", async () => {
+      const descriptor = graphqlDescriptor({
+        graphqlOperationName: /.*/,
+        operationName: "Any operation",
+        operationType: "operation",
+        variants: [
+          {
+            handler: graphql.operation(() => HttpResponse.json({ data: { ok: true } })),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+      configure(descriptor.operationName);
+
+      const response = await run(
+        createDynamicHandler(descriptor),
+        new Request("http://localhost/graphql", {
+          body: JSON.stringify({ query: "mutation SaveUser { save }" }),
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        })
+      );
+
+      await expect(response?.json()).resolves.toStrictEqual({ data: { ok: true } });
+    });
+  });
+
   describe("status code override", () => {
     it("applies a valid status override", async () => {
       const descriptor = restDescriptor();

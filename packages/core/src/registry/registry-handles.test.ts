@@ -199,4 +199,58 @@ describe("operation handles", () => {
       ]);
     });
   });
+
+  describe("catch-all handlers and name collisions", () => {
+    it("keeps http.all as a handler for every method", async () => {
+      const { mockRegistry } = await import("./registry");
+      const [handle] = registerRest({
+        handler: http.all("https://api.example.com/health", () => HttpResponse.json({})),
+      });
+
+      const descriptor = mockRegistry.get(handle.operationName);
+      expect(handle.operationName).toBe("ALL /health");
+      expect(descriptor?.type === "rest" && descriptor.method).toBe("all");
+    });
+
+    it("keeps graphql.operation as a handler for queries and mutations", async () => {
+      const { mockRegistry } = await import("./registry");
+      const [handle] = registerGraphql({
+        handler: graphql.operation(() => HttpResponse.json({ data: {} })),
+        operationName: "Any operation",
+      });
+
+      const descriptor = mockRegistry.get(handle.operationName);
+      expect(descriptor?.type === "graphql" && descriptor.operationType).toBe("operation");
+    });
+
+    it("names a RegExp GraphQL handler after its pattern", () => {
+      const [handle] = registerGraphql({
+        handler: graphql.query(/^GetUser/, () => HttpResponse.json({ data: {} })),
+      });
+
+      expect(handle.operationName).toBe("/^GetUser/");
+    });
+
+    it("warns when a different request reuses a registered name", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      registerRest(
+        { handler: http.get("https://a.example.com/users", () => HttpResponse.json({})) },
+        { handler: http.get("https://b.example.com/users", () => HttpResponse.json({})) }
+      );
+
+      expect(warn).toHaveBeenCalledOnce();
+      expect(warn.mock.calls[0]?.[0]).toContain('"GET /users"');
+      warn.mockRestore();
+    });
+
+    it("does not warn when the same request is registered again", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      const def = { handler: http.get("/api/users", () => HttpResponse.json({})) };
+      registerRest(def);
+      registerRest(def);
+
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
+  });
 });

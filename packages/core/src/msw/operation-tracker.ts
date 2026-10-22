@@ -86,7 +86,7 @@ const tryGraphQLPost = async (request: Request): Promise<void> => {
 
 /** Check whether the request URL matches a REST descriptor's path pattern. */
 const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor): boolean => {
-  if (request.method.toLowerCase() !== descriptor.method) {
+  if (descriptor.method !== "all" && request.method.toLowerCase() !== descriptor.method) {
     return false;
   }
   try {

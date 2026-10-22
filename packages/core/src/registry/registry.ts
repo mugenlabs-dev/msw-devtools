@@ -21,6 +21,12 @@ import type {
 // MockRegistry — singleton that stores all registered descriptors
 // ---------------------------------------------------------------------------
 
+/** What a descriptor intercepts, ignoring its display name and variants. */
+const requestKey = (d: MockOperationDescriptor): string =>
+  d.type === "rest"
+    ? `rest ${d.method} ${String(d.path)}`
+    : `graphql ${d.operationType} ${String(d.endpoint)} ${String(d.graphqlOperationName)}`;
+
 class MockRegistry {
   private readonly descriptors = new Map<string, MockOperationDescriptor>();
   private readonly listeners = new Set<() => void>();
@@ -29,6 +35,14 @@ class MockRegistry {
   /** Register one or more descriptors. Overwrites if operationName already exists. */
   register(...descriptors: MockOperationDescriptor[]): void {
     for (const d of descriptors) {
+      const existing = this.descriptors.get(d.operationName);
+      // Re-registering the same request (hot reload, a remount) is expected;
+      // a different request under the same name silently replaces a mock.
+      if (existing && requestKey(existing) !== requestKey(d)) {
+        console.warn(
+          `msw-devtools: "${d.operationName}" is already registered for a different request, so it replaces that mock. Pass a unique \`operationName\` to keep both.`
+        );
+      }
       this.descriptors.set(d.operationName, d);
     }
     this.snapshot = [...this.descriptors.values()];
@@ -86,6 +100,22 @@ const toDisplayPath = (path: string | RegExp): string => {
   } catch {
     return path;
   }
+};
+
+/** `http.all()` stores its method as a RegExp; every other `http.*` as a string. */
+const toRestMethod = (method: unknown): RestMethod => {
+  if (method instanceof RegExp) {
+    return "all";
+  }
+  return typeof method === "string" ? (method.toLowerCase() as RestMethod) : "get";
+};
+
+/** `graphql.operation()` stores its operation type as "all". */
+const toGraphQLOperationType = (operationType: unknown): GraphQLOperationType => {
+  if (operationType === "mutation") {
+    return "mutation";
+  }
+  return operationType === "all" ? "operation" : "query";
 };
 
 const slugify = (value: string): string =>
@@ -242,9 +272,7 @@ export const registerRestMocks = <const Defs extends readonly RestMockDef[]>(
     const primary = getPrimaryHandler(variants);
     const info = primary.info as unknown as Record<string, unknown>;
 
-    const method = (
-      typeof info.method === "string" ? info.method.toLowerCase() : "get"
-    ) as RestMethod;
+    const method = toRestMethod(info.method);
     const path = typeof info.path === "string" || info.path instanceof RegExp ? info.path : "";
     const operationName = def.operationName ?? `${method.toUpperCase()} ${toDisplayPath(path)}`;
 
@@ -290,9 +318,11 @@ export const registerGraphqlMocks = <const Defs extends readonly GraphqlMockDef[
         : "UnknownOperation";
     const operationName =
       def.operationName ??
-      (typeof graphqlOperationName === "string" ? graphqlOperationName : "UnknownOperation");
+      (typeof graphqlOperationName === "string"
+        ? graphqlOperationName
+        : graphqlOperationName.toString());
     const operationType: GraphQLOperationType =
-      def.operationType ?? (info.operationType === "mutation" ? "mutation" : "query");
+      def.operationType ?? toGraphQLOperationType(info.operationType);
 
     descriptors.push({
       endpoint: getGraphQLEndpoint(primary as GraphQLHandler),

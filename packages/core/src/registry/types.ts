@@ -51,7 +51,7 @@ export interface GraphqlMockDef {
    * Default: the `operationName` from the GraphQL handler info.
    */
   operationName?: string;
-  /** Override the auto-derived operation type ("query" | "mutation"). */
+  /** Override the auto-derived operation type ("query" | "mutation" | "operation"). */
   operationType?: GraphQLOperationType;
   /** Multiple handler variants for the same endpoint. */
   variants?: HandlerVariantInput<GraphQLHandler>[];
@@ -61,9 +61,11 @@ export interface GraphqlMockDef {
 // Internal descriptor types — stored in the registry
 // ---------------------------------------------------------------------------
 
-export type GraphQLOperationType = "query" | "mutation";
+/** `"operation"` is a `graphql.operation()` handler, which matches queries and mutations. */
+export type GraphQLOperationType = "query" | "mutation" | "operation";
 
-export type RestMethod = "get" | "post" | "put" | "delete" | "patch";
+/** `"all"` is an `http.all()` handler, which matches every method. */
+export type RestMethod = "get" | "post" | "put" | "delete" | "patch" | "head" | "options" | "all";
 
 interface MockOperationDescriptorBase {
   /** Optional grouping label (e.g., journey name, feature area). */
