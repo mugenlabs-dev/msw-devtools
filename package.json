@@ -2,7 +2,7 @@
   "name": "msw-devtools-monorepo",
   "private": true,
   "scripts": {
-    "audit": "pnpm --dir packages/core audit --prod --audit-level=moderate",
+    "audit": "bash scripts/audit-published.sh",
     "audit:workspace": "pnpm audit --audit-level=moderate",
     "build": "pnpm --filter ./packages/core run build",
     "build-storybook": "pnpm --filter ./packages/core run build-storybook",
@@ -57,6 +57,7 @@
     ],
     "overrides": {
       "brace-expansion": "^5.0.12",
+      "follow-redirects": "^1.16.1",
       "seroval": "^1.6.3",
       "source-map-js": "^1.2.2",
       "undici": "^7.29.1"
