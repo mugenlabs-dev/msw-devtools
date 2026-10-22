@@ -197,9 +197,9 @@ function SetupAdapter() {
     <Accordion title="How it works">
       <p className={`${prose} !m-0`}>
         The SWR adapter calls the global <code className={inlineCode}>mutate()</code> function with
-        a matcher that returns <code className={inlineCode}>true</code> for all cache keys and{" "}
-        <code className={inlineCode}>{"{ revalidate: true }"}</code>. This tells SWR to revalidate
-        every cached entry, triggering fresh network requests that hit MSW with the updated mock
+        a matcher that returns <code className={inlineCode}>true</code> for all cache keys and no
+        data argument. This tells SWR to revalidate every cached entry while keeping the current
+        data on screen, triggering fresh network requests that hit MSW with the updated mock
         configuration. Because SWR&apos;s <code className={inlineCode}>mutate</code> is scoped to
         the provider context, the adapter must be registered inside a React component that has
         access to <code className={inlineCode}>useSWRConfig()</code>.

@@ -255,14 +255,16 @@ describe("mockStore - syncWithRegistry", () => {
     expect(operations.GetUser.delay).toBe(500);
   });
 
-  it("removes operations not in the registry", () => {
+  it("keeps saved config for operations that are not registered yet", () => {
     resetStore();
     useMockStore.getState().setEnabled("GetUser", true);
-    useMockStore.getState().setEnabled("GetPosts", true);
+    useMockStore.getState().setStatusCode("GetPosts", 500);
 
+    // GetPosts is registered later, e.g. by a lazily loaded route
     useMockStore.getState().syncWithRegistry(["GetUser"]);
-    const { operations } = useMockStore.getState();
-    expect(operations.GetUser).toBeDefined();
-    expect(operations.GetPosts).toBeUndefined();
+    expect(useMockStore.getState().operations.GetPosts?.statusCode).toBe(500);
+
+    useMockStore.getState().syncWithRegistry(["GetUser", "GetPosts"]);
+    expect(useMockStore.getState().operations.GetPosts?.statusCode).toBe(500);
   });
 });

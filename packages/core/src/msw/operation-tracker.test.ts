@@ -163,6 +163,23 @@ describe("operation-tracker", () => {
     expect(seen().has("GET user by id")).toBe(true);
   });
 
+  it("matches a global RegExp path on every request, not every other one", () => {
+    mockRegistry.register(
+      restDescriptor({
+        operationName: "GET user by id",
+        path: /^http:\/\/localhost\/api\/users\/\d+$/g,
+      })
+    );
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    for (let i = 0; i < 3; i += 1) {
+      useMockStore.getState().clearSeenOperations();
+      emit(new Request("http://localhost/api/users/42", { method: "GET" }));
+      expect(seen().has("GET user by id")).toBe(true);
+    }
+  });
+
   it("marks a REST operation registered with an MSW wildcard path as seen", () => {
     mockRegistry.register(
       restDescriptor({ operationName: "GET Users", path: "https://api.example.com/users/*" })

@@ -47,14 +47,29 @@ const resolveStatusOverride = (statusCode: number | null): number | null =>
 // Response capture — lazily store the handler's response for the JSON editor
 // ---------------------------------------------------------------------------
 
-const captureResponseBody = async (operationName: string, response: Response): Promise<void> => {
-  try {
-    const cloned = response.clone();
-    const body = await cloned.json();
-    useMockStore.getState().setCapturedResponse(operationName, JSON.stringify(body, null, 2));
-  } catch {
-    // Non-JSON response — skip capture
+/**
+ * Only JSON bodies are read. Reading any other body (a stream, server-sent
+ * events, a large file) would wait for it to finish, or never return.
+ */
+const isJsonResponse = (response: Response): boolean => {
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  return contentType.includes("application/json") || contentType.includes("+json");
+};
+
+/** Fire-and-forget: the response is returned without waiting for the capture. */
+const captureResponseBody = (operationName: string, response: Response): void => {
+  if (!isJsonResponse(response)) {
+    return;
   }
+  response
+    .clone()
+    .json()
+    .then((body: unknown) => {
+      useMockStore.getState().setCapturedResponse(operationName, JSON.stringify(body, null, 2));
+    })
+    .catch(() => {
+      // Invalid JSON — skip capture
+    });
 };
 
 // ---------------------------------------------------------------------------
@@ -64,10 +79,38 @@ const captureResponseBody = async (operationName: string, response: Response): P
 const readJsonBody = async (
   response: Response
 ): Promise<{ body: unknown; isJson: true } | { body: null; isJson: false }> => {
+  if (!isJsonResponse(response)) {
+    return { body: null, isJson: false };
+  }
   try {
     return { body: await response.clone().json(), isJson: true };
   } catch {
     return { body: null, isJson: false };
+  }
+};
+
+/**
+ * Merge the user's header overrides into the response headers: a listed header
+ * replaces the original value, every other original header is kept. Invalid
+ * JSON or an invalid header name or value is skipped rather than turning the
+ * mocked response into a 500.
+ */
+const applyHeaderOverrides = (headers: Headers, customHeaders: string): void => {
+  let overrides: unknown;
+  try {
+    overrides = JSON.parse(customHeaders);
+  } catch {
+    return;
+  }
+  if (typeof overrides !== "object" || overrides === null || Array.isArray(overrides)) {
+    return;
+  }
+  for (const [key, value] of Object.entries(overrides)) {
+    try {
+      headers.set(key, String(value));
+    } catch {
+      // Invalid header name or value — skip it
+    }
   }
 };
 
@@ -107,7 +150,7 @@ const applyOverrides = async (
   // Resolve headers. Skip entity headers that describe the original payload —
   // the body is re-serialized below, so stale content-length/content-encoding/
   // transfer-encoding would misdescribe it.
-  let headers: Record<string, string> = {};
+  const headers = new Headers();
   original.headers.forEach((value, key) => {
     const lowerKey = key.toLowerCase();
     if (
@@ -117,14 +160,10 @@ const applyOverrides = async (
     ) {
       return;
     }
-    headers[key] = value;
+    headers.set(key, value);
   });
-  if (config.customHeaders != null && config.customHeaders !== "") {
-    try {
-      headers = JSON.parse(config.customHeaders) as Record<string, string>;
-    } catch {
-      // Invalid JSON — keep original headers
-    }
+  if (hasHeaderOverride) {
+    applyHeaderOverrides(headers, config.customHeaders as string);
   }
 
   if (NULL_BODY_STATUS_CODES.has(status)) {
@@ -183,7 +222,7 @@ const resolveAndRespond = async (
   }
 
   // Capture response body for JSON editor
-  await captureResponseBody(descriptor.operationName, response);
+  captureResponseBody(descriptor.operationName, response);
 
   // Apply user overrides (custom JSON, status code, headers)
   return applyOverrides(response, config);

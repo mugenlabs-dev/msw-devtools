@@ -31,9 +31,15 @@ export const OperationList = ({ selectedOperation, onSelectOperation }: Operatio
     [descriptors, store.operations, store.seenOperations, listState.filter, listState.sort]
   );
 
+  // Count registered operations only: the store also keeps saved configs for
+  // mocks that have not been registered yet.
   const enabledCount = useMemo(
-    () => Object.values(store.operations).reduce((count, op) => count + (op.enabled ? 1 : 0), 0),
-    [store.operations]
+    () =>
+      descriptors.reduce(
+        (count, d) => count + (store.operations[d.operationName]?.enabled ? 1 : 0),
+        0
+      ),
+    [descriptors, store.operations]
   );
   const status = statusConfig[store.workerStatus];
 

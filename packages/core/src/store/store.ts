@@ -218,19 +218,18 @@ export const useMockStore = create<MockStoreState>()(
 
         sort: "default" as SortOption,
 
+        // Only adds defaults. Saved configs for operations that are not
+        // registered yet are kept: mocks registered later (by a route or a
+        // code-split bundle) must find their settings after a reload.
         syncWithRegistry: (operationNames) => {
           set((state) => {
-            const operations = { ...state.operations };
-            const nameSet = new Set(operationNames);
-            for (const name of operationNames) {
-              if (!(name in operations)) {
-                operations[name] = { ...defaultConfig };
-              }
+            const missing = operationNames.filter((name) => !(name in state.operations));
+            if (missing.length === 0) {
+              return {};
             }
-            for (const key of Object.keys(operations)) {
-              if (!nameSet.has(key)) {
-                Reflect.deleteProperty(operations, key);
-              }
+            const operations = { ...state.operations };
+            for (const name of missing) {
+              operations[name] = { ...defaultConfig };
             }
             return { operations };
           });
