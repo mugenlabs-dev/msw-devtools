@@ -163,6 +163,16 @@ describe("operation-tracker", () => {
     expect(seen().has("GET user by id")).toBe(true);
   });
 
+  it("marks an http.all operation as seen for any method", () => {
+    mockRegistry.register(restDescriptor({ method: "all", operationName: "ALL /api/todos" }));
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    emit(new Request("http://localhost/api/todos", { method: "PATCH" }));
+
+    expect(seen().has("ALL /api/todos")).toBe(true);
+  });
+
   it("matches a global RegExp path on every request, not every other one", () => {
     mockRegistry.register(
       restDescriptor({
@@ -190,6 +200,30 @@ describe("operation-tracker", () => {
     emit(new Request("https://api.example.com/users/123/profile", { method: "GET" }));
 
     expect(seen().has("GET Users")).toBe(true);
+  });
+
+  it("keeps LIVE operations when only the URL's query or state changes", () => {
+    mockRegistry.register(restDescriptor({}));
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+    emit(new Request("http://localhost/api/todos", { method: "GET" }));
+
+    history.replaceState({ scroll: 120 }, "");
+    history.pushState(null, "", `${window.location.pathname}?tab=2`);
+
+    expect(seen().has("GET /api/todos")).toBe(true);
+  });
+
+  it("clears LIVE operations when the page changes", () => {
+    mockRegistry.register(restDescriptor({}));
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+    emit(new Request("http://localhost/api/todos", { method: "GET" }));
+
+    history.pushState(null, "", "/another-page");
+
+    expect(seen().size).toBe(0);
+    history.pushState(null, "", "/");
   });
 
   it("removes the request listener on teardown", () => {

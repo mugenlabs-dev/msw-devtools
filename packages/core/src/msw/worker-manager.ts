@@ -10,6 +10,10 @@ let worker: SetupWorker | null = null;
 let started = false;
 let starting: Promise<SetupWorker> | null = null;
 let unsubscribeFromRegistry: (() => void) | null = null;
+/** Options of the call that started the worker, to spot later calls whose options are ignored. */
+let startOptions: WorkerOptions | undefined;
+/** The handlers the devtools installed, as opposed to ones the app added with `worker.use()`. */
+let devtoolsHandlers = new Set<unknown>();
 
 export interface WorkerOptions {
   /** Behavior for unhandled requests. Default: 'bypass' */
@@ -24,6 +28,7 @@ const initializeWorker = async (options?: WorkerOptions): Promise<SetupWorker> =
   const { setupWorker } = await import("msw/browser");
   const descriptors = mockRegistry.getAll();
   const handlers = descriptors.map(createDynamicHandler);
+  devtoolsHandlers = new Set(handlers);
 
   const instance = setupWorker(...handlers);
 
@@ -54,7 +59,18 @@ const activateWorker = (instance: SetupWorker): void => {
   unsubscribeFromRegistry = mockRegistry.subscribe(refreshHandlers);
 };
 
+const warnIfOptionsIgnored = (options: WorkerOptions | undefined): void => {
+  if (options && JSON.stringify(options) !== JSON.stringify(startOptions)) {
+    console.warn(
+      "msw-devtools: startWorker() was called with options after the worker had already started, so they were ignored. Call startWorker(options) before the devtools plugin mounts."
+    );
+  }
+};
+
 export const startWorker = (options?: WorkerOptions): Promise<SetupWorker> => {
+  if ((started && worker) || starting) {
+    warnIfOptionsIgnored(options);
+  }
   if (started && worker) {
     return Promise.resolve(worker);
   }
@@ -65,6 +81,7 @@ export const startWorker = (options?: WorkerOptions): Promise<SetupWorker> => {
     return starting;
   }
 
+  startOptions = options;
   starting = (async () => {
     try {
       useMockStore.getState().setWorkerStatus("starting");
@@ -115,7 +132,15 @@ export const refreshHandlers = (): void => {
   if (!worker) {
     return;
   }
+  // resetHandlers() also drops handlers the app added with worker.use(), so
+  // put those back in front of the devtools handlers, in the same order.
+  const appHandlers = worker.listHandlers().filter((handler) => !devtoolsHandlers.has(handler));
   const descriptors = mockRegistry.getAll();
-  worker.resetHandlers(...descriptors.map(createDynamicHandler));
+  const handlers = descriptors.map(createDynamicHandler);
+  devtoolsHandlers = new Set(handlers);
+  worker.resetHandlers(...handlers);
+  if (appHandlers.length > 0) {
+    worker.use(...appHandlers);
+  }
   useMockStore.getState().syncWithRegistry(descriptors.map((d) => d.operationName));
 };

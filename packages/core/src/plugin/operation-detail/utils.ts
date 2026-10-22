@@ -7,7 +7,7 @@ import type { DetailDerivedState } from "./types";
 export const getTypeBadge = (descriptor: MockOperationDescriptor) => {
   if (descriptor.type === "graphql") {
     const opType = descriptor.operationType;
-    const colors = opType === "query" ? theme.colors.gqlQuery : theme.colors.gqlMutation;
+    const colors = opType === "mutation" ? theme.colors.gqlMutation : theme.colors.gqlQuery;
     return { label: opType, ...colors };
   }
   const method = descriptor.method.toUpperCase();

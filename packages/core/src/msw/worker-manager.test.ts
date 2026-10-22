@@ -10,13 +10,17 @@ const {
   setupTrackerMock,
   teardownTrackerMock,
   resetHandlersMock,
+  listHandlersMock,
+  useMock,
 } = vi.hoisted(() => ({
+  listHandlersMock: vi.fn(() => []),
   resetHandlersMock: vi.fn(),
   setupTrackerMock: vi.fn(),
   setupWorkerMock: vi.fn(),
   startMock: vi.fn(),
   stopMock: vi.fn(),
   teardownTrackerMock: vi.fn(),
+  useMock: vi.fn(),
 }));
 
 vi.mock("msw/browser", () => ({ setupWorker: setupWorkerMock }));
@@ -37,9 +41,11 @@ describe("worker-manager - startWorker", () => {
 
     setupWorkerMock.mockReturnValue({
       events: { on: vi.fn() },
+      listHandlers: listHandlersMock,
       resetHandlers: resetHandlersMock,
       start: startMock,
       stop: stopMock,
+      use: useMock,
     });
     // Simulate an async worker start so concurrent callers overlap in flight.
     startMock.mockImplementation(
@@ -93,6 +99,50 @@ describe("worker-manager - startWorker", () => {
     expect(resetHandlersMock).toHaveBeenCalledTimes(1);
     expect(resetHandlersMock.mock.calls[0]).toHaveLength(1);
     expect(store.getState().operations["GET /late"]).toBeDefined();
+  });
+
+  it("keeps handlers the app added with worker.use() when mocks are registered later", async () => {
+    registry.register({
+      method: "get",
+      operationName: "GET /early",
+      path: "http://localhost/early",
+      type: "rest",
+      variants: [],
+    });
+    await startWorkerFn();
+    const appHandler = http.get("http://localhost/override", () => HttpResponse.json({}));
+    const [devtoolsHandler] = setupWorkerMock.mock.calls[0] as unknown[];
+    listHandlersMock.mockReturnValue([appHandler, devtoolsHandler] as never);
+
+    registry.register({
+      method: "get",
+      operationName: "GET /late",
+      path: "http://localhost/late",
+      type: "rest",
+      variants: [],
+    });
+
+    expect(useMock).toHaveBeenCalledExactlyOnceWith(appHandler);
+  });
+
+  it("warns when options are passed after the worker has started without them", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    await startWorkerFn();
+
+    await startWorkerFn({ serviceWorkerUrl: "/custom/mockServiceWorker.js" });
+
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
+  });
+
+  it("does not warn when the same options are passed again", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const options = { serviceWorkerUrl: "/custom/mockServiceWorker.js" };
+
+    await Promise.all([startWorkerFn(options), startWorkerFn(options), startWorkerFn()]);
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it("stops the worker, tears down tracking and allows a fresh start", async () => {

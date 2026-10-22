@@ -2,7 +2,8 @@ import type { Exchange, Operation } from "@urql/core";
 import { makeOperation } from "@urql/core";
 import { pipe, tap } from "wonka";
 import { MOCK_UPDATE_EVENT_NAME } from "#/adapter/event-bus";
-import { affectsOperation, type MockUpdateEvent } from "#/adapter/types";
+import { ALL_OPERATIONS, type MockUpdateEvent } from "#/adapter/types";
+import { mockRegistry } from "#/registry/registry";
 
 const getOperationName = (op: Operation): string | undefined => {
   for (const def of op.query.definitions) {
@@ -11,6 +12,27 @@ const getOperationName = (op: Operation): string | undefined => {
     }
   }
   return undefined;
+};
+
+/**
+ * Whether a mock update affects a query. The event carries the devtools name,
+ * which can differ from the GraphQL document's name (a custom `operationName`
+ * or a RegExp handler), so match through the registered handler's pattern.
+ */
+const affectsQuery = (event: MockUpdateEvent, documentName: string): boolean => {
+  if (event.operationName === ALL_OPERATIONS) {
+    return true;
+  }
+  const descriptor = mockRegistry.get(event.operationName);
+  if (descriptor?.type !== "graphql") {
+    return event.operationName === documentName;
+  }
+  const pattern = descriptor.graphqlOperationName;
+  if (typeof pattern === "string") {
+    return pattern === documentName;
+  }
+  pattern.lastIndex = 0;
+  return pattern.test(documentName);
 };
 
 /**
@@ -44,7 +66,7 @@ export const mockRefetchExchange: Exchange = ({ client, forward }) => {
 
       for (const [, op] of activeQueries) {
         const name = getOperationName(op);
-        if (name === undefined || !affectsOperation(event.detail, name)) {
+        if (name === undefined || !affectsQuery(event.detail, name)) {
           continue;
         }
         liveClient.reexecuteOperation(

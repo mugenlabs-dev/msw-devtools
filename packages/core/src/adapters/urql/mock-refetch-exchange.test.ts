@@ -3,6 +3,7 @@ import { gql, makeOperation } from "@urql/core";
 import { makeSubject, map, pipe, publish } from "wonka";
 import { dispatchMockUpdate } from "#/adapter/event-bus";
 import { ALL_OPERATIONS } from "#/adapter/types";
+import { mockRegistry } from "#/registry/registry";
 import { mockRefetchExchange } from "./mock-refetch-exchange";
 
 const context = { requestPolicy: "cache-first", url: "/graphql" } as unknown as OperationContext;
@@ -105,5 +106,49 @@ describe("mockRefetchExchange", () => {
     dispatchMockUpdate(ALL_OPERATIONS, "enable-all");
 
     expect(client.reexecuteOperation).toHaveBeenCalledTimes(2);
+  });
+
+  describe("devtools names that differ from the document name", () => {
+    afterEach(() => {
+      mockRegistry.unregister("User (custom)");
+      mockRegistry.unregister("/^GetUser/");
+    });
+
+    it("re-executes a query whose mock has a custom operationName", () => {
+      mockRegistry.register({
+        endpoint: "*",
+        graphqlOperationName: "GetUser",
+        operationName: "User (custom)",
+        operationType: "query",
+        type: "graphql",
+        variants: [],
+      });
+      const { client, emit } = setup();
+      emit(queryOp(1, "GetUser"));
+
+      dispatchMockUpdate("User (custom)", "toggle");
+
+      expect(client.reexecuteOperation).toHaveBeenCalledOnce();
+    });
+
+    it("re-executes a query matched by a RegExp handler", () => {
+      mockRegistry.register({
+        endpoint: "*",
+        graphqlOperationName: /^GetUser/,
+        operationName: "/^GetUser/",
+        operationType: "query",
+        type: "graphql",
+        variants: [],
+      });
+      const { client, emit } = setup();
+      emit(queryOp(1, "GetUserProfile"));
+      emit(queryOp(2, "GetPosts"));
+
+      dispatchMockUpdate("/^GetUser/", "toggle");
+
+      expect(client.reexecuteOperation).toHaveBeenCalledOnce();
+      const [reexecuted] = client.reexecuteOperation.mock.calls[0] as [Operation];
+      expect(reexecuted.key).toBe(1);
+    });
   });
 });

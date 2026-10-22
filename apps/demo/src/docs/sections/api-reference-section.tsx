@@ -205,7 +205,7 @@ export const ApiReferenceSection = () => (
             {
               description: "Override the auto-derived operation type",
               name: "def.operationType",
-              type: '"query" | "mutation"',
+              type: '"query" | "mutation" | "operation"',
             },
             {
               description: "Optional grouping label",

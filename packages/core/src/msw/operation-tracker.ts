@@ -86,7 +86,7 @@ const tryGraphQLPost = async (request: Request): Promise<void> => {
 
 /** Check whether the request URL matches a REST descriptor's path pattern. */
 const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor): boolean => {
-  if (request.method.toLowerCase() !== descriptor.method) {
+  if (descriptor.method !== "all" && request.method.toLowerCase() !== descriptor.method) {
     return false;
   }
   try {
@@ -133,7 +133,15 @@ const setupNavigationListener = (): void => {
     return;
   }
 
+  // Routers call replaceState for scroll positions, query strings and state
+  // updates. Only a change of page (pathname) starts a new LIVE list.
+  let lastPathname = window.location.pathname;
   const clearSeen = (): void => {
+    const { pathname } = window.location;
+    if (pathname === lastPathname) {
+      return;
+    }
+    lastPathname = pathname;
     useMockStore.getState().clearSeenOperations();
   };
 

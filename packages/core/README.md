@@ -17,10 +17,10 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 - **Toggle Mocks** -- Enable or disable individual mock handlers on the fly
 - **Switch Variants** -- Swap between response variants (success, error, empty, custom)
 - **Live Overrides** -- Edit JSON response bodies, status codes, headers, and delays in real time. Header overrides are merged into the handler's own headers. Only JSON responses are read for the editor; streams and other non-JSON responses pass through untouched
-- **LIVE Tracking** -- See which operations have been intercepted by MSW on the current page
+- **LIVE Tracking** -- See which operations have been intercepted by MSW on the current page. The list resets when the page (pathname) changes, not on query-string or history-state updates
 - **Filter & Sort** -- Filter by type (REST/GraphQL), status (enabled/live), and sort alphabetically
 - **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, and RTK Query trigger automatic refetches when mock config changes (Axios has no cache to invalidate -- use `useMockRefetch` instead)
-- **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes, including for mocks registered later by lazily loaded routes
+- **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes, including for mocks registered later by lazily loaded routes, and stay in sync across open tabs
 
 ## Installation
 
@@ -101,7 +101,7 @@ function App() {
 
 The MSW service worker starts automatically when the plugin mounts.
 
-> **Custom worker options:** If you need to customise the worker (e.g. a different `serviceWorkerUrl`), call `startWorker()` before the plugin mounts. The plugin detects an already-running worker and skips auto-start.
+> **Custom worker options:** If you need to customise the worker (e.g. a different `serviceWorkerUrl`), call `startWorker()` before the plugin mounts. The plugin detects an already-running worker and skips auto-start. Options passed after the worker has started are ignored, and a console warning says so.
 >
 > ```ts
 > import { startWorker } from "@mugenlabs/msw-devtools";
@@ -208,6 +208,10 @@ The operation name is derived from the handler info (e.g. `GET /api/users`):
 ```ts
 registerRestMocks({ handler: http.get("/api/users", resolver) });
 ```
+
+- The derived REST name uses the path without the origin, so `https://a.com/users` and `https://b.com/users` would both be `GET /users`. A console warning flags names that clash; pass `operationName` to tell them apart.
+- `http.all()` handlers are named `ALL /path` and match every method. `graphql.operation()` handlers match queries and mutations; give them an `operationName`.
+- GraphQL handlers registered with a RegExp are named after the pattern, e.g. `/^GetUser/`.
 
 ### Custom operation name and group
 
