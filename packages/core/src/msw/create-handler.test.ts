@@ -294,4 +294,113 @@ describe("createDynamicHandler", () => {
       expect(response?.headers.get("x-msw-intention")).toBe("passthrough");
     });
   });
+
+  describe("non-JSON and streaming responses", () => {
+    /** A server-sent-events body that never ends. */
+    const neverEndingStream = () =>
+      restDescriptor({
+        variants: [
+          {
+            handler: http.get(
+              "http://localhost/api/users",
+              () =>
+                new HttpResponse(
+                  new ReadableStream({
+                    start(controller) {
+                      controller.enqueue(new TextEncoder().encode("data: hello\n\n"));
+                    },
+                  }),
+                  { headers: { "content-type": "text/event-stream" } }
+                )
+            ),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+
+    it("returns a never-ending stream without waiting for it to finish", async () => {
+      const descriptor = neverEndingStream();
+      configure(descriptor.operationName);
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.headers.get("content-type")).toBe("text/event-stream");
+      expect(useMockStore.getState().capturedResponseData.has(descriptor.operationName)).toBe(
+        false
+      );
+    });
+
+    it("returns a never-ending stream with a status override", async () => {
+      const descriptor = neverEndingStream();
+      configure(descriptor.operationName, { statusCode: 202 });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.status).toBe(202);
+    });
+
+    it("still captures JSON responses for the editor", async () => {
+      const descriptor = restDescriptor();
+      configure(descriptor.operationName);
+
+      await run(createDynamicHandler(descriptor), restRequest());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const captured = useMockStore.getState().capturedResponseData.get(descriptor.operationName);
+      expect(JSON.parse(captured ?? "null")).toStrictEqual({ users: [1, 2] });
+    });
+  });
+
+  describe("headers override", () => {
+    const withHeaders = () =>
+      restDescriptor({
+        variants: [
+          {
+            handler: http.get("http://localhost/api/users", () =>
+              HttpResponse.json({ users: [] }, { headers: { "x-request-id": "abc" } })
+            ),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+
+    it("merges overrides into the handler's headers", async () => {
+      const descriptor = withHeaders();
+      configure(descriptor.operationName, {
+        customHeaders: JSON.stringify({ "x-extra": "1" }),
+      });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.headers.get("x-request-id")).toBe("abc");
+      expect(response?.headers.get("x-extra")).toBe("1");
+      expect(response?.headers.get("content-type")).toContain("application/json");
+    });
+
+    it("replaces a header the override lists", async () => {
+      const descriptor = withHeaders();
+      configure(descriptor.operationName, {
+        customHeaders: JSON.stringify({ "x-request-id": "override" }),
+      });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.headers.get("x-request-id")).toBe("override");
+    });
+
+    it("skips an invalid header name instead of failing the response", async () => {
+      const descriptor = withHeaders();
+      configure(descriptor.operationName, {
+        customHeaders: JSON.stringify({ "bad header": "x", "x-extra": "1" }),
+      });
+
+      const response = await run(createDynamicHandler(descriptor), restRequest());
+
+      expect(response?.status).toBe(200);
+      expect(response?.headers.get("x-extra")).toBe("1");
+      await expect(response?.json()).resolves.toStrictEqual({ users: [] });
+    });
+  });
 });
