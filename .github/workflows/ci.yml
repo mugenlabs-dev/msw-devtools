@@ -270,7 +270,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 22
+          # Trusted publishing (OIDC) needs npm 11.5.1+, which Node 24 bundles.
+          node-version: 24
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
@@ -289,5 +290,3 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
