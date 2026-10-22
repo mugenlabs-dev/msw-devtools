@@ -3,6 +3,15 @@ import { mockRegistry } from "#/registry/registry";
 import type { GraphQLMockDescriptor, RestMockDescriptor } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 
+/**
+ * `RegExp#test` on a global or sticky regex resumes from `lastIndex`, so
+ * repeated calls alternate between matching and not. Always test from the start.
+ */
+const testRegex = (regex: RegExp, value: string): boolean => {
+  regex.lastIndex = 0;
+  return regex.test(value);
+};
+
 const markSeen = (name: string): void => {
   useMockStore.getState().markOperationSeen(name);
 };
@@ -13,7 +22,7 @@ const matchesGraphQLDescriptor = (
 ): boolean =>
   typeof descriptor.graphqlOperationName === "string"
     ? descriptor.graphqlOperationName === requestOperationName
-    : descriptor.graphqlOperationName.test(requestOperationName);
+    : testRegex(descriptor.graphqlOperationName, requestOperationName);
 
 /**
  * Mark every registered GraphQL operation whose handler matches the request's
@@ -83,7 +92,7 @@ const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor)
   try {
     if (descriptor.path instanceof RegExp) {
       const url = new URL(request.url);
-      return descriptor.path.test(request.url) || descriptor.path.test(url.pathname);
+      return testRegex(descriptor.path, request.url) || testRegex(descriptor.path, url.pathname);
     }
     const escaped = descriptor.path.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // MSW wildcards (`*`) match any characters, including path separators.
