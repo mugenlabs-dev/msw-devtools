@@ -16,11 +16,11 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 
 - **Toggle Mocks** -- Enable or disable individual mock handlers on the fly
 - **Switch Variants** -- Swap between response variants (success, error, empty, custom)
-- **Live Overrides** -- Edit JSON response bodies, status codes, headers, and delays in real time
+- **Live Overrides** -- Edit JSON response bodies, status codes, headers, and delays in real time. Header overrides are merged into the handler's own headers. Only JSON responses are read for the editor; streams and other non-JSON responses pass through untouched
 - **LIVE Tracking** -- See which operations have been intercepted by MSW on the current page
 - **Filter & Sort** -- Filter by type (REST/GraphQL), status (enabled/live), and sort alphabetically
 - **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, and RTK Query trigger automatic refetches when mock config changes (Axios has no cache to invalidate -- use `useMockRefetch` instead)
-- **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes
+- **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes, including for mocks registered later by lazily loaded routes
 
 ## Installation
 
