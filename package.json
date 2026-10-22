@@ -2,7 +2,7 @@
   "name": "msw-devtools-monorepo",
   "private": true,
   "scripts": {
-    "audit": "bash scripts/audit-published.sh",
+    "audit:published": "bash scripts/audit-published.sh",
     "audit:workspace": "pnpm audit --audit-level=moderate",
     "build": "pnpm --filter ./packages/core run build",
     "build-storybook": "pnpm --filter ./packages/core run build-storybook",
