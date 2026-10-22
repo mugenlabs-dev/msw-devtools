@@ -133,7 +133,15 @@ const setupNavigationListener = (): void => {
     return;
   }
 
+  // Routers call replaceState for scroll positions, query strings and state
+  // updates. Only a change of page (pathname) starts a new LIVE list.
+  let lastPathname = window.location.pathname;
   const clearSeen = (): void => {
+    const { pathname } = window.location;
+    if (pathname === lastPathname) {
+      return;
+    }
+    lastPathname = pathname;
     useMockStore.getState().clearSeenOperations();
   };
 
