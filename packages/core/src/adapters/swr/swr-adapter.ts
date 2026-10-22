@@ -14,6 +14,8 @@ type SWRMutateFn = (
 export const createSwrAdapter = (mutate: SWRMutateFn): MswDevToolAdapter => ({
   id: "swr",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
-    ignoreRejection(mutate(() => true, undefined, { revalidate: true }));
+    // No data argument: SWR revalidates every key and keeps the cached data on
+    // screen. Passing `undefined` as data would clear every key first.
+    ignoreRejection(mutate(() => true));
   },
 });
