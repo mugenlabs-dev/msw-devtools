@@ -77,3 +77,49 @@ describe("store hydration", () => {
     expect(useMockStore.getState().operations.GetUser.enabled).toBe(false);
   });
 });
+
+describe("store persistence writes", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.removeItem(STORAGE_KEY);
+  });
+
+  it("does not rewrite storage for state that is not persisted", async () => {
+    vi.resetModules();
+    const { useMockStore } = await import("./store");
+    useMockStore.getState().setEnabled("GetUser", true);
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+
+    useMockStore.getState().markOperationSeen("GetUser");
+    useMockStore.getState().setCapturedResponse("GetUser", "{}");
+
+    expect(setItem).not.toHaveBeenCalled();
+  });
+
+  it("keeps working when storage is full", async () => {
+    vi.resetModules();
+    const { useMockStore } = await import("./store");
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Quota exceeded", "QuotaExceededError");
+    });
+
+    expect(() => useMockStore.getState().setEnabled("GetUser", true)).not.toThrow();
+    expect(useMockStore.getState().operations.GetUser.enabled).toBe(true);
+  });
+
+  it("picks up changes another tab wrote", async () => {
+    vi.resetModules();
+    const { useMockStore } = await import("./store");
+    useMockStore.getState().setEnabled("GetUser", false);
+
+    const otherTab = {
+      state: { operations: { GetUser: { enabled: true } } },
+      version: 0,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(otherTab));
+    window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(useMockStore.getState().operations.GetUser.enabled).toBe(true);
+  });
+});

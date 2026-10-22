@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { createJSONStorage, devtools, persist, type StateStorage } from "zustand/middleware";
 
 import type {
   ErrorOverride,
@@ -121,6 +121,51 @@ const updateOperation = (
       },
     },
   }));
+};
+
+const STORAGE_KEY = "msw-devtools-store";
+
+/**
+ * localStorage that never throws and skips writes that change nothing.
+ * Persist writes after every `set`, including the per-request "seen" and
+ * captured-response updates that are not persisted, so most writes would
+ * store an identical string. A full or blocked storage must not break the
+ * request listener that triggered the write.
+ *
+ * Accessing `localStorage` throws during SSR, which makes persist skip storage.
+ */
+const createSafeStorage = (): StateStorage => {
+  const storage = localStorage;
+  let lastValue: string | null = null;
+  return {
+    getItem: (name) => {
+      try {
+        lastValue = storage.getItem(name);
+        return lastValue;
+      } catch {
+        return null;
+      }
+    },
+    removeItem: (name) => {
+      try {
+        storage.removeItem(name);
+        lastValue = null;
+      } catch {
+        // Storage unavailable — nothing to remove
+      }
+    },
+    setItem: (name, value) => {
+      if (value === lastValue) {
+        return;
+      }
+      try {
+        storage.setItem(name, value);
+        lastValue = value;
+      } catch {
+        // Quota exceeded or storage blocked — keep the in-memory state
+      }
+    },
+  };
 };
 
 /** @internal — Used by the plugin UI. Not part of the public API. */
@@ -265,7 +310,7 @@ export const useMockStore = create<MockStoreState>()(
             collapsedGroups: new Set(sanitized.collapsedGroups),
           };
         },
-        name: "msw-devtools-store",
+        name: STORAGE_KEY,
         partialize: (state) => ({
           collapsedGroups: [...state.collapsedGroups],
           filter: state.filter,
@@ -273,10 +318,21 @@ export const useMockStore = create<MockStoreState>()(
           operations: state.operations,
           sort: state.sort,
         }),
+        storage: createJSONStorage(createSafeStorage),
       }
     )
   )
 );
+
+// Pick up changes made in another tab, so a stale tab does not overwrite them
+// with its own copy on its next write.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORAGE_KEY) {
+      void useMockStore.persist.rehydrate();
+    }
+  });
+}
 
 /** @internal — Framework-agnostic store access. Not part of the public API. */
 export const mockStore = useMockStore;
