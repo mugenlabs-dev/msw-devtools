@@ -1,5 +1,6 @@
 import { GraphQLHandler, HttpHandler } from "msw";
 
+import { isJsonResponse } from "#/msw/create-handler";
 import { getGraphQLEndpoint, getHandlerOptions, getHandlerResolver } from "#/msw/msw-internals";
 import { useMockStore } from "#/store/store";
 import type {
@@ -16,6 +17,7 @@ import type {
   RestMockDef,
   RestMockDescriptor,
 } from "./types";
+import { resolveActiveVariant } from "./types";
 
 // ---------------------------------------------------------------------------
 // MockRegistry — singleton that stores all registered descriptors
@@ -204,21 +206,39 @@ const getPrimaryHandler = (variants: HandlerVariant[]): HttpHandler | GraphQLHan
 // Eager response capture — pre-populate JSON editor with default handler data
 // ---------------------------------------------------------------------------
 
+const hasCapturedResponse = (operationName: string): boolean =>
+  useMockStore.getState().capturedResponseData.has(operationName);
+
+/**
+ * Runs each handler's selected variant once, without a request, to fill the
+ * JSON editor before the app makes a real request. Browser only: on the
+ * server there is no editor and handlers may have server-side effects. A body
+ * captured from a real request is never replaced.
+ */
 const eagerCaptureDefaultResponses = async (
   descriptors: MockOperationDescriptor[]
 ): Promise<void> => {
+  if (typeof window === "undefined") {
+    return;
+  }
   await Promise.all(
     descriptors.map(async (descriptor) => {
-      const [variant] = descriptor.variants;
+      if (hasCapturedResponse(descriptor.operationName)) {
+        return;
+      }
+      const config = useMockStore.getState().operations[descriptor.operationName];
+      const variant = resolveActiveVariant(descriptor, config?.activeVariantId);
       if (!variant) {
         return;
       }
       try {
         const resolver = getHandlerResolver(variant.handler);
         const response = await resolver({});
-        if (response) {
-          const cloned = response.clone();
-          const body = await cloned.json();
+        if (!(response && isJsonResponse(response))) {
+          return;
+        }
+        const body = await response.clone().json();
+        if (!hasCapturedResponse(descriptor.operationName)) {
           useMockStore
             .getState()
             .setCapturedResponse(descriptor.operationName, JSON.stringify(body, null, 2));

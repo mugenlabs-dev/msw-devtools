@@ -253,4 +253,46 @@ describe("operation handles", () => {
       warn.mockRestore();
     });
   });
+
+  describe("JSON editor prefill", () => {
+    const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    it("prefills from the selected variant", async () => {
+      const { useMockStore } = await import("#/store/store");
+      useMockStore.getState().setActiveVariant("GET /api/users", "empty");
+
+      registerRest({
+        operationName: "GET /api/users",
+        variants: [
+          {
+            handler: http.get("/api/users", () => HttpResponse.json({ users: [1] })),
+            label: "Default",
+          },
+          {
+            handler: http.get("/api/users", () => HttpResponse.json({ users: [] })),
+            label: "Empty",
+          },
+        ],
+      });
+      await flush();
+
+      const captured = useMockStore.getState().capturedResponseData.get("GET /api/users");
+      expect(JSON.parse(captured ?? "null")).toStrictEqual({ users: [] });
+    });
+
+    it("does not replace a body captured from a real request", async () => {
+      const { useMockStore } = await import("#/store/store");
+      useMockStore.getState().setCapturedResponse("GET /api/posts", '{"real":true}');
+
+      registerRest({
+        handler: http.get("/api/posts", () => HttpResponse.json({ real: false })),
+        operationName: "GET /api/posts",
+      });
+      await flush();
+
+      expect(useMockStore.getState().capturedResponseData.get("GET /api/posts")).toBe(
+        '{"real":true}'
+      );
+    });
+  });
 });

@@ -51,7 +51,7 @@ const resolveStatusOverride = (statusCode: number | null): number | null =>
  * Only JSON bodies are read. Reading any other body (a stream, server-sent
  * events, a large file) would wait for it to finish, or never return.
  */
-const isJsonResponse = (response: Response): boolean => {
+export const isJsonResponse = (response: Response): boolean => {
   const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
   return contentType.includes("application/json") || contentType.includes("+json");
 };
