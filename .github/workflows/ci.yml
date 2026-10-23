@@ -96,8 +96,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Run Storybook tests
-        run: pnpm test-storybook
+      # Runs the unit tests too, so coverage covers both projects
+      - name: Run Storybook tests with coverage
+        run: pnpm test:coverage
 
   build:
     name: 📦 Build & Typecheck
