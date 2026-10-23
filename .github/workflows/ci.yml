@@ -30,12 +30,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - run: bash scripts/ci-changed.sh test
+
       - id: filter
         env:
           EVENT_NAME: ${{ github.event_name }}
-          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-        run: bash scripts/path-filter.sh
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: bash scripts/ci-changed.sh gha
 
       # Runs here because README-only changes skip the other jobs.
       - name: npm README in sync
@@ -76,7 +80,7 @@ jobs:
         run: pnpm test:ci
 
       - name: Script tests
-        run: bash scripts/docs-only.test.sh && bash scripts/audit-published.test.sh
+        run: bash scripts/audit-published.test.sh
 
   storybook:
     name: 📖 Storybook Tests
