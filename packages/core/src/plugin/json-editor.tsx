@@ -1,5 +1,5 @@
 import { Debouncer } from "@tanstack/pacer";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { AlertCircle, RotateCcw } from "./icons";
 import { focusableInputStyle, theme, transition } from "./theme";
@@ -15,6 +15,7 @@ interface JsonEditorProps {
 const DEBOUNCE_WAIT = 600;
 
 export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditorProps) => {
+  const textareaId = useId();
   const [localValue, setLocalValue] = useState(value);
   const [isValid, setIsValid] = useState(true);
   // Tracks unsaved keystrokes not yet committed via the debounced onChange, so
@@ -92,7 +93,8 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
           justifyContent: "space-between",
         }}
       >
-        <span
+        <label
+          htmlFor={textareaId}
           style={{
             color: theme.colors.textLabel,
             fontSize: theme.fontSize.md,
@@ -101,7 +103,7 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
           }}
         >
           Response JSON {hasOverride ? "(custom)" : null}
-        </span>
+        </label>
         <div style={{ display: "flex", gap: theme.spacing.md }}>
           {!isValid && (
             <span
@@ -144,7 +146,9 @@ export const JsonEditor = ({ value, onChange, onReset, hasOverride }: JsonEditor
         </div>
       </div>
       <textarea
+        aria-invalid={isValid ? undefined : true}
         data-msw-dt-input=""
+        id={textareaId}
         onChange={handleChange}
         spellCheck={false}
         style={{

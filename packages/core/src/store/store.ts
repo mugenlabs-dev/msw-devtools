@@ -19,6 +19,12 @@ export const defaultConfig: OperationMockConfig = {
   statusCode: null,
 };
 
+/** Longest delay the panel accepts, so a typo cannot stall a request indefinitely. */
+export const MAX_DELAY_MS = 60_000;
+
+const clampDelay = (delayMs: number): number =>
+  Number.isFinite(delayMs) ? Math.min(Math.max(0, delayMs), MAX_DELAY_MS) : 0;
+
 const FILTER_OPTIONS: readonly FilterOption[] = ["all", "live", "enabled", "rest", "graphql"];
 const SORT_OPTIONS: readonly SortOption[] = ["default", "a-z", "z-a"];
 const ERROR_OVERRIDES: readonly ErrorOverride[] = [401, 404, 429, 500, "networkError", null];
@@ -47,7 +53,7 @@ const sanitizeOperationConfig = (value: unknown): OperationMockConfig => {
     customHeaders: typeof value.customHeaders === "string" ? value.customHeaders : null,
     customJsonOverride:
       typeof value.customJsonOverride === "string" ? value.customJsonOverride : null,
-    delay: typeof value.delay === "number" && value.delay >= 0 ? value.delay : defaultConfig.delay,
+    delay: typeof value.delay === "number" ? clampDelay(value.delay) : defaultConfig.delay,
     enabled: typeof value.enabled === "boolean" ? value.enabled : defaultConfig.enabled,
     errorOverride: isOneOf(ERROR_OVERRIDES, value.errorOverride) ? value.errorOverride : null,
     statusCode: typeof value.statusCode === "number" ? value.statusCode : null,
@@ -230,7 +236,7 @@ export const useMockStore = create<MockStoreState>()(
         },
 
         setDelay: (operationName, delayMs) => {
-          updateOperation(set, operationName, { delay: Math.max(0, delayMs) });
+          updateOperation(set, operationName, { delay: clampDelay(delayMs) });
         },
 
         setEnabled: (operationName, enabled) => {

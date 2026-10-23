@@ -206,6 +206,8 @@ import { pokemonApi } from "./pokemon-api";
 registerAdapter(createRtkQueryAdapter(store, pokemonApi));
 ```
 
+RTK Query has no "refetch everything" action, so the adapter dispatches `api.util.resetApiState()`. That clears the whole API slice, including cached data and mutation results, and every mounted query refetches.
+
 **Axios / plain fetch:**
 
 Axios has no built-in query cache. Register the adapter as a marker and use `useMockRefetch` in your components:
@@ -333,12 +335,14 @@ Full documentation and live playground: [https://msw-devtools.mugenlabs.dev/](ht
 
 The [changelog](https://github.com/mugenlabs-dev/msw-devtools/blob/main/packages/core/CHANGELOG.md) lists every change. The ones that can need action:
 
-### 0.8
+### 0.9
 
 - `zustand`, `react-dom`, `swr`, `graphql` and `@apollo/client` are no longer peer dependencies. `zustand` is now a regular dependency, so you can remove it from your app if nothing else uses it. Node 20 or later is required for tooling that loads the package.
+
+### 0.8
+
 - `http.all()` handlers are named `ALL /path` and `graphql.operation()` handlers get the `"operation"` type. `RestMethod` gains `"head" | "options" | "all"` and `GraphQLOperationType` gains `"operation"`, so exhaustive `switch` statements over them need the new cases.
 - GraphQL handlers registered with a RegExp are named after their pattern instead of `UnknownOperation`, so their saved settings reset once.
-- Header overrides are merged into the handler's headers. Leaving a header out of the override no longer removes it.
 
 ### 0.7
 
@@ -346,6 +350,7 @@ The [changelog](https://github.com/mugenlabs-dev/msw-devtools/blob/main/packages
 - Variant ids are derived from the variant label (or the handler) instead of the position, so a saved variant selection may fall back to the first variant once.
 - `registerRestMocks` / `registerGraphqlMocks` return `OperationHandlesFor<Defs>`. With explicit `operationName`s, `handles["typo"]` is now a type error.
 - Peer ranges are bounded (for example `@apollo/client` `^3.0.0 || ^4.0.0`), and `@tanstack/react-devtools` is an optional peer at `^0.9.0`.
+- From 0.7.3, header overrides are merged into the handler's headers. Leaving a header out of the override no longer removes it.
 
 ## Development
 

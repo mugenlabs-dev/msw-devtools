@@ -4,7 +4,7 @@ import { JsonEditor } from "#/plugin/json-editor";
 import { focusableInputStyle, theme } from "#/plugin/theme";
 import { mockRegistry } from "#/registry/registry";
 import { resolveActiveVariant } from "#/registry/types";
-import { useMockStore } from "#/store/store";
+import { MAX_DELAY_MS, useMockStore } from "#/store/store";
 import { ErrorOverrideSelector } from "./error-override-selector";
 import { HeadersEditor } from "./headers-editor";
 import { useDetailHandlers } from "./hooks";
@@ -114,6 +114,7 @@ const OperationDetailInner = ({ operationName }: { operationName: string }) => {
           <input
             data-msw-dt-input=""
             id={`delay-${operationName}`}
+            max={MAX_DELAY_MS}
             min={0}
             onChange={handlers.handleDelayChange}
             step={100}
