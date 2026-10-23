@@ -310,6 +310,7 @@ jobs:
       - name: Promote preview to production
         run: vercel promote "$PREVIEW_URL" --yes --scope="$VERCEL_ORG_ID"
 
+  # Publishes only after the same commit passed CI, the preview e2e, and promote.
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -318,7 +319,12 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # npm trusted publishing: npm exchanges this OIDC token for a publish token.
       id-token: write
+    # Never run two releases at once, and never cancel one mid-publish.
+    concurrency:
+      group: release
+      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
