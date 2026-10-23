@@ -105,6 +105,12 @@ describe("mockStore - setDelay", () => {
     useMockStore.getState().setDelay("GetUser", -100);
     expect(useMockStore.getState().operations.GetUser.delay).toBe(0);
   });
+
+  it("caps the delay at one minute", () => {
+    resetStore();
+    useMockStore.getState().setDelay("GetUser", 9_999_999);
+    expect(useMockStore.getState().operations.GetUser.delay).toBe(60_000);
+  });
 });
 
 describe("mockStore - setStatusCode", () => {
