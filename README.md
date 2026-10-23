@@ -47,7 +47,7 @@ Everything ships in a single package. Adapters are available via subpath exports
 npm install @mugenlabs/msw-devtools
 ```
 
-The package is ESM-only and runs in the browser: MSW needs Service Worker support, so serve the app over HTTPS or from `localhost`.
+The package is ESM-only and runs in the browser: MSW needs Service Worker support, so serve the app over HTTPS or from `localhost`. It is safe to import during server rendering (SSR): registering mocks there only records them, and the worker starts in the browser when the plugin mounts.
 
 ### Peer dependencies
 
@@ -55,14 +55,11 @@ The package is ESM-only and runs in the browser: MSW needs Service Worker suppor
 | --- | --- | --- |
 | `msw` | `^2.0.0` | Yes |
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
-| `react-dom` | `^18.0.0 \|\| ^19.0.0` | Yes |
-| `zustand` | `^5.0.0` | Yes |
+| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
 | `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
 | `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.0.0` | Only if using URQL adapter |
-| `swr` | `^2.0.0` | Only if using SWR adapter |
-| `@apollo/client` + `graphql` | `^3.0.0 \|\| ^4.0.0` / `^16.0.0 \|\| ^17.0.0` | Only if using Apollo adapter |
-| `@reduxjs/toolkit` | any | Only if using RTK Query adapter (typed structurally, no peer needed) |
-| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
+
+The Apollo (Client 3 or 4), SWR (2.x) and RTK Query adapters only call the client you pass in, so those libraries are not peer dependencies.
 
 ## Quick Start
 
@@ -331,6 +328,24 @@ registerGraphqlMocks({
 ## Documentation
 
 Full documentation and live playground: [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
+
+## Upgrading
+
+The [changelog](https://github.com/mugenlabs-dev/msw-devtools/blob/main/packages/core/CHANGELOG.md) lists every change. The ones that can need action:
+
+### 0.8
+
+- `zustand`, `react-dom`, `swr`, `graphql` and `@apollo/client` are no longer peer dependencies. `zustand` is now a regular dependency, so you can remove it from your app if nothing else uses it. Node 20 or later is required for tooling that loads the package.
+- `http.all()` handlers are named `ALL /path` and `graphql.operation()` handlers get the `"operation"` type. `RestMethod` gains `"head" | "options" | "all"` and `GraphQLOperationType` gains `"operation"`, so exhaustive `switch` statements over them need the new cases.
+- GraphQL handlers registered with a RegExp are named after their pattern instead of `UnknownOperation`, so their saved settings reset once.
+- Header overrides are merged into the handler's headers. Leaving a header out of the override no longer removes it.
+
+### 0.7
+
+- Adapter events: "Enable all" and "Disable all" send one event with `operationName` set to `ALL_OPERATIONS` (`"*"`). Custom adapters that filter by name should use `affectsOperation(event, name)`.
+- Variant ids are derived from the variant label (or the handler) instead of the position, so a saved variant selection may fall back to the first variant once.
+- `registerRestMocks` / `registerGraphqlMocks` return `OperationHandlesFor<Defs>`. With explicit `operationName`s, `handles["typo"]` is now a type error.
+- Peer ranges are bounded (for example `@apollo/client` `^3.0.0 || ^4.0.0`), and `@tanstack/react-devtools` is an optional peer at `^0.9.0`.
 
 ## Development
 
