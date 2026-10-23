@@ -11,8 +11,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Jobs only read the repo. Deploys authenticate with VERCEL_TOKEN, not GITHUB_TOKEN.
 permissions:
   contents: read
+
+env:
+  VERCEL_CLI_VERSION: 65.1.0
 
 jobs:
   changes:
@@ -225,7 +229,6 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -236,15 +239,25 @@ jobs:
           node-version: 22
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm add -g vercel@64.7.0
+      - run: pnpm add -g "vercel@$VERCEL_CLI_VERSION"
 
-      - run: vercel pull --yes --environment=preview
-      - run: vercel build
+      # The Vercel CLI reads VERCEL_TOKEN from the environment. It is set per step,
+      # so the token stays off command lines and away from `pnpm install` scripts.
+      # Production env, so `vercel build --prod` bakes in VITE_PUBLIC_POSTHOG_KEY
+      # and promote ships this exact build instead of rebuilding it.
+      - run: vercel pull --yes --environment=production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build --prod
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy preview
+      - name: Deploy preview (skip production alias)
         id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          url=$(vercel deploy --prebuilt)
+          url=$(vercel deploy --prebuilt --prod --skip-domain)
           echo "preview-url=$url" >> "$GITHUB_OUTPUT"
 
   e2e:
@@ -293,7 +306,7 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
-      - run: npm add -g vercel@64.7.0
+      - run: npm add -g "vercel@$VERCEL_CLI_VERSION"
       - name: Promote preview to production
         run: vercel promote "$PREVIEW_URL" --yes --scope="$VERCEL_ORG_ID"
 
