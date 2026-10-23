@@ -33,7 +33,7 @@
     "@storybook/addon-vitest": "^10.6.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
-    "@types/node": "^22.20.1",
+    "@types/node": "^24.19.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@typescript/native-preview": "7.0.0-dev.20260412.1",
