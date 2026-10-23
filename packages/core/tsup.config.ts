@@ -34,5 +34,16 @@ export default defineConfig({
   format: ["esm"],
   minify: true,
   outExtension: () => ({ js: ".mjs" }),
+  plugins: [
+    {
+      // Mark the React entry as a client module for React Server Components.
+      // Only that file: the adapters and the chunks they share with the root
+      // stay importable from server code.
+      name: "use-client-banner",
+      renderChunk(code, chunk) {
+        return chunk.path.endsWith("/index.mjs") ? { code: `"use client";\n${code}` } : undefined;
+      },
+    },
+  ],
   sourcemap: false,
 });
