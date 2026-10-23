@@ -1,5 +1,11 @@
 # @mugenlabs/msw-devtools
 
+## 0.9.2
+
+### Patch Changes
+
+- 7e2741e: The `wonka` peer range is now `^6.3.2`, the oldest version `@urql/core` 5 works with. Any app using the URQL adapter already has it.
+
 ## 0.9.1
 
 ### Patch Changes
