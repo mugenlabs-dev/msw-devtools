@@ -57,7 +57,7 @@ The package is ESM-only and runs in the browser: MSW needs Service Worker suppor
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
 | `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
 | `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
-| `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.0.0` | Only if using URQL adapter |
+| `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.3.2` | Only if using URQL adapter |
 
 The Apollo (Client 3 or 4), SWR (2.x) and RTK Query adapters only call the client you pass in, so those libraries are not peer dependencies.
 
