@@ -14,8 +14,10 @@ export interface OperationRowProps {
   isErrorVariant: boolean | undefined;
   isSeen: boolean;
   isSelected: boolean;
-  onSelect: () => void;
-  onToggle: () => void;
+  /** Stable across renders, so memoised rows only re-render when their own data changes. */
+  onSelect: (operationName: string) => void;
+  /** Called with the operation and its new enabled state. */
+  onToggle: (operationName: string, enabled: boolean) => void;
   variantLabel: string | undefined;
 }
 

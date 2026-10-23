@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, waitFor } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 import { withMockSeed, withPluginContainer } from "#/plugin/__stories__/decorators";
 import { allDescriptors, buildOperations, enabledConfig } from "#/plugin/__stories__/fixtures";
 import { MswDevToolsPlugin } from "./msw-dev-tools-plugin";
@@ -32,7 +32,8 @@ export const Default: Story = {
     await step("Select operation shows detail pane", async () => {
       const rows = canvas.getAllByTestId("operation-row");
       await expect(rows.length).toBeGreaterThan(0);
-      await userEvent.click(rows[0]);
+      // The row holds two buttons: select (first) and the enable toggle.
+      await userEvent.click(within(rows[0]).getAllByRole("button")[0]);
       const detailToggle = await canvas.findByRole("button", { name: "Toggle mock" });
       await expect(detailToggle).toBeInTheDocument();
       await expect(canvas.queryByText("Select an operation to configure")).not.toBeInTheDocument();

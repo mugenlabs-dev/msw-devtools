@@ -104,6 +104,14 @@ export const GroupedOperationList = ({
 
   const hasNamedGroups = grouped && groups.some((g) => g.name !== null);
 
+  const handleToggle = useCallback(
+    (operationName: string, enabled: boolean) => {
+      setEnabled(operationName, enabled);
+      dispatchMockUpdate(operationName, "toggle");
+    },
+    [setEnabled]
+  );
+
   const renderRow = useCallback(
     (descriptor: MockOperationDescriptor) => {
       const config = operations[descriptor.operationName];
@@ -118,18 +126,13 @@ export const GroupedOperationList = ({
           isSeen={seenOperations.has(descriptor.operationName)}
           isSelected={selectedOperation === descriptor.operationName}
           key={descriptor.operationName}
-          onSelect={() => {
-            onSelectOperation(descriptor.operationName);
-          }}
-          onToggle={() => {
-            setEnabled(descriptor.operationName, !isEnabled);
-            dispatchMockUpdate(descriptor.operationName, "toggle");
-          }}
+          onSelect={onSelectOperation}
+          onToggle={handleToggle}
           variantLabel={isEnabled && variant ? variant.label : undefined}
         />
       );
     },
-    [operations, seenOperations, selectedOperation, onSelectOperation, setEnabled]
+    [operations, seenOperations, selectedOperation, onSelectOperation, handleToggle]
   );
   // If grouping is off or no named groups exist, render flat list
   if (!hasNamedGroups) {

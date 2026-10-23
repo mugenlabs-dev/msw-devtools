@@ -119,10 +119,10 @@ export const WithSelection: Story = {
   play: async ({ canvas, step }) => {
     await step("Verify selection highlight", async () => {
       await canvas.findByText("0/7 active");
-      const selectedRow = canvas.getByRole("button", { name: "GET /api/users" });
-      await expect(selectedRow).toBeInTheDocument();
-      const style = getComputedStyle(selectedRow);
-      await expect(style.borderLeft).toContain("2px");
+      const selectButton = canvas.getByRole("button", { name: "GET /api/users" });
+      await expect(selectButton).toHaveAttribute("aria-current", "true");
+      const selectedRow = selectButton.closest("[data-testid='operation-row']") as HTMLElement;
+      await expect(getComputedStyle(selectedRow).borderLeft).toContain("2px");
     });
   },
 };

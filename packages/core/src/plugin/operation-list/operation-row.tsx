@@ -20,31 +20,15 @@ const OperationRowComponent = ({
   const rowHover = useHover();
   const toggleHover = useHover();
 
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        onSelect();
-      }
-    },
-    [onSelect]
-  );
+  const { operationName } = descriptor;
 
-  const onToggleClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onToggle();
-    },
-    [onToggle]
-  );
+  const onSelectClick = useCallback(() => {
+    onSelect(operationName);
+  }, [onSelect, operationName]);
 
-  const onToggleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // Prevent Enter/Space on the toggle from bubbling to the row's keydown
-    // handler, which would also trigger onSelect.
-    if (e.key === "Enter" || e.key === " ") {
-      e.stopPropagation();
-    }
-  }, []);
+  const onToggleClick = useCallback(() => {
+    onToggle(operationName, !isEnabled);
+  }, [onToggle, operationName, isEnabled]);
 
   let rowBg = "transparent";
   if (isSelected) {
@@ -61,111 +45,127 @@ const OperationRowComponent = ({
   }
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: contains nested interactive toggle button
+    // The select button and the toggle are siblings: interactive elements
+    // must not be nested inside one another.
     <div
-      aria-label={descriptor.operationName}
       data-testid="operation-row"
-      onClick={onSelect}
-      onKeyDown={onKeyDown}
-      role="button"
       style={{
         alignItems: "center",
         background: rowBg,
         borderLeft: isSelected
           ? `2px solid ${theme.colors.borderSelected}`
           : "2px solid transparent",
-        cursor: "pointer",
         display: "flex",
         gap: theme.spacing.lg,
-        padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+        paddingRight: theme.spacing.xl,
         transition: transition("background"),
       }}
-      tabIndex={0}
       {...rowHover.hoverProps}
     >
-      <span
+      <button
+        aria-current={isSelected ? "true" : undefined}
+        aria-label={operationName}
+        data-msw-dt-input=""
+        onClick={onSelectClick}
         style={{
-          background: getStatusDotColor(isEnabled, isErrorVariant),
-          borderRadius: theme.radius.round,
-          flexShrink: 0,
-          height: "8px",
-          width: "8px",
+          alignItems: "center",
+          background: "none",
+          border: "none",
+          color: "inherit",
+          cursor: "pointer",
+          display: "flex",
+          flex: 1,
+          font: "inherit",
+          gap: theme.spacing.lg,
+          minWidth: 0,
+          padding: `${theme.spacing.md} 0 ${theme.spacing.md} ${theme.spacing.xl}`,
+          textAlign: "left",
         }}
-      />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
+        type="button"
+      >
+        <span
           style={{
-            alignItems: "center",
-            color: theme.colors.textPrimary,
-            display: "flex",
-            fontSize: theme.fontSize.base,
-            gap: theme.spacing.md,
-            minWidth: 0,
+            background: getStatusDotColor(isEnabled, isErrorVariant),
+            borderRadius: theme.radius.round,
+            flexShrink: 0,
+            height: "8px",
+            width: "8px",
           }}
-        >
-          <span
+        />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
             style={{
+              alignItems: "center",
+              color: theme.colors.textPrimary,
+              display: "flex",
+              fontSize: theme.fontSize.base,
+              gap: theme.spacing.md,
               minWidth: 0,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
             }}
           >
-            {descriptor.operationName}
-          </span>
-          {isSeen ? (
             <span
               style={{
-                background: theme.colors.info,
-                borderRadius: theme.radius.sm,
-                color: theme.colors.white,
-                flexShrink: 0,
-                fontSize: theme.fontSize.xs,
-                fontWeight: 600,
-                lineHeight: "16px",
-                padding: `0px ${theme.spacing.sm}`,
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             >
-              LIVE
+              {descriptor.operationName}
             </span>
-          ) : null}
-        </div>
-        <div
-          style={{
-            alignItems: "center",
-            color: theme.colors.textMuted,
-            display: "flex",
-            fontSize: theme.fontSize.sm,
-            gap: theme.spacing.sm,
-          }}
-        >
-          <span
+            {isSeen ? (
+              <span
+                style={{
+                  background: theme.colors.info,
+                  borderRadius: theme.radius.sm,
+                  color: theme.colors.white,
+                  flexShrink: 0,
+                  fontSize: theme.fontSize.xs,
+                  fontWeight: 600,
+                  lineHeight: "16px",
+                  padding: `0px ${theme.spacing.sm}`,
+                }}
+              >
+                LIVE
+              </span>
+            ) : null}
+          </div>
+          <div
             style={{
-              background:
-                descriptor.type === "graphql" ? theme.colors.graphqlBg : theme.colors.restBg,
-              borderRadius: theme.radius.sm,
-              color: descriptor.type === "graphql" ? theme.colors.graphql : theme.colors.rest,
-              fontSize: theme.fontSize.xs,
-              fontWeight: 600,
-              lineHeight: "14px",
-              padding: `0px ${theme.spacing.sm}`,
-              textTransform: "uppercase",
+              alignItems: "center",
+              color: theme.colors.textMuted,
+              display: "flex",
+              fontSize: theme.fontSize.sm,
+              gap: theme.spacing.sm,
             }}
           >
-            {descriptor.type === "graphql" ? "graphql" : "rest"}
-          </span>
-          <span>
-            {getOperationTypeBadge(descriptor)}
-            {isEnabled && variantLabel != null && variantLabel !== "" ? ` · ${variantLabel}` : ""}
-          </span>
+            <span
+              style={{
+                background:
+                  descriptor.type === "graphql" ? theme.colors.graphqlBg : theme.colors.restBg,
+                borderRadius: theme.radius.sm,
+                color: descriptor.type === "graphql" ? theme.colors.graphql : theme.colors.rest,
+                fontSize: theme.fontSize.xs,
+                fontWeight: 600,
+                lineHeight: "14px",
+                padding: `0px ${theme.spacing.sm}`,
+                textTransform: "uppercase",
+              }}
+            >
+              {descriptor.type === "graphql" ? "graphql" : "rest"}
+            </span>
+            <span>
+              {getOperationTypeBadge(descriptor)}
+              {isEnabled && variantLabel != null && variantLabel !== "" ? ` · ${variantLabel}` : ""}
+            </span>
+          </div>
         </div>
-      </div>
+      </button>
       <button
-        aria-label={`Toggle ${descriptor.operationName} mock`}
+        aria-label={`Toggle ${operationName} mock`}
         aria-pressed={isEnabled}
         data-msw-dt-hit=""
         onClick={onToggleClick}
-        onKeyDown={onToggleKeyDown}
         style={{
           background: toggleBg,
           border: "none",

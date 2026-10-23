@@ -79,10 +79,10 @@ export const WithSelection: Story = {
       await waitFor(() => {
         expect(canvas.getAllByTestId("operation-row").length).toBeGreaterThan(0);
       });
-      const selectedRow = canvas.getByRole("button", { name: "GET /api/users" });
-      await expect(selectedRow).toBeInTheDocument();
-      const style = getComputedStyle(selectedRow);
-      await expect(style.borderLeft).toContain("2px");
+      const selectButton = canvas.getByRole("button", { name: "GET /api/users" });
+      await expect(selectButton).toHaveAttribute("aria-current", "true");
+      const selectedRow = selectButton.closest("[data-testid='operation-row']") as HTMLElement;
+      await expect(getComputedStyle(selectedRow).borderLeft).toContain("2px");
     });
     await step("Select operation triggers callback", async () => {
       const row = canvas.getByRole("button", { name: "GET /api/users" });

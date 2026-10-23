@@ -48,11 +48,13 @@ export const Disabled: Story = {
     });
     await step("Click row triggers onSelect", async () => {
       await userEvent.click(canvas.getByRole("button", { name: restGetDescriptor.operationName }));
-      await expect(args.onSelect).toHaveBeenCalledTimes(1);
+      await expect(args.onSelect).toHaveBeenCalledWith("GET /api/users");
     });
     await step("Click toggle triggers onToggle", async () => {
       await userEvent.click(canvas.getByRole("button", { name: "Toggle GET /api/users mock" }));
-      await expect(args.onToggle).toHaveBeenCalledTimes(1);
+      await expect(args.onToggle).toHaveBeenCalledWith("GET /api/users", true);
+      // The toggle is not inside the select button, so it does not select the row.
+      await expect(args.onSelect).toHaveBeenCalledTimes(1);
     });
   },
 };
@@ -92,10 +94,10 @@ export const Selected: Story = {
   },
   play: async ({ canvas, step }) => {
     await step("Verify selected state", async () => {
-      const row = canvas.getByRole("button", { name: "GET /api/users" });
-      await expect(row).toBeInTheDocument();
-      const style = getComputedStyle(row);
-      await expect(style.borderLeft).toContain("2px");
+      const selectButton = canvas.getByRole("button", { name: "GET /api/users" });
+      await expect(selectButton).toHaveAttribute("aria-current", "true");
+      const row = canvas.getByTestId("operation-row");
+      await expect(getComputedStyle(row).borderLeft).toContain("2px");
     });
   },
 };
