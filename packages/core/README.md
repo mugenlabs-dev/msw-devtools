@@ -1,8 +1,14 @@
+<!-- Generated from the root README.md by scripts/sync-readme.mjs. Edit that file instead. -->
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/mugenlabs-dev/msw-devtools/main/apps/demo/public/logo-readme.svg" width="128" height="128" alt="msw-devtools logo" />
 </p>
 
 # @mugenlabs/msw-devtools
+
+[![npm](https://img.shields.io/npm/v/@mugenlabs/msw-devtools)](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
+[![CI](https://github.com/mugenlabs-dev/msw-devtools/actions/workflows/ci.yml/badge.svg)](https://github.com/mugenlabs-dev/msw-devtools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/npm/l/@mugenlabs/msw-devtools)](https://github.com/mugenlabs-dev/msw-devtools/blob/main/LICENSE)
 
 A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](https://mswjs.io/) (Mock Service Worker) mocks in the browser. Register your existing MSW handlers, then toggle, customize, and inspect them from a visual panel -- no changes to your handler code required.
 
@@ -22,13 +28,28 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 - **Auto Refetch** -- Adapters for TanStack Query, SWR, URQL, Apollo Client, and RTK Query trigger automatic refetches when mock config changes (Axios has no cache to invalidate -- use `useMockRefetch` instead)
 - **Persisted State** -- All settings (enabled mocks, variants, overrides, filters) persist across page refreshes, including for mocks registered later by lazily loaded routes, and stay in sync across open tabs
 
-## Installation
+## Packages
 
 Everything ships in a single package. Adapters are available via subpath exports and are tree-shakeable.
+
+| Import path                           | Description                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| `@mugenlabs/msw-devtools`                         | Registry, store, MSW integration, React UI plugin, adapter system           |
+| `@mugenlabs/msw-devtools/types`                   | Type-only entry point (no runtime code)                                     |
+| `@mugenlabs/msw-devtools/adapters/tanstack-query` | Auto-refetch via query invalidation                                         |
+| `@mugenlabs/msw-devtools/adapters/urql`           | Auto-refetch via custom exchange                                            |
+| `@mugenlabs/msw-devtools/adapters/swr`            | Auto-refetch via global mutate                                              |
+| `@mugenlabs/msw-devtools/adapters/apollo`         | Auto-refetch via refetchQueries                                             |
+| `@mugenlabs/msw-devtools/adapters/rtk-query`      | Auto-refetch via resetApiState                                              |
+| `@mugenlabs/msw-devtools/adapters/axios`          | Registration marker for Axios users (use `useMockRefetch` for live updates) |
+
+## Installation
 
 ```bash
 npm install @mugenlabs/msw-devtools
 ```
+
+The package is ESM-only and runs in the browser: MSW needs Service Worker support, so serve the app over HTTPS or from `localhost`. It is safe to import during server rendering (SSR): registering mocks there only records them, and the worker starts in the browser when the plugin mounts.
 
 ### Peer dependencies
 
@@ -36,14 +57,11 @@ npm install @mugenlabs/msw-devtools
 | --- | --- | --- |
 | `msw` | `^2.0.0` | Yes |
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
-| `react-dom` | `^18.0.0 \|\| ^19.0.0` | Yes |
-| `zustand` | `^5.0.0` | Yes |
+| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
 | `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
 | `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.0.0` | Only if using URQL adapter |
-| `swr` | `^2.0.0` | Only if using SWR adapter |
-| `@apollo/client` + `graphql` | `^3.0.0 \|\| ^4.0.0` / `^16.0.0 \|\| ^17.0.0` | Only if using Apollo adapter |
-| `@reduxjs/toolkit` | any | Only if using RTK Query adapter (typed structurally, no peer needed) |
-| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
+
+The Apollo (Client 3 or 4), SWR (2.x) and RTK Query adapters only call the client you pass in, so those libraries are not peer dependencies.
 
 ## Quick Start
 
@@ -58,13 +76,13 @@ Use `registerRestMocks` and `registerGraphqlMocks` to register your existing MSW
 import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
 import { http, HttpResponse, graphql } from "msw";
 
-// Single handler per operation
+// REST -- pass your HttpHandler directly
 registerRestMocks(
   { handler: http.get("/api/users", () => HttpResponse.json({ users: [] })) },
   { handler: http.get("/api/posts", () => HttpResponse.json({ posts: [] })), group: "Blog" },
 );
 
-// GraphQL handlers with variants
+// GraphQL -- with multiple variants
 registerGraphqlMocks({
   group: "Users",
   variants: [
@@ -108,6 +126,19 @@ The MSW service worker starts automatically when the plugin mounts.
 > void startWorker({ serviceWorkerUrl: "/custom-path/mockServiceWorker.js" });
 > ```
 
+### Keep it out of production
+
+The plugin bundles MSW and your mock data, and it starts a service worker that intercepts requests. Load it only in development, for example with a dynamic import so production bundles never include it:
+
+```tsx
+// main.tsx (Vite)
+if (import.meta.env.DEV) {
+  await import("./mocks/setup");
+}
+```
+
+Render `<TanStackDevtools>` behind the same check, and leave `mockServiceWorker.js` out of production deploys unless you mean to mock there.
+
 ### 3. (Optional) Register an adapter for auto-refetch
 
 Adapters automatically refetch/revalidate queries when you change mock configuration in the devtools panel.
@@ -140,7 +171,8 @@ const client = createClient({
 
 **SWR:**
 
-```ts
+```tsx
+import { useEffect } from "react";
 import { registerAdapter } from "@mugenlabs/msw-devtools";
 import { createSwrAdapter } from "@mugenlabs/msw-devtools/adapters/swr";
 import { useSWRConfig } from "swr";
@@ -170,6 +202,8 @@ registerAdapter(createApolloAdapter(apolloClient));
 ```ts
 import { registerAdapter } from "@mugenlabs/msw-devtools";
 import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
+import { store } from "./store";
+import { pokemonApi } from "./pokemon-api";
 
 registerAdapter(createRtkQueryAdapter(store, pokemonApi));
 ```
@@ -195,9 +229,12 @@ const [users] = registerRestMocks({ handler: http.get("/api/users", resolver) })
 function UserCard() {
   const { data, refetch } = useMyFetch("/api/users/1");
   useMockRefetch(users, refetch); // typo-proof — raw strings like "GET /api/users" also still work
+  // With explicit operationNames, handles["GET Users"] is typed and handles["typo"] fails to compile
   return <div>{data?.name}</div>;
 }
 ```
+
+> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate seamlessly with `@mugenlabs/msw-devtools` without needing per-operation `useMockRefetch` calls.
 
 ## Handler Registration Patterns
 
@@ -238,21 +275,20 @@ registerGraphqlMocks({
 });
 ```
 
-## Core Exports
+## API Reference
 
-All exports come from the `@mugenlabs/msw-devtools` package.
+### Core Exports (`@mugenlabs/msw-devtools`)
 
 | Export | Description |
 | --- | --- |
-| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandles`. |
-| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandles`. |
+| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
+| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
 | `registerAdapter(adapter)` | Register a data-fetching adapter for auto-refetch. Returns an unregister function. |
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
 | `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
 | `startWorker(options?)` | Manually start the MSW service worker. |
 | `stopWorker()` | Stop the worker and detach the devtools from it. Registered mocks and persisted config are kept. |
 | `getWorker()` | Get the current MSW `SetupWorker` instance (or `null`). |
-| `refreshHandlers()` | Re-sync MSW handlers after registry changes post-startup. |
 | `mockRegistry` | Singleton registry instance (subscribe, get, unregister). |
 | `useMockStore` | Zustand store hook for mock operation state. |
 | `mockStore` | Direct Zustand store reference (non-hook). |
@@ -277,7 +313,7 @@ All exports come from the `@mugenlabs/msw-devtools` package.
 | `RestMockDef` | Input for `registerRestMocks` -- `{ handler?, variants?, operationName?, group? }` |
 | `GraphqlMockDef` | Input for `registerGraphqlMocks` -- `{ handler?, variants?, operationName?, operationType?, group? }` |
 | `OperationHandle` | Type-safe reference to a registered operation -- `{ operationName }`. Pass to `useMockRefetch`. |
-| `OperationHandlesFor<Defs>` | Return type of the register functions: a tuple of `OperationHandle`s also indexable by the literal `operationName`s. Keys are literal when every def has an explicit `operationName`, so `handles["typo"]` is a type error. |
+| `OperationHandlesFor<Defs>` | Return type of the register functions: a tuple of `OperationHandle`s also indexable by `operationName`. Keys are literal when every def has an explicit `operationName`, so `handles["typo"]` is a type error. |
 | `OperationHandles` | The untyped form: `OperationHandle[]` indexable by any string. |
 | `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label, options? }` |
 | `HandlerVariantInput<H>` | What you pass as a variant: a bare handler or `{ handler, label }` |
@@ -294,6 +330,24 @@ All exports come from the `@mugenlabs/msw-devtools` package.
 ## Documentation
 
 Full documentation and live playground: [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
+
+## Upgrading
+
+The [changelog](https://github.com/mugenlabs-dev/msw-devtools/blob/main/packages/core/CHANGELOG.md) lists every change. The ones that can need action:
+
+### 0.8
+
+- `zustand`, `react-dom`, `swr`, `graphql` and `@apollo/client` are no longer peer dependencies. `zustand` is now a regular dependency, so you can remove it from your app if nothing else uses it. Node 20 or later is required for tooling that loads the package.
+- `http.all()` handlers are named `ALL /path` and `graphql.operation()` handlers get the `"operation"` type. `RestMethod` gains `"head" | "options" | "all"` and `GraphQLOperationType` gains `"operation"`, so exhaustive `switch` statements over them need the new cases.
+- GraphQL handlers registered with a RegExp are named after their pattern instead of `UnknownOperation`, so their saved settings reset once.
+- Header overrides are merged into the handler's headers. Leaving a header out of the override no longer removes it.
+
+### 0.7
+
+- Adapter events: "Enable all" and "Disable all" send one event with `operationName` set to `ALL_OPERATIONS` (`"*"`). Custom adapters that filter by name should use `affectsOperation(event, name)`.
+- Variant ids are derived from the variant label (or the handler) instead of the position, so a saved variant selection may fall back to the first variant once.
+- `registerRestMocks` / `registerGraphqlMocks` return `OperationHandlesFor<Defs>`. With explicit `operationName`s, `handles["typo"]` is now a type error.
+- Peer ranges are bounded (for example `@apollo/client` `^3.0.0 || ^4.0.0`), and `@tanstack/react-devtools` is an optional peer at `^0.9.0`.
 
 ## License
 
