@@ -72,7 +72,7 @@ Releases are driven by [Changesets](https://github.com/changesets/changesets).
 2. Run `pnpm changeset`, pick `@mugenlabs/msw-devtools`, choose the bump (patch / minor / major), and write a short user-facing description. This writes a markdown file into `.changeset/` — commit it with your PR.
 3. Open the PR. Any PR that changes package behaviour should include a changeset; docs-only or demo-only changes do not need one.
 4. Once merged to `main`, the release workflow opens (or updates) a "Version Packages" PR that consumes the pending changesets, bumps the version, and updates the changelog.
-5. Merging that release PR publishes to npm.
+5. Merging that release PR publishes to npm through [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo.
 
 The demo app is ignored by Changesets and is never versioned or published.
 
