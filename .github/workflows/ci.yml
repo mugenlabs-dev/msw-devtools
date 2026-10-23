@@ -33,6 +33,10 @@ jobs:
           HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: bash scripts/path-filter.sh
 
+      # Runs here because README-only changes skip the other jobs.
+      - name: npm README in sync
+        run: node scripts/sync-readme.mjs --check
+
   check:
     name: 🔍 Lint & Unit Tests
     needs: changes
