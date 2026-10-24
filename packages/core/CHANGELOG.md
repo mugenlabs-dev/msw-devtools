@@ -1,5 +1,12 @@
 # @mugenlabs/msw-devtools
 
+## 0.9.3
+
+### Patch Changes
+
+- 5ad0df6: Link the npm page to the documentation site at msw-devtools.mugenlabs.dev.
+- 44c9130: Mark the main entry with `"use client"`, so React Server Components frameworks such as Next.js treat the panel as a client module without a wrapper file.
+
 ## 0.9.2
 
 ### Patch Changes
