@@ -1,10 +1,11 @@
 ## What and why
 
-<!-- What does this change, and why? Link the issue it fixes, if any. -->
+<!-- What this changes and the reason for it. Link the issue if there is one. -->
 
 ## Checklist
 
-- [ ] `pnpm lint`, `pnpm typecheck`, and `pnpm test:ci` pass
+- [ ] `pnpm lint:fix`, `pnpm typecheck` and `pnpm test:ci` pass
+- [ ] `pnpm test-storybook` and `pnpm test:e2e` pass (if the panel UI or demo changed)
 - [ ] Behaviour changes come with a test
 - [ ] Library changes include a changeset (`pnpm changeset`)
-- [ ] The README, docs site, and JSDoc are updated if the public API changed
+- [ ] The README (then `pnpm readme:sync`), docs site, and JSDoc are updated if the public API changed

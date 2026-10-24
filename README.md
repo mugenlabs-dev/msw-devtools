@@ -354,6 +354,8 @@ The [changelog](https://github.com/mugenlabs-dev/msw-devtools/blob/main/packages
 
 ## Development
 
+Requires Node 24 LTS (see `.nvmrc`) and pnpm >=10.
+
 ```bash
 # Install dependencies
 pnpm install
@@ -379,6 +381,8 @@ pnpm lint:fix
 # E2E tests (Playwright)
 pnpm test:e2e
 ```
+
+This README is also the npm README: `pnpm readme:sync` copies it to `packages/core/README.md`, without this section. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, including the Changesets release process.
 
 ### Project Structure
 

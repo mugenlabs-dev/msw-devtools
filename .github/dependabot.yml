@@ -1,0 +1,17 @@
+# Keeps the SHA-pinned actions current. Dependabot updates the SHA and the
+# version comment together.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+    ignore:
+      # v2 requires @changesets/cli v3; bump both together by hand.
+      - dependency-name: changesets/action
+        update-types: ["version-update:semver-major"]
