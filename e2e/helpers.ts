@@ -28,6 +28,16 @@ export const STALE_MOCK_CASES = [
   ["fetch", "GET Sylveon", REST_MISSINGNO],
 ] as const;
 
+/**
+ * Charizard body the live API does not return.
+ * The default mock uses the real species name, so a heading of "charizard" cannot show the difference.
+ */
+export const FIXTURE_CHARIZARD = JSON.stringify({
+  name: "fixture-charizard",
+  sprites: { front_default: "https://example.invalid/fixture-charizard.png" },
+  types: [{ type: { name: "fixture" } }],
+});
+
 /** Seed one distinctive override, then turn that mock off and require the name to leave. */
 export const expectMockPayloadLeaves = async (
   page: Page,
@@ -46,6 +56,70 @@ export const expectMockPayloadLeaves = async (
   await row.getByRole("button", { name: /Toggle.*mock/ }).click();
 
   await expect(page.locator("h3", { hasText: /missingno/i })).toHaveCount(0);
+};
+
+/**
+ * Turn every mock off, then require the Charizard card's next read to be the live PokeAPI document.
+ * Live Charizard has `abilities`. The fixture and the default mock do not.
+ */
+export const expectAllOffReturnsLive = async (
+  page: Page,
+  options: { path: string; persistenceKey?: string }
+) => {
+  await enableAllMocksViaStorage(page, {
+    overrides: { "GET Charizard": FIXTURE_CHARIZARD },
+    persistenceKey: options.persistenceKey,
+  });
+  await page.goto(options.path);
+  await waitForDemoReady(page);
+  await openDevToolsPanel(page);
+  await expect(page.locator("h3", { hasText: "fixture-charizard" })).toHaveCount(1);
+
+  const bodies: string[] = [];
+  const pending: Promise<void>[] = [];
+  let collect = false;
+  page.on("response", (response) => {
+    if (!(collect && response.url().includes("/api/v2/pokemon/6"))) {
+      return;
+    }
+    pending.push(
+      response.text().then(
+        (text) => {
+          bodies.push(text);
+        },
+        () => undefined
+      )
+    );
+  });
+
+  collect = true;
+  await page.locator("button").filter({ hasText: "All Off" }).click();
+  await expect(page.locator(`text=0/${TOTAL_OPERATIONS} active`).first()).toBeVisible({
+    timeout: 15_000,
+  });
+  await expect(page.locator("h3", { hasText: "fixture-charizard" })).toHaveCount(0);
+
+  await Promise.all(pending);
+  const beforeRefetch = bodies.length;
+  const card = page.locator(".pokemon-card").first();
+  await card.getByRole("button", { name: "Refetch" }).click();
+
+  await expect
+    .poll(
+      async () => {
+        await Promise.all(pending);
+        if (bodies.length <= beforeRefetch) {
+          return "";
+        }
+        return bodies.at(-1) ?? "";
+      },
+      { timeout: 20_000 }
+    )
+    .toContain('"abilities"');
+
+  const liveBody = bodies.at(-1) ?? "";
+  expect(liveBody).not.toContain("fixture-charizard");
+  await expect(card.locator("h3")).toHaveText("charizard", { timeout: 20_000 });
 };
 
 /** All registered operation names in the demo app. */
