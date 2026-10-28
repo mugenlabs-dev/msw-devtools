@@ -12,6 +12,10 @@ import type { OperationHandle } from "#/registry/types";
  * returned from `registerRestMocks` / `registerGraphqlMocks`, which keeps the
  * name type-safe and avoids silent no-ops on typos.
  *
+ * `refetch` should drop the data on screen before it requests. The hook does
+ * not own that state. A callback that only fires the request leaves the mocked
+ * payload up while the request runs, and after the request fails.
+ *
  * ```tsx
  * const [users] = registerRestMocks({ handler: usersHandler });
  * const { data, refetch } = useMyFetch("/api/users");

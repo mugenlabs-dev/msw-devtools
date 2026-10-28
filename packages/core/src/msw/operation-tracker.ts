@@ -198,6 +198,13 @@ export const setupOperationTracker = (worker: SetupWorker): void => {
   teardownOperationTracker();
 
   const onRequestStart = ({ request }: { request: Request }): void => {
+    // Document navigations and form submissions use mode "navigate". MSW 3
+    // surfaces them as HTTP frames; skipping them keeps the LIVE list for
+    // XHR/fetch mocks only.
+    if (request.mode === "navigate") {
+      return;
+    }
+
     if (request.method === "GET" && tryGraphQLGet(request)) {
       return;
     }

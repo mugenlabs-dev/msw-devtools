@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist, type StateStorage } from "zustand/middleware";
 
+import { getPersistenceKey } from "./persistence-key";
 import type {
   ErrorOverride,
   FilterOption,
@@ -128,8 +129,6 @@ const updateOperation = (
     },
   }));
 };
-
-const STORAGE_KEY = "msw-devtools-store";
 
 /**
  * localStorage that never throws and skips writes that change nothing.
@@ -316,7 +315,7 @@ export const useMockStore = create<MockStoreState>()(
             collapsedGroups: new Set(sanitized.collapsedGroups),
           };
         },
-        name: STORAGE_KEY,
+        name: getPersistenceKey(),
         partialize: (state) => ({
           collapsedGroups: [...state.collapsedGroups],
           filter: state.filter,
@@ -334,7 +333,7 @@ export const useMockStore = create<MockStoreState>()(
 // with its own copy on its next write.
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
-    if (event.key === STORAGE_KEY) {
+    if (event.key === getPersistenceKey()) {
       void useMockStore.persist.rehydrate();
     }
   });

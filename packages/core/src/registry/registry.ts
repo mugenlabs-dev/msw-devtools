@@ -1,7 +1,11 @@
-import { GraphQLHandler, HttpHandler } from "msw";
-
 import { isJsonResponse } from "#/msw/create-handler";
-import { getGraphQLEndpoint, getHandlerOptions, getHandlerResolver } from "#/msw/msw-internals";
+import type { GraphqlHandler, RestHandler } from "#/msw/msw-internals";
+import {
+  getGraphQLEndpoint,
+  getHandlerOptions,
+  getHandlerResolver,
+  isMswRequestHandler,
+} from "#/msw/msw-internals";
 import { useMockStore } from "#/store/store";
 import type {
   GraphQLMockDescriptor,
@@ -140,22 +144,23 @@ const hashString = (value: string): string => {
  * A variant id that survives reordering: the label when one was given,
  * otherwise a hash of the handler's resolver source.
  */
-const variantIdFor = (handler: HttpHandler | GraphQLHandler, label: string | undefined): string =>
+const variantIdFor = (handler: GraphqlHandler | RestHandler, label: string | undefined): string =>
   label === undefined
     ? `handler-${hashString(getHandlerResolver(handler).toString())}`
     : slugify(label);
 
 /** Normalise a HandlerVariantInput into a HandlerVariant with id and label. */
-const normaliseVariant = <H extends HttpHandler | GraphQLHandler>(
+const normaliseVariant = <H extends GraphqlHandler | RestHandler>(
   input: HandlerVariantInput<H>,
   index: number
 ): HandlerVariant => {
+  // Structural check: bare MSW handlers have `run`; `{ handler, label }` does not.
+  // Avoids `instanceof GraphQLHandler`, which is not importable from `msw` on 3.x.
   const isObject =
     typeof input === "object" &&
     input !== null &&
     "handler" in input &&
-    !(input instanceof HttpHandler) &&
-    !(input instanceof GraphQLHandler);
+    !isMswRequestHandler(input);
 
   const handler = isObject ? (input as { handler: H; label?: string }).handler : (input as H);
   const label = isObject ? (input as { handler: H; label?: string }).label : undefined;
@@ -181,7 +186,7 @@ const dedupeVariantIds = (variants: HandlerVariant[]): HandlerVariant[] => {
 };
 
 /** Extract the list of handlers from a mock def that has either `handler` or `variants`. */
-const extractVariants = <H extends HttpHandler | GraphQLHandler>(def: {
+const extractVariants = <H extends GraphqlHandler | RestHandler>(def: {
   handler?: H;
   variants?: HandlerVariantInput<H>[];
 }): HandlerVariant[] => {
@@ -195,7 +200,7 @@ const extractVariants = <H extends HttpHandler | GraphQLHandler>(def: {
 };
 
 /** Get the primary (first) handler for introspection. */
-const getPrimaryHandler = (variants: HandlerVariant[]): HttpHandler | GraphQLHandler => {
+const getPrimaryHandler = (variants: HandlerVariant[]): GraphqlHandler | RestHandler => {
   if (variants.length === 0) {
     throw new Error("msw-devtools: at least one handler variant is required.");
   }
@@ -345,7 +350,7 @@ export const registerGraphqlMocks = <const Defs extends readonly GraphqlMockDef[
       def.operationType ?? toGraphQLOperationType(info.operationType);
 
     descriptors.push({
-      endpoint: getGraphQLEndpoint(primary as GraphQLHandler),
+      endpoint: getGraphQLEndpoint(primary as GraphqlHandler),
       graphqlOperationName,
       group: def.group,
       operationName,

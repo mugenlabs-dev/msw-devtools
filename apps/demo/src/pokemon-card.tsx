@@ -28,7 +28,6 @@ const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
 
 export interface PokemonData {
   name: string;
-  shinySprite?: string;
   sprite: string;
   types: string[];
 }
@@ -138,7 +137,6 @@ export const mapGraphQLPokemon = (pokemon: GraphQLPokemon | undefined): PokemonD
   const sprites = parseSprites(pokemon.pokemon_v2_pokemonsprites?.[0]?.sprites);
   return {
     name: pokemon.name,
-    shinySprite: sprites?.front_shiny ?? "",
     sprite: sprites?.front_default ?? "",
     types: pokemon.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type.name),
   };
@@ -160,7 +158,6 @@ export const mapRestPokemon = (json: RestPokemonResponseNormalized): PokemonData
   const name = speciesName === "" ? json.name : speciesName;
   return {
     name,
-    shinySprite: json.sprites?.front_shiny ?? "",
     sprite: json.sprites?.front_default ?? "",
     types: json.types?.map((t) => t.type.name) ?? [],
   };
@@ -193,7 +190,6 @@ export const PokemonCard = ({
   onRefetch,
 }: PokemonCardProps) => {
   const glowColor = getTypeGlowColor(data?.types);
-  const hasShiny = data?.shinySprite != null && data.shinySprite !== "";
 
   return (
     <div
@@ -253,18 +249,6 @@ export const PokemonCard = ({
                 style={{ imageRendering: "pixelated" }}
                 width={96}
               />
-              {hasShiny ? (
-                <img
-                  alt=""
-                  aria-hidden
-                  className="pokemon-card__shiny absolute inset-0 m-auto h-24 w-24"
-                  data-sprite="shiny"
-                  height={96}
-                  src={data.shinySprite}
-                  style={{ imageRendering: "pixelated" }}
-                  width={96}
-                />
-              ) : null}
             </div>
 
             <h3 className="m-0 mb-3 font-bold text-text-primary text-xl capitalize tracking-wide">

@@ -14,6 +14,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "lint:package": "publint --strict packages/core && attw --pack packages/core --profile esm-only",
+    "prepare": "git config core.hooksPath .githooks",
     "readme:check": "node scripts/sync-readme.mjs --check",
     "readme:sync": "node scripts/sync-readme.mjs",
     "storybook": "pnpm --filter ./packages/core run storybook",
@@ -21,8 +22,9 @@
     "test:ci": "vitest run --project=unit",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:msw2": "playwright test -c playwright.msw2.config.ts",
     "test-storybook": "vitest run --project=storybook",
-    "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit"
+    "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit && tsgo -p apps/msw2-e2e --noEmit"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -75,7 +77,8 @@
   },
   "msw": {
     "workerDirectory": [
-      "apps/demo/public"
+      "apps/demo/public",
+      "apps/msw2-e2e/public"
     ]
   }
 }

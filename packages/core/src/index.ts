@@ -11,6 +11,7 @@ export type { MockChangeType, MockUpdateEvent, MswDevToolAdapter } from "./adapt
 export { ALL_OPERATIONS, affectsOperation } from "./adapter/types";
 // --- React Hooks ---
 export { useMockRefetch } from "./hooks/use-mock-refetch";
+export type { GraphqlHandler, HandlerOptions, RestHandler } from "./msw/msw-internals";
 export type { WorkerOptions } from "./msw/worker-manager";
 // --- MSW Integration ---
 export { getWorker, refreshHandlers, startWorker, stopWorker } from "./msw/worker-manager";

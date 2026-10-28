@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Playground - @mugenlabs/msw-devtools</title>
+    <script>
+    "use strict";
+    (() => {
+      const apply = (theme) => {
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      };
+      try {
+        const stored = localStorage.getItem("msw-devtools-demo-theme");
+        if (stored === "light" || stored === "dark") {
+          apply(stored);
+          return;
+        }
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        apply(prefersLight ? "light" : "dark");
+      } catch {
+        apply("dark");
+      }
+    })();
+    </script>
+    <style>
+    html,
+    body {
+      margin: 0;
+      background: light-dark(oklch(97.9% 0 0), oklch(14.5% 0 0));
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/src/main.tsx" type="module"></script>
+  </body>
+</html>

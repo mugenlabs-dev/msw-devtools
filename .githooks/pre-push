@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Match CI Lint: run Biome before the push leaves the machine.
+set -e
+ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+pnpm lint

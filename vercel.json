@@ -8,7 +8,7 @@
   "ignoreCommand": "bash scripts/ci-changed.sh vercel",
   "framework": null,
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm build && pnpm --filter demo run build",
+  "buildCommand": "pnpm build && pnpm --filter demo run build && pnpm --filter msw2-e2e run build",
   "outputDirectory": "apps/demo/dist/client",
   "routes": [
     {
@@ -121,6 +121,10 @@
     {
       "src": "^/playground(?:/(?:apollo|fetch|query|rtk-query|swr|urql))?/?$",
       "dest": "/playground/index.html"
+    },
+    {
+      "src": "^/msw2(?:/.*)?$",
+      "dest": "/msw2/index.html"
     },
     {
       "src": "/(.*)",

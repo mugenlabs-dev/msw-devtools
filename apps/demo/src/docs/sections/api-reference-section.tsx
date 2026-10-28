@@ -181,21 +181,21 @@ export const ApiReferenceSection = () => (
       <ApiEntry
         badge="OperationHandlesFor<Defs>"
         badgeVariant="green"
-        description="Register one or more GraphQL mocks from MSW GraphQLHandlers. Operation metadata (operationName, operationType) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
+        description="Register one or more GraphQL mocks from MSW GraphQL handlers (msw root on 2.x, msw/graphql on 3.x). Prefer graphql.link. Operation metadata (operationName, operationType) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerGraphqlMocks"
         signature="registerGraphqlMocks<const Defs extends readonly GraphqlMockDef[]>(...defs: Defs): OperationHandlesFor<Defs>"
       >
         <ParamTable
           params={[
             {
-              description: "MSW GraphQLHandler (shorthand for single variant)",
+              description: "MSW GraphQL handler (shorthand for single variant)",
               name: "def.handler",
-              type: "GraphQLHandler",
+              type: "GraphqlHandler",
             },
             {
               description: "Multiple handler variants for the same operation",
               name: "def.variants",
-              type: "HandlerVariantInput<GraphQLHandler>[]",
+              type: "HandlerVariantInput<GraphqlHandler>[]",
             },
             {
               description: "Override the auto-derived operation name",
@@ -282,6 +282,13 @@ function UserCard() {
       title="Advanced"
     >
       <ApiEntry
+        badge="void"
+        badgeVariant="muted"
+        description="Sets the localStorage key for panel state. Import @mugenlabs/msw-devtools/persistence and call this before importing the main package. The default key is msw-devtools-store. Two bundles on one origin need different keys or they overwrite each other."
+        name="setPersistenceKey"
+        signature="setPersistenceKey(key: string): void"
+      />
+      <ApiEntry
         badge="Promise<SetupWorker>"
         badgeVariant="blue"
         description="Manually start the MSW service worker with custom options. The plugin auto-starts the worker on mount — only use this if you need a custom serviceWorkerUrl or other non-default options. If the worker is already running, the plugin skips auto-start."
@@ -292,7 +299,8 @@ function UserCard() {
           params={[
             {
               defaultVal: "'bypass'",
-              description: "How to handle requests with no matching handler",
+              description:
+                "How to handle requests with no matching handler. Public name stays onUnhandledRequest; on MSW 3 it is also applied as onUnhandledFrame.",
               name: "options.onUnhandledRequest",
               type: "'bypass' | 'warn' | 'error'",
             },

@@ -1,0 +1,45 @@
+{
+  "name": "msw2-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.14.1",
+    "@base-ui/react": "^1.7.0",
+    "@mugenlabs/msw-devtools": "workspace:*",
+    "@reduxjs/toolkit": "^2.12.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-devtools": "^0.9.13",
+    "@tanstack/react-query": "^5.102.8",
+    "@tanstack/react-router": "^1.170.41",
+    "@urql/core": "^6.0.3",
+    "axios": "^1.20.0",
+    "graphql": "^16.14.2",
+    "motion": "^12.43.0",
+    "msw": "^2.15.0",
+    "posthog-js": "^1.425.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-redux": "^9.3.0",
+    "shiki": "^3.23.0",
+    "swr": "^2.5.1",
+    "tailwindcss": "^4.3.3",
+    "urql": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^5.2.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

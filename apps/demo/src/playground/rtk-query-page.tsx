@@ -2,10 +2,11 @@ import { registerAdapter } from "@mugenlabs/msw-devtools";
 import { createRtkQueryAdapter } from "@mugenlabs/msw-devtools/adapters/rtk-query";
 import { configureStore } from "@reduxjs/toolkit";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { Provider } from "react-redux";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
+import { playgroundFetch } from "../playground-fetch";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -21,7 +22,7 @@ import type { RestPokemonResponse } from "../use-rest-pokemon";
 // ---------------------------------------------------------------------------
 
 const pokemonApi = createApi({
-  baseQuery: fetchBaseQuery(),
+  baseQuery: fetchBaseQuery({ fetchFn: playgroundFetch }),
   endpoints: (builder) => ({
     getGraphqlPokemon: builder.query<
       { data: { pokemon_v2_pokemon: GraphQLPokemon[] } },
@@ -61,18 +62,7 @@ const HYDREIGON_QUERY =
 const CHANDELURE_QUERY =
   "query GetChandelure { pokemon_v2_pokemon(where: { id: { _eq: 609 } }) { id name height weight pokemon_v2_pokemontypes { pokemon_v2_type { name } } pokemon_v2_pokemonsprites { sprites } } }";
 
-// ---------------------------------------------------------------------------
-// Adapter Registration
-// ---------------------------------------------------------------------------
-
-const AdapterRegistrar = () => {
-  useEffect(() => {
-    const unregister = registerAdapter(createRtkQueryAdapter(store, pokemonApi));
-    return unregister;
-  }, []);
-
-  return null;
-};
+registerAdapter(createRtkQueryAdapter(store, pokemonApi));
 
 // ---------------------------------------------------------------------------
 // REST Cards
@@ -291,7 +281,6 @@ const RtkQueryPageContent = () => (
     </div>
 
     <CodeBlock lang="typescript">{RTK_QUERY_CODE}</CodeBlock>
-    <AdapterRegistrar />
   </div>
 );
 

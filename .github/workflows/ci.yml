@@ -116,12 +116,13 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001
-    timeout-minutes: 10
+    # Unit + Storybook + typecheck + a small e2e app; keep headroom over ~5–6 min median.
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        # The oldest and newest versions the peer ranges allow
-        peers: [oldest, latest]
+        # oldest 2.x, latest 2.x, latest 3.x (see scripts/pin-peer-versions.mjs)
+        peers: [oldest, latest-2, latest-3]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -136,6 +137,14 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
 
+      # E2E apps resolve the workspace package from dist/. Build emits JS+DTS;
+      # PersistedDocument narrowing keeps oldest @urql/core typecheck green.
+      - name: Build library
+        run: pnpm build
+
+      - name: Typecheck core
+        run: pnpm exec tsgo -p packages/core --noEmit
+
       # msw 2.0 can't be imported as `msw/browser` under Node, and this test
       # imports it (mocked), so the oldest leg skips it.
       - name: Unit tests
@@ -143,6 +152,17 @@ jobs:
 
       - name: Storybook tests
         run: pnpm test-storybook
+
+      # MSW 2 legs run the /msw2/ playground; MSW 3 runs the live demo /playground e2e.
+      - name: Playwright e2e
+        run: |
+          if [ "${{ matrix.peers }}" = "latest-3" ]; then
+            pnpm test:e2e
+          else
+            pnpm test:e2e:msw2
+          fi
+        env:
+          CI: true
 
   build:
     name: 📦 Build & Typecheck

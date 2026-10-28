@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source ".";
 
 /* Fine-pointer hover only — avoids sticky :hover on touch */
 @custom-variant hover {
@@ -429,11 +430,6 @@ button.bg-hero-btn-bg:focus-visible,
     transform 0.2s var(--ease-out);
 }
 
-.pokemon-card__shiny {
-  opacity: 0;
-  transition: opacity 0.3s var(--ease-out);
-}
-
 @media (hover: hover) and (pointer: fine) {
   .pokemon-card:hover {
     border-color: var(--border-secondary);
@@ -445,10 +441,6 @@ button.bg-hero-btn-bg:focus-visible,
 
   .pokemon-card:hover .pokemon-card__sprite-wrap {
     transform: scale(1.1);
-  }
-
-  .pokemon-card:hover .pokemon-card__shiny {
-    opacity: 1;
   }
 }
 

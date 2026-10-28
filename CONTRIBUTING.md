@@ -9,7 +9,8 @@ This is a pnpm workspace monorepo.
 | Path | Contents |
 | --- | --- |
 | `packages/core` | The published package, `@mugenlabs/msw-devtools`. Source in `src/`, Storybook config in `.storybook/`, bundled with tsup |
-| `apps/demo` | Demo and documentation site (TanStack Start + React), deployed at msw-devtools.mugenlabs.dev. The landing page is statically generated and `/playground/*` is client-only. Not published — it is in the Changesets ignore list |
+| `apps/demo` | Demo and documentation site (TanStack Start + React), deployed at msw-devtools.mugenlabs.dev. The landing page is statically generated and `/playground/*` is the MSW 3 client playground. Not published — it is in the Changesets ignore list |
+| `apps/msw2-e2e` | MSW 2 host for the shared playground at `/msw2/` (own `mockServiceWorker.js` and scope). Pages and handlers live in `apps/demo`. Used by peer-matrix Playwright and the public MSW 2/3 switch |
 | `e2e` | Playwright specs that drive the demo app and assert against a real DevTools panel |
 | `scripts` | One-off repo scripts (e.g. OG image generation) |
 
@@ -62,7 +63,7 @@ pnpm test:ci
 
 Run `pnpm test-storybook` and `pnpm test:e2e` too if you touched the panel UI. CI runs the same checks.
 
-CI also runs the unit and Storybook tests against the oldest and the newest versions the peer ranges in `packages/core/package.json` allow (React 18 and 19, msw 2.0 and the latest 2.x, and so on). `scripts/pin-peer-versions.mjs` reads those ranges, so changing a peer range changes what gets tested. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done.
+CI also runs unit tests, Storybook, typecheck, and Playwright against the peer matrix in `packages/core/package.json`: oldest MSW 2.x, latest MSW 2.x, and latest MSW 3.x (plus the matching React ends of the support window). `scripts/pin-peer-versions.mjs` reads those ranges. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest-2` / `latest-3`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done. MSW 2 legs use `pnpm test:e2e:msw2` against the `/msw2/` playground; MSW 3 legs use the live demo `/playground`.
 
 ## Releases
 
@@ -78,7 +79,7 @@ The demo app is ignored by Changesets and is never versioned or published.
 
 ## Conventions
 
-- **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting.
+- **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting. `pnpm install` sets `core.hooksPath` to `.githooks/`; the `pre-push` hook runs `pnpm lint` so a format drift fails before CI.
 - **TypeScript**: strict, ESM only. Public API surface is re-exported from `packages/core/src/index.ts` (and the per-library adapters under `src/adapters/*`, each exposed as a subpath such as `@mugenlabs/msw-devtools/adapters/swr`) — add new exports there.
 - **Tests**: [Vitest](https://vitest.dev). Unit tests are colocated with their source. Behaviour changes should come with a test.
 - **Keep the docs in sync**: the public API is documented in three places — the root `README.md` (`pnpm readme:sync` copies it to `packages/core/README.md` for npm), the docs site (`apps/demo/src/docs/sections/*`), and the JSDoc on the exported functions. Update all three when an option changes.

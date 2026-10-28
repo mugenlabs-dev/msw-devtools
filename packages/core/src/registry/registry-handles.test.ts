@@ -1,4 +1,5 @@
-import { graphql, HttpResponse, http } from "msw";
+import { HttpResponse, http } from "msw";
+import { graphql } from "#/test-utils/graphql";
 
 import type { registerGraphqlMocks, registerRestMocks } from "./registry";
 

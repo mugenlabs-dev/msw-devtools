@@ -3,10 +3,18 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
-import { dragoniteOp, espeonOp, mewtwoOp, mimikyuOp, sylveonOp, umbreonOp } from "../mocks/setup";
+import { registerPlaygroundMocks } from "../mocks/register-playground-mocks";
 import type { PokemonData } from "../pokemon-card";
 import { mapRestPokemon, PokemonCard, REST_BADGE } from "../pokemon-card";
 import { useRestPokemon } from "../use-rest-pokemon";
+
+const [mimikyuOp, umbreonOp, espeonOp, sylveonOp, mewtwoOp, dragoniteOp] =
+  registerPlaygroundMocks();
+
+const axiosNoStore = axios.create({
+  adapter: "fetch",
+  fetchOptions: { cache: "no-store" },
+});
 
 // ---------------------------------------------------------------------------
 // Pokeball
@@ -88,10 +96,11 @@ const SylveonCard = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    setData(null);
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("https://pokeapi.co/api/v2/pokemon/700");
+      const res = await axiosNoStore.get("https://pokeapi.co/api/v2/pokemon/700");
       setData(mapRestPokemon(res.data));
       setLoading(false);
     } catch (e: unknown) {
@@ -130,10 +139,11 @@ const MewtwoCard = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    setData(null);
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("https://pokeapi.co/api/v2/pokemon/150");
+      const res = await axiosNoStore.get("https://pokeapi.co/api/v2/pokemon/150");
       setData(mapRestPokemon(res.data));
       setLoading(false);
     } catch (e: unknown) {
@@ -172,10 +182,11 @@ const DragoniteCard = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    setData(null);
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get("https://pokeapi.co/api/v2/pokemon/149");
+      const res = await axiosNoStore.get("https://pokeapi.co/api/v2/pokemon/149");
       setData(mapRestPokemon(res.data));
       setLoading(false);
     } catch (e: unknown) {
