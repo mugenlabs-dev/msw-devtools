@@ -13,9 +13,9 @@ Do not use this package as a security, compliance, or accessibility certificatio
 ## How agents should call this product
 
 1. Read the docs homepage or `/docs` for installation, quick start, adapters, and the API reference.
-2. Install from npm: `npm install @mugenlabs/msw-devtools` (peer: `msw` `^2 || ^3`, `react`, plus optional adapter peers).
+2. Install from npm: `npm install @mugenlabs/msw-devtools` (peer: `msw` `^2 || ^3`, `react`, plus optional adapter peers). Minimums follow the MSW major: MSW 2 needs Node ≥20 and TypeScript ≥5.0; MSW 3 needs Node ≥22.12 and TypeScript ≥5.9.
 3. Register handlers with `registerRestMocks` / `registerGraphqlMocks` (prefer `graphql.link`; on MSW 3 import `graphql` from `msw/graphql`), mount `createMswDevToolsPlugin` inside TanStack DevTools, and optionally `registerAdapter` for auto-refetch. Keep `onUnhandledRequest` in `WorkerOptions` — it maps to MSW 3's `onUnhandledFrame`.
-4. Use the playground routes under `/playground` to exercise the panel against sample REST/GraphQL clients.
+4. Use `/playground` (MSW 3) or `/msw2/` (MSW 2) to exercise the panel against sample REST/GraphQL clients. Each path has its own `mockServiceWorker.js` and scope; the header switch navigates between them.
 5. Reach the project only via GitHub Issues: https://github.com/mugenlabs-dev/msw-devtools/issues
 
 ## Main pages
@@ -23,7 +23,8 @@ Do not use this package as a security, compliance, or accessibility certificatio
 - [Docs homepage — @mugenlabs/msw-devtools](https://msw-devtools.mugenlabs.dev/)
 - [Documentation (same content, discoverable /docs URL)](https://msw-devtools.mugenlabs.dev/docs)
 - [Developer portal](https://msw-devtools.mugenlabs.dev/developers)
-- [Interactive playground](https://msw-devtools.mugenlabs.dev/playground)
+- [Interactive playground (MSW 3)](https://msw-devtools.mugenlabs.dev/playground)
+- [Interactive playground (MSW 2)](https://msw-devtools.mugenlabs.dev/msw2/)
 - [About Mugenlabs / msw-devtools](https://msw-devtools.mugenlabs.dev/about)
 - [Contact (GitHub Issues only)](https://msw-devtools.mugenlabs.dev/contact)
 - [Privacy](https://msw-devtools.mugenlabs.dev/privacy)

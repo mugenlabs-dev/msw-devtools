@@ -251,7 +251,8 @@ export const [mimikyuOp, umbreonOp, espeonOp, sylveonOp, mewtwoOp, dragoniteOp] 
   { group: "Fetch + Axios", handler: getDragoniteHandler, operationName: "GET Dragonite" }
 );
 
-// Pre-start the worker with a custom serviceWorkerUrl for GitHub Pages deployments.
+// Scope the MSW 3 worker under /playground/ so it does not control /msw2/
+// (the separate MSW 2 playground and its own worker checksum).
 void startWorker({
-  serviceWorkerUrl: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+  serviceWorkerUrl: `${import.meta.env.BASE_URL}playground/mockServiceWorker.js`,
 });

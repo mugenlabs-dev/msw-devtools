@@ -63,12 +63,14 @@ The Apollo (Client 3 or 4), SWR (2.x) and RTK Query adapters only call the clien
 
 ### Compatibility
 
-| Requirement | Minimum |
-| --- | --- |
-| `msw` | `^2.0.0 \|\| ^3.0.0` (identical public API on both) |
-| Node (library) | ≥20 |
-| TypeScript | ≥5.0 |
-| Unhandled requests | Keep `WorkerOptions.onUnhandledRequest`; MSW 3 maps it to `onUnhandledFrame` |
+Minimums follow the MSW major you install. The public API of this package is the same on both.
+
+| Requirement | MSW 2.x | MSW 3.x |
+| --- | --- | --- |
+| `msw` | `^2.0.0` | `^3.0.0` |
+| Node | ≥20 | ≥22.12 |
+| TypeScript | ≥5.0 | ≥5.9 |
+| Unhandled requests | `WorkerOptions.onUnhandledRequest` | Same option; mapped to `onUnhandledFrame` |
 
 Prefer `graphql.link(...)` for GraphQL handlers. On MSW 3 import `graphql` from `msw/graphql` — that module only exports `link` (no root `graphql.query`), so link-first is required there and still works on MSW 2. GraphQL subscription mocking and `defineNetwork` are out of scope for this package.
 
@@ -353,7 +355,7 @@ registerGraphqlMocks({
 
 ## Documentation
 
-Full documentation and live playground: [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
+Full documentation and live playground (MSW 3 at `/playground`, MSW 2 at `/msw2/`): [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
 
 ## Upgrading
 
@@ -415,11 +417,11 @@ msw-devtools/
   api/                 # Edge function for the demo site's API error responses
   apps/
     demo/              # Demo application & documentation site (MSW 3)
-    msw2-e2e/          # Non-deployed MSW 2 fixture for peer-matrix Playwright
+    msw2-e2e/          # Deployed MSW 2 playground at /msw2/ (peer-matrix + public switch)
   packages/
     core/              # Core library (registry, store, MSW integration, UI plugin, adapters)
   e2e/                 # Playwright E2E tests (demo / MSW 3)
-  e2e-msw2/            # Playwright E2E tests for the MSW 2 fixture
+  e2e-msw2/            # Playwright E2E tests for the MSW 2 playground
   scripts/             # Utility scripts (e.g. OG image generation)
 ```
 

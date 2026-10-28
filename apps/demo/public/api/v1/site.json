@@ -5,7 +5,8 @@
     "homepage": "https://msw-devtools.mugenlabs.dev/",
     "openapi": "https://msw-devtools.mugenlabs.dev/openapi.json",
     "playground": "https://msw-devtools.mugenlabs.dev/playground",
-    "sitemap": "https://msw-devtools.mugenlabs.dev/sitemap.xml"
+    "sitemap": "https://msw-devtools.mugenlabs.dev/sitemap.xml",
+    "playgroundMsw2": "https://msw-devtools.mugenlabs.dev/msw2/"
   },
   "name": "@mugenlabs/msw-devtools",
   "npm": "https://www.npmjs.com/package/@mugenlabs/msw-devtools",
@@ -22,10 +23,13 @@
     "/playground/query",
     "/playground/rtk-query",
     "/playground/swr",
-    "/playground/urql"
+    "/playground/urql",
+    "/msw2",
+    "/msw2/",
+    "/msw2/graphql"
   ],
   "serverApi": {
-    "note": "This host exposes a small read-only site catalog for agent discovery. Browser MSW mocks in the playground are client-side only and are not served as HTTP APIs here.",
+    "note": "This host exposes a small read-only site catalog for agent discovery. Browser MSW mocks in /playground (MSW 3) and /msw2/ (MSW 2) are client-side only and are not served as HTTP APIs here.",
     "openapi": "https://msw-devtools.mugenlabs.dev/openapi.json"
   }
 }

@@ -153,7 +153,7 @@ jobs:
       - name: Storybook tests
         run: pnpm test-storybook
 
-      # MSW 2 legs run the non-deployed msw2 app; MSW 3 runs the live demo e2e.
+      # MSW 2 legs run the /msw2/ playground; MSW 3 runs the live demo /playground e2e.
       - name: Playwright e2e
         run: |
           if [ "${{ matrix.peers }}" = "latest-3" ]; then

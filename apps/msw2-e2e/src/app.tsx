@@ -1,6 +1,7 @@
 import { createMswDevToolsPlugin } from "@mugenlabs/msw-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { useCallback, useEffect, useState } from "react";
+import { MswVersionSwitch } from "#msw-version-switch";
 
 interface Pokemon {
   id: number;
@@ -15,7 +16,7 @@ const RestPage = () => {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const response = await fetch("/api/pokemon/6");
+      const response = await fetch(`${import.meta.env.BASE_URL}api/pokemon/6`);
       setPokemon((await response.json()) as Pokemon);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "fetch failed");
@@ -28,7 +29,7 @@ const RestPage = () => {
 
   return (
     <section>
-      <h1>REST</h1>
+      <h2 style={{ fontSize: "1.125rem", margin: "0 0 0.75rem" }}>REST</h2>
       <button onClick={() => void load()} type="button">
         Refetch REST
       </button>
@@ -45,7 +46,7 @@ const GraphQLPage = () => {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const response = await fetch("/graphql", {
+      const response = await fetch(`${import.meta.env.BASE_URL}graphql`, {
         body: JSON.stringify({
           operationName: "GetPancham",
           query: "query GetPancham { pokemon { id name types } }",
@@ -65,7 +66,7 @@ const GraphQLPage = () => {
 
   return (
     <section>
-      <h1>GraphQL</h1>
+      <h2 style={{ fontSize: "1.125rem", margin: "0 0 0.75rem" }}>GraphQL</h2>
       <button onClick={() => void load()} type="button">
         Refetch GraphQL
       </button>
@@ -79,11 +80,35 @@ export const App = () => {
   const page = window.location.pathname.includes("graphql") ? "graphql" : "rest";
 
   return (
-    <main style={{ fontFamily: "system-ui", margin: "2rem auto", maxWidth: 640 }}>
-      <nav style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-        <a href="/">REST</a>
-        <a href="/graphql">GraphQL</a>
-      </nav>
+    <main
+      style={{
+        color: "oklch(90.7% 0 0)",
+        fontFamily: "system-ui, sans-serif",
+        margin: "0 auto",
+        maxWidth: 720,
+        padding: "2rem 1.25rem 6rem",
+      }}
+    >
+      <header style={{ marginBottom: "1.75rem", textAlign: "center" }}>
+        <h1 style={{ fontSize: "1.5rem", margin: "0 0 0.5rem" }}>
+          @mugenlabs/msw-devtools Playground
+        </h1>
+        <p style={{ color: "oklch(62.7% 0 0)", fontSize: "0.875rem", margin: "0 0 1rem" }}>
+          MSW 2 fixture with REST + GraphQL mocks and the DevTools panel. Switch to MSW 3 for the
+          full adapter playground.
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+          <MswVersionSwitch active="2" />
+        </div>
+        <nav style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+          <a href={`${import.meta.env.BASE_URL}`} style={{ color: "inherit" }}>
+            REST
+          </a>
+          <a href={`${import.meta.env.BASE_URL}graphql`} style={{ color: "inherit" }}>
+            GraphQL
+          </a>
+        </nav>
+      </header>
       {page === "graphql" ? <GraphQLPage /> : <RestPage />}
       <TanStackDevtools
         config={{ defaultOpen: true }}

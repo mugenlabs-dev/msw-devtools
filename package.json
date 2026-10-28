@@ -23,7 +23,7 @@
     "test:e2e": "playwright test",
     "test:e2e:msw2": "playwright test -c playwright.msw2.config.ts",
     "test-storybook": "vitest run --project=storybook",
-    "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit"
+    "typecheck": "pnpm build && tsgo -p packages/core --noEmit && tsgo -p apps/demo --noEmit && tsgo -p apps/msw2-e2e --noEmit"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

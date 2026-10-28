@@ -1,6 +1,7 @@
 import { Link, useMatches } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { MswVersionSwitch } from "./components/msw-version-switch";
 import { skeletonKeyframes } from "./pokemon-card";
 
 const PLAYGROUND_TABS = [
@@ -52,11 +53,14 @@ export const PlaygroundPageShell = ({ children }: { children: ReactNode }) => {
           <wbr />
           msw-devtools Playground
         </h1>
-        <p className="m-0 mb-6 text-pretty text-sm text-text-muted">
+        <p className="m-0 mb-4 text-pretty text-sm text-text-muted">
           Each page demonstrates a different data-fetching library integrated with
           @mugenlabs/msw-devtools. Toggle mocks in the DevTools panel below to see responses change
-          in real-time.
+          in real-time. This site runs MSW 3; switch to the MSW 2 playground for the other major.
         </p>
+        <div className="mb-6 flex justify-center">
+          <MswVersionSwitch active="3" />
+        </div>
         <PlaygroundTabs />
       </div>
       <div className="playground-page-enter" key={routeKey}>
