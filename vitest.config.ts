@@ -1,11 +1,19 @@
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
+import { mswHasGraphqlSubpath } from "./packages/core/src/test-utils/msw-exports";
+
+const mswGraphqlShim = new URL("packages/core/src/test-utils/msw-graphql-shim.ts", import.meta.url)
+  .pathname;
+
+/** On MSW 2, map the missing subpath so Vite/Storybook import analysis succeeds. */
+const mswGraphqlAlias = mswHasGraphqlSubpath() ? {} : { "msw/graphql": mswGraphqlShim };
 
 export default defineConfig({
   resolve: {
     alias: {
       "#": new URL("packages/core/src", import.meta.url).pathname,
+      ...mswGraphqlAlias,
     },
   },
   test: {
@@ -29,6 +37,7 @@ export default defineConfig({
               "packages/core/src/test-utils/msw-browser-stub.ts",
               import.meta.url
             ).pathname,
+            ...mswGraphqlAlias,
           },
         },
         test: {
@@ -46,6 +55,11 @@ export default defineConfig({
           include: ["@storybook/addon-vitest/internal/test-utils"],
         },
         plugins: [storybookTest({ configDir: "./packages/core/.storybook" })],
+        resolve: {
+          alias: {
+            ...mswGraphqlAlias,
+          },
+        },
         test: {
           browser: {
             enabled: true,

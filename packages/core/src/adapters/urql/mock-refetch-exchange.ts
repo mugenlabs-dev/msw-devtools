@@ -6,7 +6,15 @@ import { ALL_OPERATIONS, type MockUpdateEvent } from "#/adapter/types";
 import { mockRegistry } from "#/registry/registry";
 
 const getOperationName = (op: Operation): string | undefined => {
-  for (const def of op.query.definitions) {
+  // Oldest @urql/core types `query` as DocumentNode | PersistedDocument;
+  // PersistedDocument has no `definitions`. Narrow before reading.
+  const query = op.query as {
+    definitions?: ReadonlyArray<{ kind: string; name?: { value?: string } }>;
+  };
+  if (!query.definitions) {
+    return undefined;
+  }
+  for (const def of query.definitions) {
     if (def.kind === "OperationDefinition" && def.name?.value != null && def.name.value !== "") {
       return def.name.value;
     }

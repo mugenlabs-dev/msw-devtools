@@ -1,28 +1,22 @@
 /**
  * Resolve the MSW `graphql` namespace on either major.
  *
- * MSW 2 exports `graphql` (with `.link`) from `msw`.
- * MSW 3 only exports `graphql.link` from `msw/graphql`.
- * Prefer the root export so Vite never has to resolve `msw/graphql` on 2.x
- * (that subpath does not exist there and fails import analysis).
+ * Prefer the root `graphql` export (MSW 2). MSW 3 only ships `graphql.link`
+ * from `msw/graphql`. On MSW 2, Vite configs alias `msw/graphql` to
+ * `msw-graphql-shim.ts` so the fallback import is always analyzable and
+ * never hits a missing package export at build time.
  */
-import * as msw from "msw";
-
 // biome-ignore lint/suspicious/noExplicitAny: dual-major test loader, not a public type
 type GraphqlNamespace = any;
 
 const loadGraphqlNamespace = async (): Promise<GraphqlNamespace> => {
-  const rootGraphql = (msw as { graphql?: GraphqlNamespace }).graphql;
+  const root = (await import("msw")) as { graphql?: GraphqlNamespace };
+  const rootGraphql = root.graphql;
   if (rootGraphql && typeof rootGraphql.link === "function") {
     return rootGraphql;
   }
 
-  // MSW 3 only. Build the specifier at runtime so Vite/vitest on MSW 2 does not
-  // try to resolve the missing `./graphql` export during import analysis.
-  const graphqlModuleId = ["msw", "graphql"].join("/");
-  const mod = (await import(/* @vite-ignore */ graphqlModuleId)) as {
-    graphql?: GraphqlNamespace;
-  };
+  const mod = (await import("msw/graphql")) as { graphql?: GraphqlNamespace };
   if (mod.graphql && typeof mod.graphql.link === "function") {
     return mod.graphql;
   }
