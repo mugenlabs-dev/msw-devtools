@@ -53,7 +53,7 @@ The package is ESM-only and runs in the browser: MSW needs Service Worker suppor
 
 | Dependency | Version | Required |
 | --- | --- | --- |
-| `msw` | `^2.0.0` | Yes |
+| `msw` | `^2.0.0 \|\| ^3.0.0` | Yes |
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
 | `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
 | `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
@@ -61,40 +61,64 @@ The package is ESM-only and runs in the browser: MSW needs Service Worker suppor
 
 The Apollo (Client 3 or 4), SWR (2.x) and RTK Query adapters only call the client you pass in, so those libraries are not peer dependencies.
 
+### Compatibility
+
+| Requirement | Minimum |
+| --- | --- |
+| `msw` | `^2.0.0 \|\| ^3.0.0` (identical public API on both) |
+| Node (library) | ≥20 |
+| TypeScript | ≥5.0 |
+| Unhandled requests | Keep `WorkerOptions.onUnhandledRequest`; MSW 3 maps it to `onUnhandledFrame` |
+
+Prefer `graphql.link(...)` for GraphQL handlers. On MSW 3 import `graphql` from `msw/graphql` — that module only exports `link` (no root `graphql.query`), so link-first is required there and still works on MSW 2. GraphQL subscription mocking and `defineNetwork` are out of scope for this package.
+
 ## Quick Start
 
 This guide assumes you already have MSW installed and `mockServiceWorker.js` generated in your public directory.
 
 ### 1. Register your MSW handlers
 
-Use `registerRestMocks` and `registerGraphqlMocks` to register your existing MSW handlers with the devtools. Operation metadata (method, path, operation name) is automatically derived from handler info.
+Use `registerRestMocks` and `registerGraphqlMocks` to register your existing MSW handlers with the devtools. Operation metadata (method, path, operation name) is automatically derived from handler info. Prefer `graphql.link` so the same handlers work on MSW 2 and 3; only the import path differs.
+
+MSW 3:
 
 ```ts
 // mocks/setup.ts
 import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-import { http, HttpResponse, graphql } from "msw";
+import { http, HttpResponse } from "msw";
+import { graphql } from "msw/graphql";
 
-// REST -- pass your HttpHandler directly
+const api = graphql.link("/graphql");
+
 registerRestMocks(
   { handler: http.get("/api/users", () => HttpResponse.json({ users: [] })) },
   { handler: http.get("/api/posts", () => HttpResponse.json({ posts: [] })), group: "Blog" },
 );
 
-// GraphQL -- with multiple variants
 registerGraphqlMocks({
   group: "Users",
   variants: [
-    graphql.query("GetUser", () =>
+    api.query("GetUser", () =>
       HttpResponse.json({ data: { user: { id: 1, name: "John" } } })
     ),
     {
-      handler: graphql.query("GetUser", () =>
+      handler: api.query("GetUser", () =>
         HttpResponse.json({ data: { user: null } })
       ),
       label: "Not Found",
     },
   ],
 });
+```
+
+MSW 2 (same handlers; import `graphql` from `msw` instead of `msw/graphql`):
+
+```ts
+import { http, HttpResponse, graphql } from "msw";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
+
+const api = graphql.link("/graphql");
+// ...registerRestMocks / registerGraphqlMocks as above
 ```
 
 ### 2. Mount the plugin
@@ -282,7 +306,7 @@ registerGraphqlMocks({
 | Export | Description |
 | --- | --- |
 | `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
-| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
+| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from the handler info. Returns `OperationHandlesFor<typeof defs>`. |
 | `registerAdapter(adapter)` | Register a data-fetching adapter for auto-refetch. Returns an unregister function. |
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
 | `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
@@ -400,7 +424,7 @@ msw-devtools/
 ### Tech Stack
 
 - **pnpm workspaces** for monorepo management
-- **MSW v2** for request interception
+- **MSW** 2.x or 3.x for request interception
 - **TanStack DevTools** plugin system for the UI panel
 - **Zustand v5** for state management (with persist middleware)
 - **tsup** for building (ESM-only output)

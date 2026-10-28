@@ -1,8 +1,9 @@
-import { delay, graphql, HttpResponse, http } from "msw";
+import { delay, HttpResponse, http } from "msw";
 import { mockRegistry } from "#/registry/registry";
 import type { GraphQLMockDescriptor, RestMockDescriptor } from "#/registry/types";
 import { defaultConfig, useMockStore } from "#/store/store";
 import type { OperationMockConfig } from "#/store/types";
+import { graphql } from "#/test-utils/graphql";
 import { createDynamicHandler } from "./create-handler";
 
 vi.mock("msw", async (importOriginal) => {
@@ -10,6 +11,8 @@ vi.mock("msw", async (importOriginal) => {
   return {
     ...actual,
     delay: vi.fn(() => Promise.resolve()),
+    // MSW 3 has no root `graphql`; keep the key so partial mocks stay quiet.
+    graphql: (actual as { graphql?: unknown }).graphql,
   };
 });
 
@@ -150,6 +153,28 @@ describe("createDynamicHandler", () => {
       );
 
       await expect(response?.json()).resolves.toStrictEqual({ data: { ok: true } });
+    });
+
+    it("does not attach MSW 3 subscription siblings for graphql.operation mocks", () => {
+      const descriptor = graphqlDescriptor({
+        graphqlOperationName: /.*/,
+        operationName: "Any operation",
+        operationType: "operation",
+        variants: [
+          {
+            handler: graphql.operation(() => HttpResponse.json({ data: { ok: true } })),
+            id: "variant-0",
+            label: "Default",
+          },
+        ],
+      });
+
+      const handler = createDynamicHandler(descriptor);
+      const siblingSymbols = Object.getOwnPropertySymbols(handler).filter(
+        (symbol) => symbol.description === "kSiblingHandlers"
+      );
+
+      expect(siblingSymbols).toHaveLength(0);
     });
   });
 

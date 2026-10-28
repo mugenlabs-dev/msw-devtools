@@ -225,11 +225,13 @@ registerRestMocks(
 
 // 2. Register GraphQL handlers — operationName auto-derived from handler
 import { registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-import { graphql } from "msw";
+import { graphql } from "msw/graphql";
+
+const api = graphql.link("https://beta.pokeapi.co/graphql/v1beta");
 
 registerGraphqlMocks(
-  { handler: graphql.query("GetPancham", () => HttpResponse.json({ data: { ... } })) },
-  { handler: graphql.query("GetSnorlax", () => HttpResponse.json({ data: { ... } })) },
+  { handler: api.query("GetPancham", () => HttpResponse.json({ data: { ... } })) },
+  { handler: api.query("GetSnorlax", () => HttpResponse.json({ data: { ... } })) },
 );
 
 // 3. Fetch with useQuery — works for both REST and GraphQL

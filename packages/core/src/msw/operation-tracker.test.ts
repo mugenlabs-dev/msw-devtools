@@ -236,4 +236,25 @@ describe("operation-tracker", () => {
 
     expect(seen().has("GET /api/todos")).toBe(false);
   });
+
+  it("ignores document navigations and form submissions", () => {
+    mockRegistry.register(restDescriptor({ path: "/" }));
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    // Node's Request rejects mode:"navigate"; shape the object MSW emits instead.
+    const navigateGet = new Request("http://localhost/", { method: "GET" });
+    Object.defineProperty(navigateGet, "mode", { value: "navigate" });
+    const navigatePost = new Request("http://localhost/", {
+      body: "q=1",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      method: "POST",
+    });
+    Object.defineProperty(navigatePost, "mode", { value: "navigate" });
+
+    emit(navigateGet);
+    emit(navigatePost);
+
+    expect(seen().size).toBe(0);
+  });
 });

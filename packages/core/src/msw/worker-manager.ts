@@ -30,15 +30,21 @@ const initializeWorker = async (options?: WorkerOptions): Promise<SetupWorker> =
   const handlers = descriptors.map(createDynamicHandler);
   devtoolsHandlers = new Set(handlers);
 
-  const instance = setupWorker(...handlers);
+  // Handlers are real MSW instances; structural DynamicHandler is dual-major-safe.
+  const instance = setupWorker(...(handlers as never[]));
+  const onUnhandled = options?.onUnhandledRequest ?? "bypass";
 
+  // MSW 2 reads `onUnhandledRequest`; MSW 3 renamed it to `onUnhandledFrame`
+  // and ignores the old key. Pass both so the public WorkerOptions API works
+  // on either major without the caller branching.
   await instance.start({
-    onUnhandledRequest: options?.onUnhandledRequest ?? "bypass",
+    onUnhandledFrame: onUnhandled,
+    onUnhandledRequest: onUnhandled,
     quiet: options?.quiet ?? true,
     serviceWorker: {
       url: options?.serviceWorkerUrl ?? "/mockServiceWorker.js",
     },
-  });
+  } as Parameters<SetupWorker["start"]>[0]);
 
   return instance;
 };
@@ -117,7 +123,8 @@ export const stopWorker = async (): Promise<void> => {
   unsubscribeFromRegistry?.();
   unsubscribeFromRegistry = null;
   teardownOperationTracker();
-  worker?.stop();
+  // MSW 3's stop() returns a Promise; MSW 2 returns void. Always await.
+  await worker?.stop();
   worker = null;
   started = false;
   useMockStore.getState().setWorkerStatus("idle");
@@ -138,7 +145,7 @@ export const refreshHandlers = (): void => {
   const descriptors = mockRegistry.getAll();
   const handlers = descriptors.map(createDynamicHandler);
   devtoolsHandlers = new Set(handlers);
-  worker.resetHandlers(...handlers);
+  worker.resetHandlers(...(handlers as never[]));
   if (appHandlers.length > 0) {
     worker.use(...appHandlers);
   }

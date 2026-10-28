@@ -21,6 +21,16 @@ export default defineConfig({
     projects: [
       {
         extends: true,
+        resolve: {
+          // MSW 3 sets `msw/browser` to `node: null`. Alias it for Node unit tests
+          // so `vi.mock("msw/browser")` and dynamic imports still resolve.
+          alias: {
+            "msw/browser": new URL(
+              "packages/core/src/test-utils/msw-browser-stub.ts",
+              import.meta.url
+            ).pathname,
+          },
+        },
         test: {
           environment: "jsdom",
           globals: true,

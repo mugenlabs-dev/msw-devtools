@@ -145,7 +145,19 @@ describe("worker-manager - startWorker", () => {
     warn.mockRestore();
   });
 
+  it("passes onUnhandledRequest and onUnhandledFrame so both MSW majors work", async () => {
+    await startWorkerFn({ onUnhandledRequest: "warn" });
+
+    expect(startMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        onUnhandledFrame: "warn",
+        onUnhandledRequest: "warn",
+      })
+    );
+  });
+
   it("stops the worker, tears down tracking and allows a fresh start", async () => {
+    stopMock.mockResolvedValue(undefined);
     await startWorkerFn();
     await stopWorkerFn();
 

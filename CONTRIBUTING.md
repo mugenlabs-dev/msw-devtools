@@ -62,7 +62,7 @@ pnpm test:ci
 
 Run `pnpm test-storybook` and `pnpm test:e2e` too if you touched the panel UI. CI runs the same checks.
 
-CI also runs the unit and Storybook tests against the oldest and the newest versions the peer ranges in `packages/core/package.json` allow (React 18 and 19, msw 2.0 and the latest 2.x, and so on). `scripts/pin-peer-versions.mjs` reads those ranges, so changing a peer range changes what gets tested. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done.
+CI also runs unit tests, Storybook, typecheck, and Playwright against the peer matrix in `packages/core/package.json`: oldest MSW 2.x, latest MSW 2.x, and latest MSW 3.x (plus the matching React ends of the support window). `scripts/pin-peer-versions.mjs` reads those ranges. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest-2` / `latest-3`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done. MSW 2 legs use `pnpm test:e2e:msw2` against the non-deployed `apps/msw2-e2e` fixture; MSW 3 legs use the live demo.
 
 ## Releases
 

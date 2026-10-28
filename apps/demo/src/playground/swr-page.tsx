@@ -180,13 +180,16 @@ const TogekissCard = () => {
 
 const SWR_CODE = `// 1. Register REST + GraphQL handlers
 import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-import { http, graphql, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw";
+import { graphql } from "msw/graphql";
+
+const api = graphql.link("https://beta.pokeapi.co/graphql/v1beta");
 
 registerRestMocks(
   { handler: http.get("https://pokeapi.co/api/v2/pokemon/445", () => HttpResponse.json({ ... })) },
 );
 registerGraphqlMocks(
-  { handler: graphql.query("GetGardevoir", () => HttpResponse.json({ data: { ... } })) },
+  { handler: api.query("GetGardevoir", () => HttpResponse.json({ data: { ... } })) },
 );
 
 // 2. Fetch with useSWR — REST and GraphQL

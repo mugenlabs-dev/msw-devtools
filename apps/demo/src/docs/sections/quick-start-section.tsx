@@ -2,7 +2,63 @@ import { Zap } from "lucide-react";
 import { CodeBlock } from "../components/code-block";
 import { SectionTitle } from "../components/section-title";
 import { StepNumber } from "../components/step-number";
+import { VersionTabs } from "../components/version-tabs";
 import { inlineCode, prose } from "../styles";
+
+const QUICK_START_MSW2 = `import { http, HttpResponse, graphql } from "msw";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
+
+const api = graphql.link("/graphql");
+
+// REST — pass your HttpHandler directly; capture the returned handle
+const [getUsers] = registerRestMocks(
+  {
+    handler: http.get("/api/users", () =>
+      HttpResponse.json([{ id: 1, name: "Alice" }])
+    ),
+    group: "Users",
+  },
+);
+
+// GraphQL — prefer graphql.link so the same code works on MSW 2 and 3
+const [getUser] = registerGraphqlMocks(
+  {
+    handler: api.query("GetUser", () =>
+      HttpResponse.json({ data: { user: { id: 1, name: "Alice" } } })
+    ),
+    group: "Users",
+  },
+);
+
+// getUsers.operationName === "GET /api/users", getUser.operationName === "GetUser"`;
+
+const QUICK_START_MSW3 = `import { http, HttpResponse } from "msw";
+import { graphql } from "msw/graphql";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
+
+const api = graphql.link("/graphql");
+
+// REST — pass your HttpHandler directly; capture the returned handle
+const [getUsers] = registerRestMocks(
+  {
+    handler: http.get("/api/users", () =>
+      HttpResponse.json([{ id: 1, name: "Alice" }])
+    ),
+    group: "Users",
+  },
+);
+
+// GraphQL — prefer graphql.link so the same code works on MSW 2 and 3
+const [getUser] = registerGraphqlMocks(
+  {
+    handler: api.query("GetUser", () =>
+      HttpResponse.json({ data: { user: { id: 1, name: "Alice" } } })
+    ),
+    group: "Users",
+  },
+);
+
+// getUsers.operationName === "GET /api/users", getUser.operationName === "GetUser"`;
 
 export const QuickStartSection = () => (
   <section className="mb-12">
@@ -23,34 +79,12 @@ export const QuickStartSection = () => (
       <code className={inlineCode}>OperationHandles</code> you can destructure and pass to{" "}
       <code className={inlineCode}>useMockRefetch</code> instead of hard-coding name strings:
     </p>
-    <div className="mb-7">
-      <CodeBlock lang="typescript">
-        {`import { http, HttpResponse, graphql } from "msw";
-import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-
-// REST — pass your HttpHandler directly; capture the returned handle
-const [getUsers] = registerRestMocks(
-  {
-    handler: http.get("/api/users", () =>
-      HttpResponse.json([{ id: 1, name: "Alice" }])
-    ),
-    group: "Users",
-  },
-);
-
-// GraphQL — pass your GraphQLHandler directly
-const [getUser] = registerGraphqlMocks(
-  {
-    handler: graphql.query("GetUser", () =>
-      HttpResponse.json({ data: { user: { id: 1, name: "Alice" } } })
-    ),
-    group: "Users",
-  },
-);
-
-// getUsers.operationName === "GET /api/users", getUser.operationName === "GetUser"`}
-      </CodeBlock>
-    </div>
+    <p className={prose}>
+      GraphQL lives under <code className={inlineCode}>msw/graphql</code> in MSW 3. Prefer{" "}
+      <code className={inlineCode}>graphql.link</code> so the same handlers work on both majors;
+      only the import path differs:
+    </p>
+    <VersionTabs msw2={QUICK_START_MSW2} msw3={QUICK_START_MSW3} />
 
     {/* Step 2 */}
     <div className="mb-3 flex items-center gap-2.5">

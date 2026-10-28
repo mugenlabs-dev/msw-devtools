@@ -1,15 +1,20 @@
-// Pins the library's peer dependencies to the oldest or the newest version
-// their ranges allow, so CI can test both ends of the support window. Writes
-// pnpm overrides into the root package.json; run
+// Pins the library's peer dependencies for CI matrix legs. Writes pnpm
+// overrides into the root package.json; run
 // `pnpm install --no-frozen-lockfile` afterwards.
 //
-// Usage: node scripts/pin-peer-versions.mjs <oldest|latest>
+// Usage: node scripts/pin-peer-versions.mjs <oldest|latest-2|latest-3>
+//
+// For msw (^2 || ^3):
+//   oldest    → 2.0.0
+//   latest-2  → newest published 2.x
+//   latest-3  → newest published 3.x
+// Other peers use oldest / newest-of-highest-major for oldest / latest-*.
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
 const [, , mode] = process.argv;
-if (mode !== "oldest" && mode !== "latest") {
-  console.error("Usage: node scripts/pin-peer-versions.mjs <oldest|latest>");
+if (mode !== "oldest" && mode !== "latest-2" && mode !== "latest-3") {
+  console.error("Usage: node scripts/pin-peer-versions.mjs <oldest|latest-2|latest-3>");
   process.exit(1);
 }
 
@@ -32,14 +37,27 @@ const newestPublished = (name, range) => {
   return versions.sort(compare).at(-1);
 };
 
-// "^18.0.0 || ^19.0.0": oldest is 18.0.0, latest is the newest published 19.x.
 const pick = (name, range) => {
   const bounds = range.match(/\d+\.\d+\.\d+/g);
   if (!bounds) {
     throw new Error(`Cannot read a version from the ${name} peer range "${range}"`);
   }
   bounds.sort(compare);
-  return mode === "oldest" ? bounds[0] : newestPublished(name, `^${bounds.at(-1)}`);
+
+  if (name === "msw") {
+    if (mode === "oldest") {
+      return bounds[0];
+    }
+    if (mode === "latest-2") {
+      return newestPublished(name, "^2.0.0");
+    }
+    return newestPublished(name, "^3.0.0");
+  }
+
+  if (mode === "oldest") {
+    return bounds[0];
+  }
+  return newestPublished(name, `^${bounds.at(-1)}`);
 };
 
 const overrides = Object.fromEntries(
