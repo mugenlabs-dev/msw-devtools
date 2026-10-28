@@ -164,7 +164,10 @@ export const expectAllOffShowsLiveCharizardSprite = async (
       timeout: 15_000,
     });
 
-    const card = page.locator(".pokemon-card").filter({ hasText: /charizard/i }).first();
+    const card = page
+      .locator(".pokemon-card")
+      .filter({ hasText: /charizard/i })
+      .first();
     const sprite = card.locator('img[data-sprite="default"]');
     await card.getByRole("button", { name: "Refetch" }).click();
     await expect(sprite).toHaveAttribute("src", MOCK_CHARIZARD_SPRITE, { timeout: 20_000 });

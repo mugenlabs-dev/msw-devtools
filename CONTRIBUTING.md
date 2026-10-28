@@ -79,7 +79,7 @@ The demo app is ignored by Changesets and is never versioned or published.
 
 ## Conventions
 
-- **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting.
+- **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting. `pnpm install` sets `core.hooksPath` to `.githooks/`; the `pre-push` hook runs `pnpm lint` so a format drift fails before CI.
 - **TypeScript**: strict, ESM only. Public API surface is re-exported from `packages/core/src/index.ts` (and the per-library adapters under `src/adapters/*`, each exposed as a subpath such as `@mugenlabs/msw-devtools/adapters/swr`) — add new exports there.
 - **Tests**: [Vitest](https://vitest.dev). Unit tests are colocated with their source. Behaviour changes should come with a test.
 - **Keep the docs in sync**: the public API is documented in three places — the root `README.md` (`pnpm readme:sync` copies it to `packages/core/README.md` for npm), the docs site (`apps/demo/src/docs/sections/*`), and the JSDoc on the exported functions. Update all three when an option changes.
