@@ -40,7 +40,6 @@ test.describe("Demo Cards", () => {
   });
 
   test("cards show Pokemon sprites", async ({ page }) => {
-    // Default sprites only — shiny overlays stay in the DOM for CSS hover.
     const spriteImages = page.locator('img[data-sprite="default"]');
     await expect(spriteImages).toHaveCount(6, { timeout: 10_000 });
   });

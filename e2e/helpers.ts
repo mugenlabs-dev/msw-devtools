@@ -122,6 +122,84 @@ export const expectAllOffReturnsLive = async (
   await expect(card.locator("h3")).toHaveText("charizard", { timeout: 20_000 });
 };
 
+/** Live Charizard `front_default` from PokeAPI (normal orange sprite). */
+export const LIVE_CHARIZARD_SPRITE =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png";
+
+/** Demo mock Charizard uses the shiny asset as `front_default` so All On is visible. */
+export const MOCK_CHARIZARD_SPRITE =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/6.png";
+
+/**
+ * All On, refetch Charizard, All Off, refetch again.
+ * The rendered `img[data-sprite="default"]` src has to move from the mock shiny
+ * file to PokeAPI's normal sprite. A network body that contains `abilities` can
+ * pass while this src stays on the mock.
+ */
+export const expectAllOffShowsLiveCharizardSprite = async (
+  page: Page,
+  options: { path: string }
+) => {
+  const consoleErrors: string[] = [];
+  const onConsole = (msg: { type: () => string; text: () => string }) => {
+    if (msg.type() === "error") {
+      consoleErrors.push(msg.text());
+    }
+  };
+  const onPageError = (err: Error) => {
+    consoleErrors.push(`PAGEERROR: ${err.message}`);
+  };
+  page.on("console", onConsole);
+  page.on("pageerror", onPageError);
+
+  try {
+    await page.goto(options.path);
+    await waitForDemoReady(page);
+    await openDevToolsPanel(page);
+
+    await page.locator("button").filter({ hasText: "All On" }).click();
+    await expect(
+      page.locator(`text=${TOTAL_OPERATIONS}/${TOTAL_OPERATIONS} active`).first()
+    ).toBeVisible({
+      timeout: 15_000,
+    });
+
+    const card = page.locator(".pokemon-card").filter({ hasText: /charizard/i }).first();
+    const sprite = card.locator('img[data-sprite="default"]');
+    await card.getByRole("button", { name: "Refetch" }).click();
+    await expect(sprite).toHaveAttribute("src", MOCK_CHARIZARD_SPRITE, { timeout: 20_000 });
+
+    const errorsBeforeOff = consoleErrors.length;
+    await page.locator("button").filter({ hasText: "All Off" }).click();
+    await expect(page.locator(`text=0/${TOTAL_OPERATIONS} active`).first()).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await card.getByRole("button", { name: "Refetch" }).click();
+    await expect(sprite).toHaveAttribute("src", LIVE_CHARIZARD_SPRITE, { timeout: 20_000 });
+    await expect(card.locator("h3")).toHaveText("charizard");
+
+    await card.hover();
+    await expect(card.locator('img[data-sprite="shiny"]')).toHaveCount(0);
+    await expect(sprite).toHaveAttribute("src", LIVE_CHARIZARD_SPRITE);
+    await page.mouse.move(5, 5);
+
+    const allSprites = page.locator('img[data-sprite="default"]');
+    await expect(allSprites).toHaveCount(6);
+    for (let i = 0; i < 6; i += 1) {
+      await expect(allSprites.nth(i)).not.toHaveAttribute("src", /\/shiny\//, {
+        timeout: 20_000,
+      });
+    }
+
+    const newErrors = consoleErrors.slice(errorsBeforeOff);
+    expect(newErrors, `console errors after All Off: ${newErrors.join(" | ")}`).toEqual([]);
+  } finally {
+    page.off("console", onConsole);
+    page.off("pageerror", onPageError);
+  }
+};
+
 /** All registered operation names in the demo app. */
 export const ALL_OPERATION_NAMES = [
   // TanStack Query page — 3 REST + 3 GraphQL

@@ -14,6 +14,14 @@ const mockJson = <Body extends JsonBodyType>(body: Body) =>
 
 const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
 
+/**
+ * Mock cards use the shiny sprite as `front_default` so All On is visually
+ * distinct from live PokeAPI (normal orange / species colors). Live responses
+ * keep the normal sprite URL; without this split, mock and live share the same
+ * `front_default` and hover-shiny made All Off look "still mocked".
+ */
+const mockSprite = (id: number) => `${SPRITE_BASE}/shiny/${id}.png`;
+
 /** Link-scoped GraphQL API — works the same on MSW 2 and 3. */
 const pokeGraphql = graphql.link("https://beta.pokeapi.co/graphql/v1beta");
 
@@ -33,8 +41,7 @@ const gqlPokemonResponse = (pokemon: {
         pokemon_v2_pokemonsprites: [
           {
             sprites: {
-              front_default: `${SPRITE_BASE}/${pokemon.id}.png`,
-              front_shiny: `${SPRITE_BASE}/shiny/${pokemon.id}.png`,
+              front_default: mockSprite(pokemon.id),
             },
           },
         ],
@@ -58,8 +65,7 @@ const restPokemonResponse = (pokemon: {
   id: pokemon.id,
   name: pokemon.name,
   sprites: {
-    front_default: `${SPRITE_BASE}/${pokemon.id}.png`,
-    front_shiny: `${SPRITE_BASE}/shiny/${pokemon.id}.png`,
+    front_default: mockSprite(pokemon.id),
   },
   types: pokemon.types.map((t) => ({ type: { name: t } })),
   weight: pokemon.weight,

@@ -1,7 +1,12 @@
 import { test } from "@playwright/test";
 
 import { playgroundPersistenceKey } from "../apps/demo/src/playground-persistence";
-import { expectAllOffReturnsLive, expectMockPayloadLeaves, STALE_MOCK_CASES } from "../e2e/helpers";
+import {
+  expectAllOffReturnsLive,
+  expectAllOffShowsLiveCharizardSprite,
+  expectMockPayloadLeaves,
+  STALE_MOCK_CASES,
+} from "../e2e/helpers";
 
 test.describe("stale mock after toggle off", () => {
   for (const [slug, operation, override] of STALE_MOCK_CASES) {
@@ -23,5 +28,10 @@ test.describe("stale mock after toggle off", () => {
       path: "./query",
       persistenceKey: playgroundPersistenceKey("2"),
     });
+  });
+
+  test("All On → Refetch → All Off → Refetch shows live Charizard sprite", async ({ page }) => {
+    test.setTimeout(60_000);
+    await expectAllOffShowsLiveCharizardSprite(page, { path: "./query" });
   });
 });
