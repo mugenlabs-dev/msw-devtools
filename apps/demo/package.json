@@ -46,7 +46,7 @@
   },
   "msw": {
     "workerDirectory": [
-      "public/playground"
+      "public"
     ]
   }
 }

@@ -57,6 +57,10 @@
       "types": "./dist/adapters/rtk-query.d.ts",
       "import": "./dist/adapters/rtk-query.mjs"
     },
+    "./persistence": {
+      "types": "./dist/persistence.d.ts",
+      "import": "./dist/persistence.mjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",

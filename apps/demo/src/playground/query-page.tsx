@@ -2,6 +2,7 @@ import { useQuery as useTanStackQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
+import { playgroundFetch } from "../playground-fetch";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -114,7 +115,7 @@ const TyranitarCard = () => {
 const PanchamCard = () => {
   const { data, error, isLoading, refetch } = useTanStackQuery<GraphQLResponse>({
     queryFn: async () => {
-      const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+      const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
         body: JSON.stringify({
           operationName: "GetPancham",
           query: PANCHAM_QUERY,
@@ -147,7 +148,7 @@ const PanchamCard = () => {
 const SalamenceCard = () => {
   const { data, error, isLoading, refetch } = useTanStackQuery<GraphQLResponse>({
     queryFn: async () => {
-      const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+      const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
         body: JSON.stringify({
           operationName: "GetSalamence",
           query: SALAMENCE_QUERY,
@@ -180,7 +181,7 @@ const SalamenceCard = () => {
 const SnorlaxCard = () => {
   const { data, error, isLoading, refetch } = useTanStackQuery<GraphQLResponse>({
     queryFn: async () => {
-      const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+      const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
         body: JSON.stringify({
           operationName: "GetSnorlax",
           query: SNORLAX_QUERY,

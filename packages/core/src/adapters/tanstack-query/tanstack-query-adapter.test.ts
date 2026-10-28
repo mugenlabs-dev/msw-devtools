@@ -4,25 +4,25 @@ const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("tanstack query adapter", () => {
   it("returns an adapter with id 'tanstack-query'", () => {
-    const queryClient = { invalidateQueries: vi.fn() };
+    const queryClient = { resetQueries: vi.fn() };
     const adapter = createTanStackQueryAdapter(
       queryClient as unknown as Parameters<typeof createTanStackQueryAdapter>[0]
     );
     expect(adapter.id).toBe("tanstack-query");
   });
 
-  it("calls queryClient.invalidateQueries() on mock update", () => {
-    const queryClient = { invalidateQueries: vi.fn() };
+  it("calls queryClient.resetQueries() on mock update", () => {
+    const queryClient = { resetQueries: vi.fn() };
     const adapter = createTanStackQueryAdapter(
       queryClient as unknown as Parameters<typeof createTanStackQueryAdapter>[0]
     );
 
     adapter.onMockUpdate("GetUser", "toggle");
-    expect(queryClient.invalidateQueries).toHaveBeenCalledOnce();
+    expect(queryClient.resetQueries).toHaveBeenCalledOnce();
   });
 
-  it("calls invalidateQueries for every mock update event", () => {
-    const queryClient = { invalidateQueries: vi.fn() };
+  it("calls resetQueries for every mock update event", () => {
+    const queryClient = { resetQueries: vi.fn() };
     const adapter = createTanStackQueryAdapter(
       queryClient as unknown as Parameters<typeof createTanStackQueryAdapter>[0]
     );
@@ -31,11 +31,11 @@ describe("tanstack query adapter", () => {
     adapter.onMockUpdate("GetPosts", "variant");
     adapter.onMockUpdate("GetUser", "json-override");
 
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(3);
+    expect(queryClient.resetQueries).toHaveBeenCalledTimes(3);
   });
 
-  it("does not surface a failed invalidation as an unhandled rejection", async () => {
-    const queryClient = { invalidateQueries: vi.fn().mockRejectedValue(new Error("boom")) };
+  it("does not surface a failed reset as an unhandled rejection", async () => {
+    const queryClient = { resetQueries: vi.fn().mockRejectedValue(new Error("boom")) };
     const adapter = createTanStackQueryAdapter(
       queryClient as unknown as Parameters<typeof createTanStackQueryAdapter>[0]
     );
@@ -43,6 +43,6 @@ describe("tanstack query adapter", () => {
     adapter.onMockUpdate("GetUser", "toggle");
     await flushMicrotasks();
 
-    expect(queryClient.invalidateQueries).toHaveBeenCalledOnce();
+    expect(queryClient.resetQueries).toHaveBeenCalledOnce();
   });
 });

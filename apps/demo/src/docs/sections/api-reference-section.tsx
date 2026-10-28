@@ -282,6 +282,13 @@ function UserCard() {
       title="Advanced"
     >
       <ApiEntry
+        badge="void"
+        badgeVariant="muted"
+        description="Sets the localStorage key for panel state. Import @mugenlabs/msw-devtools/persistence and call this before importing the main package. The default key is msw-devtools-store. Two bundles on one origin need different keys or they overwrite each other."
+        name="setPersistenceKey"
+        signature="setPersistenceKey(key: string): void"
+      />
+      <ApiEntry
         badge="Promise<SetupWorker>"
         badgeVariant="blue"
         description="Manually start the MSW service worker with custom options. The plugin auto-starts the worker on mount — only use this if you need a custom serviceWorkerUrl or other non-default options. If the worker is already running, the plugin skips auto-start."

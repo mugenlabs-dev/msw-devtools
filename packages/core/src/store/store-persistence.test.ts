@@ -59,6 +59,32 @@ describe("sanitizePersistedState", () => {
   });
 });
 
+describe("persistence key", () => {
+  const slot = Symbol.for("@mugenlabs/msw-devtools.persistence-key");
+
+  afterEach(() => {
+    delete (globalThis as Record<symbol, unknown>)[slot];
+    localStorage.removeItem("msw-devtools-store:2");
+  });
+
+  it("hydrates from the key set before the store module loads", async () => {
+    localStorage.setItem(
+      "msw-devtools-store:2",
+      JSON.stringify({
+        state: { filter: "live", operations: { GetUser: { enabled: true } } },
+        version: 0,
+      })
+    );
+    vi.resetModules();
+    const { setPersistenceKey } = await import("./persistence-key");
+    setPersistenceKey("msw-devtools-store:2");
+    const { useMockStore } = await import("./store");
+
+    expect(useMockStore.getState().filter).toBe("live");
+    expect(useMockStore.getState().operations.GetUser.enabled).toBe(true);
+  });
+});
+
 describe("store hydration", () => {
   afterEach(() => {
     localStorage.removeItem(STORAGE_KEY);

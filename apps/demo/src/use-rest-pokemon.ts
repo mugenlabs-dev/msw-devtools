@@ -1,9 +1,8 @@
 import type { OperationHandle } from "@mugenlabs/msw-devtools";
 import { useMockRefetch } from "@mugenlabs/msw-devtools";
 import { useCallback, useEffect, useState } from "react";
-
+import { playgroundFetch } from "./playground-fetch";
 import type { PokemonData } from "./pokemon-card";
-
 import { mapRestPokemon } from "./pokemon-card";
 
 // --- REST Pokemon Response Type ---
@@ -17,7 +16,7 @@ export interface RestPokemonResponse {
 // --- REST Fetcher ---
 
 export const fetchPokemonJson = async (url: string): Promise<RestPokemonResponse> => {
-  const res = await fetch(url);
+  const res = await playgroundFetch(url);
   if (!res.ok) {
     throw new Error(`${res.status} ${res.statusText}`);
   }
@@ -32,6 +31,7 @@ export const useRestPokemon = (url: string, operation: OperationHandle | string)
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    setData(null);
     setLoading(true);
     setError(null);
     try {

@@ -7,16 +7,18 @@ import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
  * Apollo Client 4 (non-generic `ApolloClient`).
  */
 export interface ApolloClientLike {
-  refetchQueries: (options: { include: "active" }) => unknown;
+  /** Clears the normalized cache, then refetches queries that are mounted. */
+  resetStore: () => unknown;
 }
 
 /**
  * Creates an Apollo Client adapter for MSW DevTools.
- * When mock configuration changes, it refetches all active queries.
+ * When mock configuration changes, it clears the store and refetches active
+ * queries. `refetchQueries` alone would keep the cached payload on screen.
  */
 export const createApolloAdapter = (client: ApolloClientLike): MswDevToolAdapter => ({
   id: "apollo",
   onMockUpdate(_operationName: string, _changeType: MockChangeType): void {
-    ignoreRejection(client.refetchQueries({ include: "active" }));
+    ignoreRejection(client.resetStore());
   },
 });

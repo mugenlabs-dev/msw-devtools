@@ -11,6 +11,7 @@ export default defineConfig({
     "adapters/tanstack-query": "src/adapters/tanstack-query/index.ts",
     "adapters/urql": "src/adapters/urql/index.ts",
     index: "src/index.ts",
+    persistence: "src/store/persistence-key.ts",
     types: "src/types.ts",
   },
   esbuildOptions(options) {

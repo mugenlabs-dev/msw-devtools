@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
+import { playgroundFetch } from "../playground-fetch";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -36,7 +37,7 @@ const gqlSwrFetcher = async (
   key: string
 ): Promise<{ data: { pokemon_v2_pokemon: GraphQLPokemon[] } }> => {
   const [, operationName, query] = key.split("|");
-  const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+  const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
     body: JSON.stringify({ operationName, query }),
     headers: { "Content-Type": "application/json" },
     method: "POST",

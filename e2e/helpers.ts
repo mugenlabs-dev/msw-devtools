@@ -1,6 +1,52 @@
 import type { Page } from "@playwright/test";
 
 import { expect } from "@playwright/test";
+import { playgroundPersistenceKey } from "../apps/demo/src/playground-persistence";
+
+export const REST_MISSINGNO = JSON.stringify({ name: "missingno", types: [] });
+
+export const GQL_MISSINGNO = JSON.stringify({
+  data: {
+    pokemon_v2_pokemon: [
+      {
+        name: "missingno",
+        pokemon_v2_pokemonsprites: [],
+        pokemon_v2_pokemontypes: [],
+      },
+    ],
+  },
+});
+
+/** One row per playground cache. The override is a body the live API does not return. */
+export const STALE_MOCK_CASES = [
+  ["query", "GET Gengar", REST_MISSINGNO],
+  ["swr", "GetScizor", GQL_MISSINGNO],
+  ["urql", "GetEevee", GQL_MISSINGNO],
+  ["rtk-query", "GET Weavile", REST_MISSINGNO],
+  ["apollo", "GetAbsol", GQL_MISSINGNO],
+  ["fetch", "GET Mimikyu", REST_MISSINGNO],
+  ["fetch", "GET Sylveon", REST_MISSINGNO],
+] as const;
+
+/** Seed one distinctive override, then turn that mock off and require the name to leave. */
+export const expectMockPayloadLeaves = async (
+  page: Page,
+  options: { operation: string; override: string; path: string; persistenceKey?: string }
+) => {
+  await enableAllMocksViaStorage(page, {
+    overrides: { [options.operation]: options.override },
+    persistenceKey: options.persistenceKey,
+  });
+  await page.goto(options.path);
+  await waitForDemoReady(page);
+  await openDevToolsPanel(page);
+  await expect(page.locator("h3", { hasText: /missingno/i })).toHaveCount(1);
+
+  const row = page.locator("[data-testid='operation-row']").filter({ hasText: options.operation });
+  await row.getByRole("button", { name: /Toggle.*mock/ }).click();
+
+  await expect(page.locator("h3", { hasText: /missingno/i })).toHaveCount(0);
+};
 
 /** All registered operation names in the demo app. */
 export const ALL_OPERATION_NAMES = [
@@ -77,21 +123,30 @@ export const PAGE_OPERATIONS: Record<string, string[]> = {
 
 /**
  * Pre-enable all mocks via localStorage before the page loads.
- * The Zustand store persists under key "msw-devtools-store".
- * This ensures cards always show mock data instead of relying on real APIs.
+ * The demo reads `msw-devtools-store:3` and the MSW 2 host reads `msw-devtools-store:2`.
  *
  * When `seedOnce` is true, localStorage is only set if not already present,
  * preserving any state changes (e.g. filter/sort) across navigations.
+ * `overrides` maps an operation name to a `customJsonOverride` string.
  */
-export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?: boolean }) => {
+export const enableAllMocksViaStorage = async (
+  page: Page,
+  options?: {
+    overrides?: Record<string, string>;
+    persistenceKey?: string;
+    seedOnce?: boolean;
+  }
+) => {
   const seedOnce = options?.seedOnce ?? false;
+  const persistenceKey = options?.persistenceKey ?? playgroundPersistenceKey("3");
+  const overrides = options?.overrides;
 
   const operations: Record<
     string,
     {
       activeVariantId: string;
       customHeaders: null;
-      customJsonOverride: null;
+      customJsonOverride: string | null;
       delay: number;
       enabled: boolean;
       errorOverride: null;
@@ -103,7 +158,7 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
     operations[name] = {
       activeVariantId: "variant-0",
       customHeaders: null,
-      customJsonOverride: null,
+      customJsonOverride: overrides?.[name] ?? null,
       delay: 0,
       enabled: true,
       errorOverride: null,
@@ -112,8 +167,8 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
   }
 
   await page.addInitScript(
-    ({ ops, onlyIfEmpty }) => {
-      if (onlyIfEmpty && localStorage.getItem("msw-devtools-store") !== null) {
+    ({ onlyIfEmpty, ops, storageKey }) => {
+      if (onlyIfEmpty && localStorage.getItem(storageKey) !== null) {
         return;
       }
       const state = {
@@ -126,9 +181,9 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
         },
         version: 0,
       };
-      localStorage.setItem("msw-devtools-store", JSON.stringify(state));
+      localStorage.setItem(storageKey, JSON.stringify(state));
     },
-    { onlyIfEmpty: seedOnce, ops: operations }
+    { onlyIfEmpty: seedOnce, ops: operations, storageKey: persistenceKey }
   );
 };
 

@@ -36,10 +36,11 @@ Everything ships in a single package. Adapters are available via subpath exports
 | ------------------------------------- | --------------------------------------------------------------------------- |
 | `@mugenlabs/msw-devtools`                         | Registry, store, MSW integration, React UI plugin, adapter system           |
 | `@mugenlabs/msw-devtools/types`                   | Type-only entry point (no runtime code)                                     |
-| `@mugenlabs/msw-devtools/adapters/tanstack-query` | Auto-refetch via query invalidation                                         |
-| `@mugenlabs/msw-devtools/adapters/urql`           | Auto-refetch via custom exchange                                            |
-| `@mugenlabs/msw-devtools/adapters/swr`            | Auto-refetch via global mutate                                              |
-| `@mugenlabs/msw-devtools/adapters/apollo`         | Auto-refetch via refetchQueries                                             |
+| `@mugenlabs/msw-devtools/adapters/tanstack-query` | Clears the query cache with `resetQueries`, then refetches                  |
+| `@mugenlabs/msw-devtools/adapters/urql`           | Re-executes active queries from `mockRefetchExchange`                       |
+| `@mugenlabs/msw-devtools/adapters/swr`            | Clears SWR cache entries, then revalidates                                  |
+| `@mugenlabs/msw-devtools/adapters/apollo`         | Clears the store with `resetStore`, then refetches                         |
+| `@mugenlabs/msw-devtools/persistence`             | Sets the localStorage key before the store loads                           |
 | `@mugenlabs/msw-devtools/adapters/rtk-query`      | Auto-refetch via resetApiState                                              |
 | `@mugenlabs/msw-devtools/adapters/axios`          | Registration marker for Axios users (use `useMockRefetch` for live updates) |
 
@@ -167,7 +168,7 @@ Render `<TanStackDevtools>` behind the same check, and leave `mockServiceWorker.
 
 ### 3. (Optional) Register an adapter for auto-refetch
 
-Adapters automatically refetch/revalidate queries when you change mock configuration in the devtools panel.
+Adapters clear the library cache and then refetch when you change mock configuration in the devtools panel. The previous payload does not stay on screen.
 
 **TanStack Query:**
 
@@ -262,7 +263,21 @@ function UserCard() {
 }
 ```
 
-> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate seamlessly with `@mugenlabs/msw-devtools` without needing per-operation `useMockRefetch` calls.
+Clear the data on screen at the start of the `useMockRefetch` callback, then request. A callback that only fires the request leaves the mocked payload up while the request runs, and after it fails.
+
+> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate with `@mugenlabs/msw-devtools` without per-operation `useMockRefetch` calls.
+
+### Separate stored toggles per bundle
+
+The panel stores toggles under `msw-devtools-store`. Two bundles on one origin share that key and overwrite each other. Set a different key before the main package loads. The `/persistence` entry does not load the store.
+
+```ts
+import { setPersistenceKey } from "@mugenlabs/msw-devtools/persistence";
+
+setPersistenceKey("msw-devtools-store:my-app");
+```
+
+Import that module before `@mugenlabs/msw-devtools`.
 
 ## Handler Registration Patterns
 

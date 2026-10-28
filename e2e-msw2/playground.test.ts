@@ -1,10 +1,13 @@
 import { expect, test } from "@playwright/test";
 
+import { playgroundPersistenceKey } from "../apps/demo/src/playground-persistence";
 import { enableAllMocksViaStorage, openDevToolsPanel, waitForDemoReady } from "../e2e/helpers";
+
+const msw2Storage = { persistenceKey: playgroundPersistenceKey("2") };
 
 test.describe("MSW 2 playground", () => {
   test("query page shows Charizard and Gengar", async ({ page }) => {
-    await enableAllMocksViaStorage(page);
+    await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./query");
     await waitForDemoReady(page);
     await expect(page.locator("h3", { hasText: "Charizard" }).first()).toBeVisible();
@@ -12,7 +15,7 @@ test.describe("MSW 2 playground", () => {
   });
 
   test("devtools panel lists operations and the MSW 2 pill is active", async ({ page }) => {
-    await enableAllMocksViaStorage(page);
+    await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./query");
     await waitForDemoReady(page);
     await openDevToolsPanel(page);
@@ -30,7 +33,7 @@ test.describe("MSW 2 playground", () => {
   });
 
   test("turning a mock off refetches from PokeAPI", async ({ page }) => {
-    await enableAllMocksViaStorage(page);
+    await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./query");
     await waitForDemoReady(page);
     await openDevToolsPanel(page);
@@ -51,7 +54,7 @@ test.describe("MSW 2 playground", () => {
   });
 
   test("library tabs open each shared page", async ({ page }) => {
-    await enableAllMocksViaStorage(page);
+    await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./query");
     await waitForDemoReady(page);
 
@@ -72,7 +75,7 @@ test.describe("MSW 2 playground", () => {
   });
 
   test("index opens the query page", async ({ page }) => {
-    await enableAllMocksViaStorage(page);
+    await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./");
     await expect(page).toHaveURL(/\/msw2\/query\/?$/);
     await waitForDemoReady(page);
