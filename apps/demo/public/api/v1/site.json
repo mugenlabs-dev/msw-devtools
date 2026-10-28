@@ -26,7 +26,12 @@
     "/playground/urql",
     "/msw2",
     "/msw2/",
-    "/msw2/graphql"
+    "/msw2/apollo",
+    "/msw2/fetch",
+    "/msw2/query",
+    "/msw2/rtk-query",
+    "/msw2/swr",
+    "/msw2/urql"
   ],
   "serverApi": {
     "note": "This host exposes a small read-only site catalog for agent discovery. Browser MSW mocks in /playground (MSW 3) and /msw2/ (MSW 2) are client-side only and are not served as HTTP APIs here.",

@@ -6,6 +6,7 @@ export default defineConfig({
   reporter: "list",
   retries: process.env.CI === undefined ? 0 : 1,
   testDir: "./e2e-msw2",
+  timeout: 60_000,
   use: {
     // App is served with Vite base `/msw2/` (same path as production).
     baseURL: "http://localhost:3002/msw2/",

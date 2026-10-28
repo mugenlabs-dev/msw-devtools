@@ -417,7 +417,7 @@ msw-devtools/
   api/                 # Edge function for the demo site's API error responses
   apps/
     demo/              # Demo application & documentation site (MSW 3)
-    msw2-e2e/          # Deployed MSW 2 playground at /msw2/ (peer-matrix + public switch)
+    msw2-e2e/          # MSW 2 host for the shared demo playground at /msw2/
   packages/
     core/              # Core library (registry, store, MSW integration, UI plugin, adapters)
   e2e/                 # Playwright E2E tests (demo / MSW 3)

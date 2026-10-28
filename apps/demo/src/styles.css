@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source ".";
 
 /* Fine-pointer hover only — avoids sticky :hover on touch */
 @custom-variant hover {

@@ -10,7 +10,7 @@ This is a pnpm workspace monorepo.
 | --- | --- |
 | `packages/core` | The published package, `@mugenlabs/msw-devtools`. Source in `src/`, Storybook config in `.storybook/`, bundled with tsup |
 | `apps/demo` | Demo and documentation site (TanStack Start + React), deployed at msw-devtools.mugenlabs.dev. The landing page is statically generated and `/playground/*` is the MSW 3 client playground. Not published — it is in the Changesets ignore list |
-| `apps/msw2-e2e` | MSW 2 playground deployed at `/msw2/` on the same host (own `mockServiceWorker.js` + SW scope). Used by peer-matrix Playwright and the public MSW 2/3 switch |
+| `apps/msw2-e2e` | MSW 2 host for the shared playground at `/msw2/` (own `mockServiceWorker.js` and scope). Pages and handlers live in `apps/demo`. Used by peer-matrix Playwright and the public MSW 2/3 switch |
 | `e2e` | Playwright specs that drive the demo app and assert against a real DevTools panel |
 | `scripts` | One-off repo scripts (e.g. OG image generation) |
 

@@ -195,21 +195,69 @@ importers:
 
   apps/msw2-e2e:
     dependencies:
+      '@apollo/client':
+        specifier: ^3.14.1
+        version: 3.14.1(@types/react@19.2.18)(graphql@16.14.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@base-ui/react':
+        specifier: ^1.7.0
+        version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@mugenlabs/msw-devtools':
         specifier: workspace:*
         version: link:../../packages/core
+      '@reduxjs/toolkit':
+        specifier: ^2.12.0
+        version: 2.12.0(react-redux@9.3.0(@types/react@19.2.18)(react@19.2.8)(redux@5.0.1))(react@19.2.8)
+      '@tailwindcss/vite':
+        specifier: ^4.3.3
+        version: 4.3.3(vite@7.3.6(@types/node@26.4.1)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.46.0)(tsx@4.23.13)(yaml@2.9.0))
       '@tanstack/react-devtools':
         specifier: ^0.9.13
         version: 0.9.13(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(csstype@3.2.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(solid-js@1.9.11)
+      '@tanstack/react-query':
+        specifier: ^5.102.8
+        version: 5.102.8(react@19.2.8)
+      '@tanstack/react-router':
+        specifier: ^1.170.41
+        version: 1.170.41(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@urql/core':
+        specifier: ^6.0.3
+        version: 6.0.3(graphql@16.14.2)
+      axios:
+        specifier: ^1.20.0
+        version: 1.20.0
+      graphql:
+        specifier: ^16.14.2
+        version: 16.14.2
+      motion:
+        specifier: ^12.43.0
+        version: 12.43.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       msw:
         specifier: ^2.15.0
         version: 2.15.0(@types/node@26.4.1)(typescript@5.9.3)
+      posthog-js:
+        specifier: ^1.425.0
+        version: 1.438.4(@types/react@19.2.18)(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
+      react-redux:
+        specifier: ^9.3.0
+        version: 9.3.0(@types/react@19.2.18)(react@19.2.8)(redux@5.0.1)
+      shiki:
+        specifier: ^3.23.0
+        version: 3.23.0
+      swr:
+        specifier: ^2.5.1
+        version: 2.5.1(react@19.2.8)
+      tailwindcss:
+        specifier: ^4.3.3
+        version: 4.3.3
+      urql:
+        specifier: ^5.0.4
+        version: 5.0.4(@urql/core@6.0.3(graphql@16.14.2))(react@19.2.8)
     devDependencies:
       '@types/react':
         specifier: ^19.2.18

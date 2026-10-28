@@ -33,7 +33,7 @@ const STYLES = {
 
 export const MswVersionSwitch = ({
   active,
-  msw2Href = "/msw2/",
+  msw2Href = "/msw2/query",
   msw3Href = "/playground/query",
 }: {
   active: MswMajor;

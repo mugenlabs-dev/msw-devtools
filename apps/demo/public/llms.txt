@@ -15,7 +15,7 @@ Do not use this package as a security, compliance, or accessibility certificatio
 1. Read the docs homepage or `/docs` for installation, quick start, adapters, and the API reference.
 2. Install from npm: `npm install @mugenlabs/msw-devtools` (peer: `msw` `^2 || ^3`, `react`, plus optional adapter peers). Minimums follow the MSW major: MSW 2 needs Node ≥20 and TypeScript ≥5.0; MSW 3 needs Node ≥22.12 and TypeScript ≥5.9.
 3. Register handlers with `registerRestMocks` / `registerGraphqlMocks` (prefer `graphql.link`; on MSW 3 import `graphql` from `msw/graphql`), mount `createMswDevToolsPlugin` inside TanStack DevTools, and optionally `registerAdapter` for auto-refetch. Keep `onUnhandledRequest` in `WorkerOptions` — it maps to MSW 3's `onUnhandledFrame`.
-4. Use `/playground` (MSW 3) or `/msw2/` (MSW 2) to exercise the panel against sample REST/GraphQL clients. Each path has its own `mockServiceWorker.js` and scope; the header switch navigates between them.
+4. Use `/playground` (MSW 3) or `/msw2/` (MSW 2) to exercise the panel. Both serve the same six library pages (TanStack Query, SWR, URQL, Apollo, RTK Query, and fetch). Each path has its own `mockServiceWorker.js` and scope. The version switch navigates between them.
 5. Reach the project only via GitHub Issues: https://github.com/mugenlabs-dev/msw-devtools/issues
 
 ## Main pages

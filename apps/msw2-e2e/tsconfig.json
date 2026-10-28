@@ -11,8 +11,8 @@
     "isolatedModules": true,
     "types": ["vite/client"],
     "paths": {
-      "#msw-version-switch": ["../demo/src/components/msw-version-switch.tsx"]
+      "#demo/*": ["../demo/src/*"]
     }
   },
-  "include": ["src", "../demo/src/components/msw-version-switch.tsx"]
+  "include": ["src"]
 }

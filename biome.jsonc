@@ -45,7 +45,7 @@
   "overrides": [
     {
       // Playwright tests and Storybook play functions await steps sequentially on purpose
-      "includes": ["e2e/**", "**/*.stories.tsx"],
+      "includes": ["e2e/**", "e2e-msw2/**", "**/*.stories.tsx"],
       "linter": {
         "rules": {
           "performance": {

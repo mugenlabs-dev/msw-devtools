@@ -15,7 +15,7 @@ Do not expect a hosted product REST API or CLI that talks to a remote backend. I
 - [Full documentation](https://msw-devtools.mugenlabs.dev/docs) — installation, quick start, adapters, API reference
 - [Developer portal](https://msw-devtools.mugenlabs.dev/developers) — links for agents and humans
 - [Playground (MSW 3)](https://msw-devtools.mugenlabs.dev/playground) — TanStack Query, SWR, URQL, Apollo, RTK Query, fetch
-- [Playground (MSW 2)](https://msw-devtools.mugenlabs.dev/msw2/) — REST + GraphQL fixture with the same DevTools panel
+- [Playground (MSW 2)](https://msw-devtools.mugenlabs.dev/msw2/). Same six library pages as the MSW 3 playground, on MSW 2.
 - [npm](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
 - [GitHub](https://github.com/mugenlabs-dev/msw-devtools)
 - [llms.txt](https://msw-devtools.mugenlabs.dev/llms.txt)
