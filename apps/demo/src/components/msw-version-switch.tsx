@@ -49,7 +49,7 @@ export const MswVersionSwitch = ({
       href={msw3Href}
       style={{ ...STYLES.link, ...(active === "3" ? STYLES.active : STYLES.idle) }}
     >
-      3.x{active === "3" ? " · active" : ""}
+      3.x
     </a>
     <a
       aria-current={active === "2" ? "page" : undefined}
@@ -58,7 +58,7 @@ export const MswVersionSwitch = ({
       href={msw2Href}
       style={{ ...STYLES.link, ...(active === "2" ? STYLES.active : STYLES.idle) }}
     >
-      2.x{active === "2" ? " · active" : ""}
+      2.x
     </a>
   </nav>
 );

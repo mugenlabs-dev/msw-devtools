@@ -21,7 +21,10 @@ test.describe("MSW 2 playground", () => {
     await expect(page.getByText("GetPancham").first()).toBeAttached();
     await expect(page.getByText("MSW Active").first()).toBeAttached();
     await expect(page.getByTestId("msw-switch-2")).toHaveAttribute("data-active", "true");
+    await expect(page.getByTestId("msw-switch-2")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByTestId("msw-switch-2")).toHaveText("2.x");
     await expect(page.getByTestId("msw-switch-3")).toHaveAttribute("data-active", "false");
+    await expect(page.getByTestId("msw-switch-3")).toHaveText("3.x");
     await expect(page.getByTestId("msw-switch-2")).toHaveAttribute("href", "/msw2/query");
     await expect(page.getByTestId("msw-switch-3")).toHaveAttribute("href", "/playground/query");
   });
