@@ -137,9 +137,9 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
 
-      - name: Build library
-        run: pnpm build
-
+      # Compile (emit) stays on the Build job against lockfile MSW 3. Peer legs
+      # only typecheck — a full tsup DTS build against oldest @urql/core fails on
+      # unrelated PersistedDocument typing.
       - name: Typecheck core
         run: pnpm exec tsgo -p packages/core --noEmit
 

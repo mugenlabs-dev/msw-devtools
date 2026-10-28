@@ -1,28 +1,30 @@
 /**
  * Resolve the MSW `graphql` namespace on either major.
  *
- * Prefer `msw/graphql` (MSW 3). Fall back to the `msw` root export (MSW 2),
- * which already exposes `graphql.link`. When only `link` exists, synthesize
- * unscoped `query` / `mutation` / `operation` from `link("*")`.
+ * MSW 2 exports `graphql` (with `.link`) from `msw`.
+ * MSW 3 only exports `graphql.link` from `msw/graphql`.
+ * Prefer the root export so Vite never has to resolve `msw/graphql` on 2.x
+ * (that subpath does not exist there and fails import analysis).
  */
+import * as msw from "msw";
+
 // biome-ignore lint/suspicious/noExplicitAny: dual-major test loader, not a public type
 type GraphqlNamespace = any;
 
 const loadGraphqlNamespace = async (): Promise<GraphqlNamespace> => {
-  try {
-    const mod = (await import(/* @vite-ignore */ "msw/graphql")) as {
-      graphql?: GraphqlNamespace;
-    };
-    if (mod.graphql && typeof mod.graphql.link === "function") {
-      return mod.graphql;
-    }
-  } catch {
-    // MSW 2 has no `msw/graphql` export.
+  const rootGraphql = (msw as { graphql?: GraphqlNamespace }).graphql;
+  if (rootGraphql && typeof rootGraphql.link === "function") {
+    return rootGraphql;
   }
 
-  const root = (await import("msw")) as { graphql?: GraphqlNamespace };
-  if (root.graphql && typeof root.graphql.link === "function") {
-    return root.graphql;
+  // MSW 3 only. Build the specifier at runtime so Vite/vitest on MSW 2 does not
+  // try to resolve the missing `./graphql` export during import analysis.
+  const graphqlModuleId = ["msw", "graphql"].join("/");
+  const mod = (await import(/* @vite-ignore */ graphqlModuleId)) as {
+    graphql?: GraphqlNamespace;
+  };
+  if (mod.graphql && typeof mod.graphql.link === "function") {
+    return mod.graphql;
   }
 
   throw new Error("msw-devtools tests: could not resolve msw graphql namespace");
