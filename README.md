@@ -414,10 +414,12 @@ This README is also the npm README: `pnpm readme:sync` copies it to `packages/co
 msw-devtools/
   api/                 # Edge function for the demo site's API error responses
   apps/
-    demo/              # Demo application & documentation site
+    demo/              # Demo application & documentation site (MSW 3)
+    msw2-e2e/          # Non-deployed MSW 2 fixture for peer-matrix Playwright
   packages/
     core/              # Core library (registry, store, MSW integration, UI plugin, adapters)
-  e2e/                 # Playwright E2E tests
+  e2e/                 # Playwright E2E tests (demo / MSW 3)
+  e2e-msw2/            # Playwright E2E tests for the MSW 2 fixture
   scripts/             # Utility scripts (e.g. OG image generation)
 ```
 
