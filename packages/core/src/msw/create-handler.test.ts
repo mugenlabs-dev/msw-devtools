@@ -59,9 +59,21 @@ const configure = (operationName: string, config: Partial<OperationMockConfig> =
   }));
 };
 
-/** Run a handler against a request the way MSW would, returning the mocked response. */
+/**
+ * Run a handler against a request the way MSW would, returning the mocked response.
+ *
+ * MSW 2.0.0 types omit `requestId` on `run`; 2.13+ and 3.x require it. Pass it at
+ * runtime for newer majors, but type the call ourselves so oldest peer typecheck
+ * stays green (2.0.0 runtime only reads `request` / `resolutionContext`).
+ */
 const run = async (handler: ReturnType<typeof createDynamicHandler>, request: Request) => {
-  const result = await handler.run({ request, requestId: "test" });
+  const result = await (
+    handler as unknown as {
+      run: (args: { request: Request; requestId: string }) => Promise<{
+        response?: Response;
+      } | null>;
+    }
+  ).run({ request, requestId: "test" });
   return result?.response ?? null;
 };
 
