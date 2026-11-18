@@ -62,9 +62,15 @@ describe("sanitizePersistedState", () => {
 describe("persistence key", () => {
   const slot = Symbol.for("@mugenlabs/msw-devtools.persistence-key");
 
+  // Earlier suites load the store, which fixes the key on the shared slot.
+  beforeEach(() => {
+    delete (globalThis as Record<symbol, unknown>)[slot];
+  });
+
   afterEach(() => {
     delete (globalThis as Record<symbol, unknown>)[slot];
     localStorage.removeItem("msw-devtools-store:2");
+    localStorage.removeItem(STORAGE_KEY);
   });
 
   it("hydrates from the key set before the store module loads", async () => {
@@ -82,6 +88,48 @@ describe("persistence key", () => {
 
     expect(useMockStore.getState().filter).toBe("live");
     expect(useMockStore.getState().operations.GetUser.enabled).toBe(true);
+  });
+
+  it("writes to the custom key and leaves the default key alone", async () => {
+    vi.resetModules();
+    const { setPersistenceKey } = await import("./persistence-key");
+    setPersistenceKey("msw-devtools-store:2");
+    const { useMockStore } = await import("./store");
+
+    useMockStore.getState().setFilter("live");
+
+    expect(localStorage.getItem("msw-devtools-store:2")).toContain('"filter":"live"');
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  it("rehydrates when another tab writes the custom key", async () => {
+    vi.resetModules();
+    const { setPersistenceKey } = await import("./persistence-key");
+    setPersistenceKey("msw-devtools-store:2");
+    const { useMockStore } = await import("./store");
+    const value = JSON.stringify({ state: { filter: "live" }, version: 0 });
+    localStorage.setItem("msw-devtools-store:2", value);
+
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "msw-devtools-store:2", newValue: value })
+    );
+
+    await vi.waitFor(() => expect(useMockStore.getState().filter).toBe("live"));
+  });
+
+  it("warns and keeps the opened key when set after the store loads", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    vi.resetModules();
+    const { useMockStore } = await import("./store");
+    const { getPersistenceKey, setPersistenceKey } = await import("./persistence-key");
+
+    setPersistenceKey("msw-devtools-store:2");
+    useMockStore.getState().setFilter("live");
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("has no effect"));
+    expect(getPersistenceKey()).toBe(STORAGE_KEY);
+    expect(localStorage.getItem("msw-devtools-store:2")).toBeNull();
+    warn.mockRestore();
   });
 });
 

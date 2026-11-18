@@ -28,11 +28,11 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
   head: () => ({
     meta: [
+      { title: "Privacy — MSW DevTools" },
       {
         content: `Privacy for ${SITE_NAME} — PostHog (EU) for page visits, anonymous feature use, and errors; cookieless; npm library sends nothing to Mugenlabs.`,
         name: "description",
       },
     ],
-    title: "Privacy · @mugenlabs/msw-devtools",
   }),
 });

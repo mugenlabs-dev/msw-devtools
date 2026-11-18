@@ -62,8 +62,8 @@ const tryGraphQLGet = (request: Request): boolean => {
 
 /** Extract operation name from a GraphQL query string, e.g. "query GetFoo { ... }" → "GetFoo" */
 const extractOperationNameFromQuery = (query: string): string | null => {
-  const match = /^(?:query|mutation|subscription)\s+(\w+)/i.exec(query.trim());
-  return match?.[1] ?? null;
+  const match = /^(?:query|mutation|subscription)\s+(?<name>\w+)/iu.exec(query.trim());
+  return match?.groups?.name ?? null;
 };
 
 /** Try to extract a GraphQL operation name from a POST request's JSON body. */
@@ -94,13 +94,13 @@ const matchesRestDescriptor = (request: Request, descriptor: RestMockDescriptor)
       const url = new URL(request.url);
       return testRegex(descriptor.path, request.url) || testRegex(descriptor.path, url.pathname);
     }
-    const escaped = descriptor.path.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const escaped = descriptor.path.replaceAll(/[.*+?^${}()|[\]\\]/gu, "\\$&");
     // MSW wildcards (`*`) match any characters, including path separators.
-    const pathPattern = escaped.replaceAll("\\*", ".*").replaceAll(/:[^/]+/g, "[^/]+");
-    const regex = new RegExp(`^${pathPattern}(\\?.*)?$`);
+    const pathPattern = escaped.replaceAll("\\*", ".*").replaceAll(/:[^/]+/gu, "[^/]+");
+    const regex = new RegExp(`^${pathPattern}(?:\\?.*)?$`, "u");
     // Relative descriptor paths (e.g. "/api/users") match the request pathname;
     // absolute descriptor paths (with an origin) match the full URL.
-    const isAbsolute = /^https?:\/\//i.test(descriptor.path);
+    const isAbsolute = /^https?:\/\//iu.test(descriptor.path);
     const target = isAbsolute ? request.url : new URL(request.url).pathname;
     return regex.test(target);
   } catch {

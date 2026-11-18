@@ -27,7 +27,7 @@ const PlaygroundTabs = () => {
           activeProps={{
             className: "border-border-tertiary bg-bg-tertiary text-text-primary",
           }}
-          className="pressable rounded-lg border px-4 py-2 font-medium text-[13px] no-underline transition-[border-color,background-color,color,transform] duration-150"
+          className="pressable rounded-lg border px-4 py-2 text-[13px] font-medium no-underline transition-[border-color,background-color,color,transform] duration-150"
           inactiveProps={{
             className:
               "border-border-secondary text-text-secondary hover:border-border-tertiary hover:text-text-primary",
@@ -55,15 +55,13 @@ export const PlaygroundPageShell = ({ children }: { children: ReactNode }) => {
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: skeleton animation keyframes */}
       <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
       <div className="mb-8 text-center">
-        <h1 className="m-0 mb-2 font-bold text-[clamp(1.375rem,2vw+1rem,1.75rem)] text-text-primary transition-colors duration-300">
-          @mugenlabs/
-          <wbr />
-          msw-devtools Playground
+        <h1 className="text-text-primary m-0 mb-2 text-[clamp(1.375rem,2vw+1rem,1.75rem)] font-bold transition-colors duration-300">
+          MSW DevTools Playground
         </h1>
-        <p className="m-0 mb-4 text-pretty text-sm text-text-muted">
-          Each page demonstrates a different data-fetching library integrated with
-          @mugenlabs/msw-devtools. Toggle mocks in the DevTools panel below to see responses change
-          in real time. This site runs {running}. Switch to {other} for the same playground.
+        <p className="text-text-muted m-0 mb-4 text-sm text-pretty">
+          Each page demonstrates a different data-fetching library integrated with MSW DevTools.
+          Toggle mocks in the DevTools panel below to see responses change in real time. This site
+          runs {running}. Switch to {other} for the same playground.
         </p>
         <div className="mb-6 flex justify-center">
           <MswVersionSwitch active={major} msw2Href={msw2Href} msw3Href={msw3Href} />

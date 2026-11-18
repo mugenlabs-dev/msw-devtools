@@ -193,26 +193,26 @@ export const PokemonCard = ({
 
   return (
     <div
-      className="pokemon-card overflow-clip rounded-2xl border border-border-primary bg-card-bg"
+      className="pokemon-card border-border-primary bg-card-bg overflow-clip rounded-2xl border"
       style={{ "--type-glow": glowColor } as CSSProperties}
     >
       <div className="flex items-center justify-between gap-3 px-[18px] py-3.5">
         <div className="flex flex-wrap items-center gap-1.5">
           <span
-            className="rounded-md px-2 py-[3px] font-bold text-[10px] uppercase tracking-wide"
+            className="rounded-md px-2 py-[3px] text-[10px] font-bold tracking-wide uppercase"
             style={{ background: badge.bg, color: badge.color }}
           >
             {badge.label}
           </span>
-          <span className="rounded-md bg-badge-method-bg px-2 py-[3px] font-bold text-[10px] text-badge-method-color transition-[background,color] duration-300">
+          <span className="bg-badge-method-bg text-badge-method-color rounded-md px-2 py-[3px] text-[10px] font-bold transition-[background,color] duration-300">
             {method}
           </span>
-          <span className="rounded-md bg-badge-lib-bg px-2 py-[3px] font-semibold text-[10px] text-badge-lib-color transition-[background,color] duration-300">
+          <span className="bg-badge-lib-bg text-badge-lib-color rounded-md px-2 py-[3px] text-[10px] font-semibold transition-[background,color] duration-300">
             {library}
           </span>
         </div>
         <button
-          className="hit-44 pressable cursor-pointer rounded-lg border border-border-secondary bg-transparent px-3 py-1 font-medium text-[10px] text-text-dimmed transition-[border-color,color,transform] duration-150 hover:border-border-tertiary hover:text-text-secondary"
+          className="hit-44 pressable border-border-secondary text-text-dimmed hover:border-border-tertiary hover:text-text-secondary cursor-pointer rounded-lg border bg-transparent px-3 py-1 text-[10px] font-medium transition-[border-color,color,transform] duration-150"
           onClick={onRefetch}
           type="button"
         >
@@ -220,7 +220,7 @@ export const PokemonCard = ({
         </button>
       </div>
 
-      <Separator className="m-0 h-px border-none bg-border-primary" />
+      <Separator className="bg-border-primary m-0 h-px border-none" />
 
       <div
         className="flex min-h-[220px] flex-col items-center justify-center px-[18px] py-6 pb-7"
@@ -231,7 +231,7 @@ export const PokemonCard = ({
         {error != null && error !== "" && (
           <div className="flex flex-col gap-1.5 text-center">
             <span className="text-[13px] text-red-500">Error</span>
-            <span className="max-w-[200px] break-words font-mono text-[11px] text-text-muted">
+            <span className="text-text-muted max-w-[200px] font-mono text-[11px] break-words">
               {error}
             </span>
           </div>
@@ -239,7 +239,7 @@ export const PokemonCard = ({
 
         {!loading && error == null && data != null && (
           <>
-            <div className="pokemon-card__sprite-wrap relative mb-4 flex h-[120px] w-[120px] items-center justify-center rounded-full bg-bg-primary">
+            <div className="pokemon-card__sprite-wrap bg-bg-primary relative mb-4 flex h-[120px] w-[120px] items-center justify-center rounded-full">
               <img
                 alt={data.name}
                 className="h-24 w-24"
@@ -251,7 +251,7 @@ export const PokemonCard = ({
               />
             </div>
 
-            <h3 className="m-0 mb-3 font-bold text-text-primary text-xl capitalize tracking-wide">
+            <h3 className="text-text-primary m-0 mb-3 text-xl font-bold tracking-wide capitalize">
               {data.name}
             </h3>
 
@@ -263,7 +263,7 @@ export const PokemonCard = ({
                 };
                 return (
                   <span
-                    className="rounded-full px-3 py-[3px] font-semibold text-[11px] capitalize"
+                    className="rounded-full px-3 py-[3px] text-[11px] font-semibold capitalize"
                     key={type}
                     style={{ background: colors.bg, color: colors.color }}
                   >
@@ -276,7 +276,7 @@ export const PokemonCard = ({
         )}
 
         {!loading && error == null && data == null && (
-          <span className="text-[13px] text-text-dimmed">No data available</span>
+          <span className="text-text-dimmed text-[13px]">No data available</span>
         )}
       </div>
     </div>

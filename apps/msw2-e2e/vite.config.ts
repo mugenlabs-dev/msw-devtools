@@ -28,6 +28,8 @@ export default defineConfig({
     fs: {
       allow: [repoRoot],
     },
-    port: 3002,
+    // Reached through the demo's /msw2 proxy in dev. Playwright passes its own port.
+    port: 3003,
+    strictPort: true,
   },
 });

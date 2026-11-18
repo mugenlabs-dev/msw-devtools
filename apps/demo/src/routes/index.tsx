@@ -6,7 +6,9 @@ import { DocsPage } from "../docs-page";
 export const Route = createFileRoute("/")({
   component: DocsPage,
   head: () => ({
-    meta: [{ content: SITE_DESCRIPTION, name: "description" }],
-    title: `${SITE_NAME} — Mugenlabs MSW DevTools plugin`,
+    meta: [
+      { title: `${SITE_NAME} — A TanStack DevTools plugin for MSW` },
+      { content: SITE_DESCRIPTION, name: "description" },
+    ],
   }),
 });

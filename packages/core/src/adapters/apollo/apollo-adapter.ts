@@ -15,6 +15,9 @@ export interface ApolloClientLike {
  * Creates an Apollo Client adapter for MSW DevTools.
  * When mock configuration changes, it clears the store and refetches active
  * queries. `refetchQueries` alone would keep the cached payload on screen.
+ *
+ * `resetStore` also clears local-only fields, runs `onResetStore` callbacks and
+ * rejects queries that are still in flight; the adapter ignores that rejection.
  */
 export const createApolloAdapter = (client: ApolloClientLike): MswDevToolAdapter => ({
   id: "apollo",

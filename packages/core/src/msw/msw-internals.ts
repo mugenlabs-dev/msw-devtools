@@ -14,17 +14,19 @@
  * Handler types are structural so consumers are not coupled to a specific MSW
  * install identity (and so GraphQLHandler need not be imported from either path).
  */
+import type { RequestHandler } from "msw";
 
 /**
  * REST handler shape from `http.*` (MSW 2 or 3).
  * `info` fields stay loose so MSW's predicate unions (string | RegExp | function)
  * remain assignable without coupling to a specific MSW install identity.
+ * `method` and `path` are required so a GraphQL handler is not assignable here.
  */
-export interface RestHandler {
+export interface RestHandlerLike {
   readonly info: {
     readonly header: string;
-    readonly method?: unknown;
-    readonly path?: unknown;
+    readonly method: unknown;
+    readonly path: unknown;
   };
 }
 
@@ -32,15 +34,16 @@ export interface RestHandler {
  * GraphQL handler from MSW 2 (`import { graphql } from "msw"`) or
  * MSW 3 (`import { graphql } from "msw/graphql"`).
  */
-export interface GraphqlHandler {
+export interface GraphqlHandlerLike {
   readonly info: {
     readonly header: string;
-    readonly operationName?: unknown;
-    readonly operationType?: unknown;
+    /** Required, with `operationType`, so an `http.*` handler is not assignable here. */
+    readonly operationName: unknown;
+    readonly operationType: unknown;
   };
 }
 
-export type AnyHandler = GraphqlHandler | RestHandler;
+export type AnyHandler = GraphqlHandlerLike | RestHandlerLike;
 
 /** The subset of MSW's `RequestHandlerOptions` the devtools preserve. */
 export interface HandlerOptions {
@@ -55,7 +58,7 @@ type GraphqlHandlerConstructor = new (
   endpoint: string | RegExp,
   resolver: HandlerResolver,
   options?: HandlerOptions
-) => GraphqlHandler;
+) => GraphqlHandlerLike & RequestHandler;
 
 const unsupported = (field: string): Error =>
   new Error(
@@ -72,7 +75,7 @@ export const isMswRequestHandler = (value: unknown): value is AnyHandler =>
   "info" in value;
 
 /** True when the handler carries GraphQL `info.operationType` (query/mutation/all). */
-export const isGraphqlHandler = (handler: unknown): handler is GraphqlHandler => {
+export const isGraphqlHandler = (handler: unknown): handler is GraphqlHandlerLike => {
   if (!isMswRequestHandler(handler)) {
     return false;
   }
@@ -105,7 +108,7 @@ export const getHandlerOptions = (handler: AnyHandler): HandlerOptions | undefin
  * The endpoint a GraphQL handler is scoped to via `graphql.link(url)`.
  * Handlers built against `"*"` (MSW 2 unscoped query, or `link("*")`) use that.
  */
-export const getGraphQLEndpoint = (handler: GraphqlHandler): string | RegExp => {
+export const getGraphQLEndpoint = (handler: GraphqlHandlerLike): string | RegExp => {
   const { endpoint } = handler as unknown as { endpoint?: unknown };
   if (typeof endpoint === "string" || endpoint instanceof RegExp) {
     return endpoint;
@@ -119,7 +122,7 @@ export const getGraphQLEndpoint = (handler: GraphqlHandler): string | RegExp => 
  * `link.operation()` subscription sibling.
  */
 export const createGraphqlHandlerFrom = (
-  prototype: GraphqlHandler,
+  prototype: GraphqlHandlerLike,
   args: {
     endpoint: string | RegExp;
     operationType: "query" | "mutation" | "operation";
@@ -127,12 +130,12 @@ export const createGraphqlHandlerFrom = (
     predicate: string | RegExp;
     resolver: HandlerResolver;
   }
-): GraphqlHandler => {
+): GraphqlHandlerLike & RequestHandler => {
   const Ctor = (prototype as unknown as { constructor: GraphqlHandlerConstructor }).constructor;
   if (typeof Ctor !== "function") {
     throw unsupported("GraphQLHandler.constructor");
   }
   const mswOperationType = args.operationType === "operation" ? "all" : args.operationType;
-  const predicate = args.operationType === "operation" ? /.*/ : args.predicate;
+  const predicate = args.operationType === "operation" ? /.*/u : args.predicate;
   return new Ctor(mswOperationType, predicate, args.endpoint, args.resolver, args.options);
 };

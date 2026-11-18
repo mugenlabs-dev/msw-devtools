@@ -153,7 +153,7 @@ describe("operation-tracker", () => {
 
   it("marks a REST operation registered with a RegExp path as seen", () => {
     mockRegistry.register(
-      restDescriptor({ operationName: "GET user by id", path: /\/api\/users\/\d+$/ })
+      restDescriptor({ operationName: "GET user by id", path: /\/api\/users\/\d+$/u })
     );
     const { emit, worker } = createFakeWorker();
     setupOperationTracker(worker as never);
@@ -177,7 +177,7 @@ describe("operation-tracker", () => {
     mockRegistry.register(
       restDescriptor({
         operationName: "GET user by id",
-        path: /^http:\/\/localhost\/api\/users\/\d+$/g,
+        path: /^http:\/\/localhost\/api\/users\/\d+$/gu,
       })
     );
     const { emit, worker } = createFakeWorker();

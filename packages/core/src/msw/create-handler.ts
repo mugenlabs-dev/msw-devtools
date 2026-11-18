@@ -1,3 +1,4 @@
+import type { RequestHandler } from "msw";
 import { delay, HttpResponse, http, passthrough } from "msw";
 import type { HandlerVariant, MockOperationDescriptor } from "#/registry/types";
 import { isGraphQLDescriptor, isRestDescriptor, resolveActiveVariant } from "#/registry/types";
@@ -268,19 +269,17 @@ const createGraphQLHandler = (
 };
 
 /**
- * Runtime MSW handler instance. Typed structurally so GraphQL wrappers built
- * from the user's constructor stay dual-major without importing GraphQLHandler.
+ * Runtime MSW handler instance. `RequestHandler` is a type-only import that
+ * both majors export from the root, so no GraphQLHandler import is needed.
  */
-export interface DynamicHandler {
-  run: (args: { request: Request; requestId: string }) => Promise<{ response?: Response } | null>;
-}
+export type DynamicHandler = RequestHandler;
 
 export const createDynamicHandler = (descriptor: MockOperationDescriptor): DynamicHandler => {
   if (isGraphQLDescriptor(descriptor)) {
-    return createGraphQLHandler(descriptor) as unknown as DynamicHandler;
+    return createGraphQLHandler(descriptor);
   }
   if (isRestDescriptor(descriptor)) {
-    return createRestHandler(descriptor) as unknown as DynamicHandler;
+    return createRestHandler(descriptor);
   }
   throw new Error(
     `Unknown descriptor type for operation: ${(descriptor as MockOperationDescriptor).operationName}`

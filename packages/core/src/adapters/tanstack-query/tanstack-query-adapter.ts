@@ -7,6 +7,9 @@ import type { MockChangeType, MswDevToolAdapter } from "#/adapter/types";
  * When mock configuration changes, it resets every query. Reset drops the
  * cached payload, so a disabled mock is not still painted while the refetch
  * runs or if that refetch fails. Active queries refetch.
+ *
+ * The reset is client-wide: inactive queries lose their data too, and infinite
+ * queries go back to their first page.
  */
 export const createTanStackQueryAdapter = (queryClient: QueryClient): MswDevToolAdapter => ({
   id: "tanstack-query",

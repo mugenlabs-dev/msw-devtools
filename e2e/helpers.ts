@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 
 import { expect } from "@playwright/test";
 import { playgroundPersistenceKey } from "../apps/demo/src/playground-persistence";
+import { stubLivePokeApi } from "./live-api-stub";
 
 export const REST_MISSINGNO = JSON.stringify({ name: "missingno", types: [] });
 
@@ -50,22 +51,24 @@ export const expectMockPayloadLeaves = async (
   await page.goto(options.path);
   await waitForDemoReady(page);
   await openDevToolsPanel(page);
-  await expect(page.locator("h3", { hasText: /missingno/i })).toHaveCount(1);
+  await expect(page.locator("h3", { hasText: /missingno/iu })).toHaveCount(1);
 
   const row = page.locator("[data-testid='operation-row']").filter({ hasText: options.operation });
-  await row.getByRole("button", { name: /Toggle.*mock/ }).click();
+  await row.getByRole("button", { name: /Toggle.*mock/u }).click();
 
-  await expect(page.locator("h3", { hasText: /missingno/i })).toHaveCount(0);
+  await expect(page.locator("h3", { hasText: /missingno/iu })).toHaveCount(0);
 };
 
 /**
- * Turn every mock off, then require the Charizard card's next read to be the live PokeAPI document.
- * Live Charizard has `abilities`. The fixture and the default mock do not.
+ * Turn every mock off, then require the Charizard card's next read to come from the network.
+ * Network Charizard has `abilities` (live, or the stand-in from `stubLivePokeApi`). The fixture
+ * and the default mock do not.
  */
 export const expectAllOffReturnsLive = async (
   page: Page,
   options: { path: string; persistenceKey?: string }
 ) => {
+  await stubLivePokeApi(page.context());
   await enableAllMocksViaStorage(page, {
     overrides: { "GET Charizard": FIXTURE_CHARIZARD },
     persistenceKey: options.persistenceKey,
@@ -75,51 +78,21 @@ export const expectAllOffReturnsLive = async (
   await openDevToolsPanel(page);
   await expect(page.locator("h3", { hasText: "fixture-charizard" })).toHaveCount(1);
 
-  const bodies: string[] = [];
-  const pending: Promise<void>[] = [];
-  let collect = false;
-  page.on("response", (response) => {
-    if (!(collect && response.url().includes("/api/v2/pokemon/6"))) {
-      return;
-    }
-    pending.push(
-      response.text().then(
-        (text) => {
-          bodies.push(text);
-        },
-        () => undefined
-      )
-    );
-  });
-
-  collect = true;
-  await page.locator("button").filter({ hasText: "All Off" }).click();
-  await expect(page.locator(`text=0/${TOTAL_OPERATIONS} active`).first()).toBeVisible({
-    timeout: 15_000,
-  });
+  await page.getByRole("button", { name: "All Off" }).click();
+  await expect(page.getByText(`0/${TOTAL_OPERATIONS} active`).first()).toBeVisible();
   await expect(page.locator("h3", { hasText: "fixture-charizard" })).toHaveCount(0);
 
-  await Promise.all(pending);
-  const beforeRefetch = bodies.length;
+  // Every mock is off now, so any Charizard response from here on came from the network.
+  const networkResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/v2/pokemon/6")
+  );
   const card = page.locator(".pokemon-card").first();
   await card.getByRole("button", { name: "Refetch" }).click();
 
-  await expect
-    .poll(
-      async () => {
-        await Promise.all(pending);
-        if (bodies.length <= beforeRefetch) {
-          return "";
-        }
-        return bodies.at(-1) ?? "";
-      },
-      { timeout: 20_000 }
-    )
-    .toContain('"abilities"');
-
-  const liveBody = bodies.at(-1) ?? "";
-  expect(liveBody).not.toContain("fixture-charizard");
-  await expect(card.locator("h3")).toHaveText("charizard", { timeout: 20_000 });
+  const body = await (await networkResponse).text();
+  expect(body).toContain('"abilities"');
+  expect(body).not.toContain("fixture-charizard");
+  await expect(card.locator("h3")).toHaveText("charizard");
 };
 
 /** Live Charizard `front_default` from PokeAPI (normal orange sprite). */
@@ -153,33 +126,30 @@ export const expectAllOffShowsLiveCharizardSprite = async (
   page.on("pageerror", onPageError);
 
   try {
+    await stubLivePokeApi(page.context());
     await page.goto(options.path);
     await waitForDemoReady(page);
     await openDevToolsPanel(page);
 
-    await page.locator("button").filter({ hasText: "All On" }).click();
+    await page.getByRole("button", { name: "All On" }).click();
     await expect(
-      page.locator(`text=${TOTAL_OPERATIONS}/${TOTAL_OPERATIONS} active`).first()
-    ).toBeVisible({
-      timeout: 15_000,
-    });
+      page.getByText(`${TOTAL_OPERATIONS}/${TOTAL_OPERATIONS} active`).first()
+    ).toBeVisible();
 
     const card = page
       .locator(".pokemon-card")
-      .filter({ hasText: /charizard/i })
+      .filter({ hasText: /charizard/iu })
       .first();
     const sprite = card.locator('img[data-sprite="default"]');
     await card.getByRole("button", { name: "Refetch" }).click();
-    await expect(sprite).toHaveAttribute("src", MOCK_CHARIZARD_SPRITE, { timeout: 20_000 });
+    await expect(sprite).toHaveAttribute("src", MOCK_CHARIZARD_SPRITE);
 
     const errorsBeforeOff = consoleErrors.length;
-    await page.locator("button").filter({ hasText: "All Off" }).click();
-    await expect(page.locator(`text=0/${TOTAL_OPERATIONS} active`).first()).toBeVisible({
-      timeout: 15_000,
-    });
+    await page.getByRole("button", { name: "All Off" }).click();
+    await expect(page.getByText(`0/${TOTAL_OPERATIONS} active`).first()).toBeVisible();
 
     await card.getByRole("button", { name: "Refetch" }).click();
-    await expect(sprite).toHaveAttribute("src", LIVE_CHARIZARD_SPRITE, { timeout: 20_000 });
+    await expect(sprite).toHaveAttribute("src", LIVE_CHARIZARD_SPRITE);
     await expect(card.locator("h3")).toHaveText("charizard");
 
     await card.hover();
@@ -190,9 +160,7 @@ export const expectAllOffShowsLiveCharizardSprite = async (
     const allSprites = page.locator('img[data-sprite="default"]');
     await expect(allSprites).toHaveCount(6);
     for (let i = 0; i < 6; i += 1) {
-      await expect(allSprites.nth(i)).not.toHaveAttribute("src", /\/shiny\//, {
-        timeout: 20_000,
-      });
+      await expect(allSprites.nth(i)).not.toHaveAttribute("src", /\/shiny\//u);
     }
 
     const newErrors = consoleErrors.slice(errorsBeforeOff);

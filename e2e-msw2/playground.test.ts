@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { playgroundPersistenceKey } from "../apps/demo/src/playground-persistence";
 import { enableAllMocksViaStorage, openDevToolsPanel, waitForDemoReady } from "../e2e/helpers";
+import { stubLivePokeApi } from "../e2e/live-api-stub";
 
 const msw2Storage = { persistenceKey: playgroundPersistenceKey("2") };
 
@@ -33,20 +34,22 @@ test.describe("MSW 2 playground", () => {
   });
 
   test("turning a mock off refetches from PokeAPI", async ({ page }) => {
+    await stubLivePokeApi(page.context());
     await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./query");
     await waitForDemoReady(page);
     await openDevToolsPanel(page);
 
     const row = page.locator("[data-testid='operation-row']").filter({ hasText: "GET Gengar" });
-    const rowToggle = row.getByRole("button", { name: /Toggle.*mock/ });
+    const rowToggle = row.getByRole("button", { name: /Toggle.*mock/u });
     await expect(rowToggle).toHaveAttribute("aria-pressed", "true");
 
-    const refetch = page.waitForRequest(
-      (request) => request.url() === "https://pokeapi.co/api/v2/pokemon/94"
+    const refetch = page.waitForResponse(
+      (response) => response.url() === "https://pokeapi.co/api/v2/pokemon/94"
     );
     await rowToggle.click();
-    await refetch;
+    // Only network bodies carry `abilities`, so this one got past MSW.
+    expect(await (await refetch).text()).toContain('"abilities"');
 
     await expect(rowToggle).toHaveAttribute("aria-pressed", "false");
     await expect(page.locator("h3", { hasText: "Gengar" }).first()).toBeVisible();
@@ -77,7 +80,7 @@ test.describe("MSW 2 playground", () => {
   test("index opens the query page", async ({ page }) => {
     await enableAllMocksViaStorage(page, msw2Storage);
     await page.goto("./");
-    await expect(page).toHaveURL(/\/msw2\/query\/?$/);
+    await expect(page).toHaveURL(/\/msw2\/query\/?$/u);
     await waitForDemoReady(page);
     await expect(page.locator("h3", { hasText: "Charizard" }).first()).toBeVisible();
   });

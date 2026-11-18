@@ -1,4 +1,4 @@
-import type { GraphqlHandler, HandlerOptions, RestHandler } from "#/msw/msw-internals";
+import type { GraphqlHandlerLike, HandlerOptions, RestHandlerLike } from "#/msw/msw-internals";
 
 // ---------------------------------------------------------------------------
 // Handler Variant — wraps a user-provided MSW handler as a selectable variant
@@ -6,7 +6,7 @@ import type { GraphqlHandler, HandlerOptions, RestHandler } from "#/msw/msw-inte
 
 export interface HandlerVariant {
   /** The user's MSW request handler whose resolver produces the response. */
-  handler: GraphqlHandler | RestHandler;
+  handler: GraphqlHandlerLike | RestHandlerLike;
   /**
    * Stable identifier for this variant: derived from the label when one was
    * given (e.g. "not-found-empty"), otherwise from the handler's resolver, so
@@ -30,21 +30,21 @@ export interface RestMockDef {
   /** Optional grouping label (e.g. journey name, feature area). */
   group?: string;
   /** Shorthand for a single-variant mock. Mutually exclusive with `variants`. */
-  handler?: RestHandler;
+  handler?: RestHandlerLike;
   /**
    * Override the auto-derived operation name.
    * Default: `"METHOD /pathname"` derived from the handler info.
    */
   operationName?: string;
   /** Multiple handler variants for the same endpoint. */
-  variants?: HandlerVariantInput<RestHandler>[];
+  variants?: HandlerVariantInput<RestHandlerLike>[];
 }
 
 export interface GraphqlMockDef {
   /** Optional grouping label (e.g. journey name, feature area). */
   group?: string;
   /** Shorthand for a single-variant mock. Mutually exclusive with `variants`. */
-  handler?: GraphqlHandler;
+  handler?: GraphqlHandlerLike;
   /**
    * Override the auto-derived operation name.
    * Default: the `operationName` from the GraphQL handler info.
@@ -53,7 +53,7 @@ export interface GraphqlMockDef {
   /** Override the auto-derived operation type ("query" | "mutation" | "operation"). */
   operationType?: GraphQLOperationType;
   /** Multiple handler variants for the same endpoint. */
-  variants?: HandlerVariantInput<GraphqlHandler>[];
+  variants?: HandlerVariantInput<GraphqlHandlerLike>[];
 }
 
 // ---------------------------------------------------------------------------

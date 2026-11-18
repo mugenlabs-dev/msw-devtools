@@ -1,16 +1,16 @@
 {
   "linkset": [
     {
-      "anchor": "https://msw-devtools-mugenlabs.vercel.app/api/v1/site",
+      "anchor": "https://msw-devtools.mugenlabs.dev/api/v1/site",
       "service-desc": [
         {
-          "href": "https://msw-devtools-mugenlabs.vercel.app/openapi.json",
+          "href": "https://msw-devtools.mugenlabs.dev/openapi.json",
           "type": "application/vnd.oai.openapi+json"
         }
       ],
       "service-doc": [
         {
-          "href": "https://msw-devtools-mugenlabs.vercel.app/",
+          "href": "https://msw-devtools.mugenlabs.dev/",
           "type": "text/html"
         }
       ]

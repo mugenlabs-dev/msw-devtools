@@ -8,10 +8,10 @@ updates:
       interval: weekly
     groups:
       actions:
-        patterns: ["*"]
+        patterns: [ "*" ]
     commit-message:
       prefix: ci
     ignore:
       # v2 requires @changesets/cli v3; bump both together by hand.
       - dependency-name: changesets/action
-        update-types: ["version-update:semver-major"]
+        update-types: [ "version-update:semver-major" ]

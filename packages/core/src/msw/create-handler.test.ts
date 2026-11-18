@@ -4,6 +4,7 @@ import type { GraphQLMockDescriptor, RestMockDescriptor } from "#/registry/types
 import { defaultConfig, useMockStore } from "#/store/store";
 import type { OperationMockConfig } from "#/store/types";
 import { graphql } from "#/test-utils/graphql";
+import { mswHasGraphqlSubpath } from "#/test-utils/msw-exports";
 import { createDynamicHandler } from "./create-handler";
 
 vi.mock("msw", async (importOriginal) => {
@@ -130,7 +131,7 @@ describe("createDynamicHandler", () => {
 
     it("serves mutations for a graphql.operation mock", async () => {
       const descriptor = graphqlDescriptor({
-        graphqlOperationName: /.*/,
+        graphqlOperationName: /.*/u,
         operationName: "Any operation",
         operationType: "operation",
         variants: [
@@ -156,25 +157,22 @@ describe("createDynamicHandler", () => {
     });
 
     it("does not attach MSW 3 subscription siblings for graphql.operation mocks", () => {
+      const siblingSymbols = (value: object) =>
+        Object.getOwnPropertySymbols(value).filter(
+          (symbol) => symbol.description === "kSiblingHandlers"
+        );
+      const userHandler = graphql.operation(() => HttpResponse.json({ data: { ok: true } }));
       const descriptor = graphqlDescriptor({
-        graphqlOperationName: /.*/,
+        graphqlOperationName: /.*/u,
         operationName: "Any operation",
         operationType: "operation",
-        variants: [
-          {
-            handler: graphql.operation(() => HttpResponse.json({ data: { ok: true } })),
-            id: "variant-0",
-            label: "Default",
-          },
-        ],
+        variants: [{ handler: userHandler, id: "variant-0", label: "Default" }],
       });
 
-      const handler = createDynamicHandler(descriptor);
-      const siblingSymbols = Object.getOwnPropertySymbols(handler).filter(
-        (symbol) => symbol.description === "kSiblingHandlers"
-      );
-
-      expect(siblingSymbols).toHaveLength(0);
+      // Guard the premise: MSW 3 attaches the sibling to the user's handler, MSW 2
+      // has none. If MSW renames the symbol this fails instead of passing vacuously.
+      expect(siblingSymbols(userHandler)).toHaveLength(mswHasGraphqlSubpath() ? 1 : 0);
+      expect(siblingSymbols(createDynamicHandler(descriptor))).toHaveLength(0);
     });
   });
 
@@ -317,7 +315,7 @@ describe("createDynamicHandler", () => {
     });
 
     it("supports RegExp paths", async () => {
-      const path = /\/api\/users\/\d+$/;
+      const path = /\/api\/users\/\d+$/u;
       const descriptor = restDescriptor({
         operationName: "GET user by id",
         path,

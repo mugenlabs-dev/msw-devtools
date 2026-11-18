@@ -1,6 +1,6 @@
 import { HttpResponse, http } from "msw";
 import { graphql } from "#/test-utils/graphql";
-import type { RestHandler } from "./msw-internals";
+import type { RestHandlerLike } from "./msw-internals";
 import {
   createGraphqlHandlerFrom,
   getGraphQLEndpoint,
@@ -31,9 +31,9 @@ describe("msw internals", () => {
     });
 
     it("throws a descriptive error when the handler has no resolver", () => {
-      const handler = {} as unknown as RestHandler;
+      const handler = {} as unknown as RestHandlerLike;
 
-      expect(() => getHandlerResolver(handler)).toThrow(/missing `resolver`/);
+      expect(() => getHandlerResolver(handler)).toThrow(/missing `resolver`/u);
     });
   });
 
@@ -51,7 +51,7 @@ describe("msw internals", () => {
     });
 
     it("returns undefined when the handler has no options field", () => {
-      const handler = {} as unknown as RestHandler;
+      const handler = {} as unknown as RestHandlerLike;
 
       expect(getHandlerOptions(handler)).toBeUndefined();
     });

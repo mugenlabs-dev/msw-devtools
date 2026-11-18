@@ -134,7 +134,7 @@ describe("mockRefetchExchange", () => {
     it("re-executes a query matched by a RegExp handler", () => {
       mockRegistry.register({
         endpoint: "*",
-        graphqlOperationName: /^GetUser/,
+        graphqlOperationName: /^GetUser/u,
         operationName: "/^GetUser/",
         operationType: "query",
         type: "graphql",

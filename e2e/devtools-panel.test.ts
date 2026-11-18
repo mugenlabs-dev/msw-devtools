@@ -8,7 +8,7 @@ import {
   waitForLiveBadges,
 } from "./helpers";
 
-const LIVE_BADGE_REGEX = /^LIVE$/;
+const LIVE_BADGE_REGEX = /^LIVE$/u;
 
 test.describe("DevTools Panel", () => {
   test.beforeEach(async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe("DevTools Panel", () => {
 
   test("shows active/enabled count", async ({ page }) => {
     await expect(
-      page.getByText(new RegExp(`\\d+/${TOTAL_OPERATIONS} active`)).first()
+      page.getByText(new RegExp(`\\d+/${TOTAL_OPERATIONS} active`, "u")).first()
     ).toBeVisible();
   });
 

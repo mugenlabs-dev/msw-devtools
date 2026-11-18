@@ -1,4 +1,4 @@
-import { ApolloProvider } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import {
   createMswDevToolsPlugin,
   mockRegistry,
@@ -47,7 +47,7 @@ const WorkerGate = ({ children }: { children: ReactNode }) => {
   const workerStatus = useMockStore((s) => s.workerStatus);
   if (workerStatus === "idle" || workerStatus === "starting") {
     return (
-      <p className="m-0 py-12 text-center text-sm text-text-muted" data-testid="worker-starting">
+      <p className="text-text-muted m-0 py-12 text-center text-sm" data-testid="worker-starting">
         Starting the mock service worker…
       </p>
     );

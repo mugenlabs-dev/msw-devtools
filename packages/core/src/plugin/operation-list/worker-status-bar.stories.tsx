@@ -29,7 +29,7 @@ export const Idle: Story = {
   play: async ({ canvas, step }) => {
     await step("Verify idle state", async () => {
       await expect(canvas.getByText("MSW Idle")).toBeInTheDocument();
-      await expect(canvas.queryByRole("button", { name: /clear seen/i })).not.toBeInTheDocument();
+      await expect(canvas.queryByRole("button", { name: /clear seen/iu })).not.toBeInTheDocument();
     });
   },
 };
@@ -81,10 +81,10 @@ export const ActiveWithSeenOps: Story = {
   play: async ({ canvas, userEvent, step, args }) => {
     await step("Verify clear button visible", async () => {
       await expect(canvas.getByText("MSW Active")).toBeInTheDocument();
-      await expect(canvas.getByRole("button", { name: /clear seen/i })).toBeInTheDocument();
+      await expect(canvas.getByRole("button", { name: /clear seen/iu })).toBeInTheDocument();
     });
     await step("Click clear seen triggers callback", async () => {
-      const button = canvas.getByRole("button", { name: /clear seen/i });
+      const button = canvas.getByRole("button", { name: /clear seen/iu });
       await userEvent.click(button);
       await expect(args.clearSeenOperations).toHaveBeenCalledTimes(1);
     });

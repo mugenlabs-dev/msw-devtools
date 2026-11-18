@@ -242,7 +242,7 @@ registerAdapter(createUrqlAdapter());`;
 
 export const UrqlPage = () => (
   <div className="flex flex-col gap-6">
-    <div className="group rounded-2xl border border-border-primary bg-card-bg/30 p-6">
+    <div className="group border-border-primary bg-card-bg/30 rounded-2xl border p-6">
       <div className="flex items-center gap-4">
         <img
           alt="Great Ball"
@@ -253,9 +253,9 @@ export const UrqlPage = () => (
           width={64}
         />
         <div>
-          <h2 className="m-0 font-bold text-text-primary text-xl">
+          <h2 className="text-text-primary m-0 text-xl font-bold">
             <a
-              className="text-text-primary no-underline transition-colors duration-150 hover:text-accent-blue"
+              className="text-text-primary hover:text-accent-blue no-underline transition-colors duration-150"
               href="https://commerce.nearform.com/open-source/urql/"
               rel="noopener noreferrer"
               target="_blank"
@@ -263,7 +263,7 @@ export const UrqlPage = () => (
               URQL
             </a>
           </h2>
-          <p className="m-0 mt-1 text-sm text-text-muted">
+          <p className="text-text-muted m-0 mt-1 text-sm">
             The adapter triggers URQL cache invalidation when mock state changes, causing active
             subscriptions to re-execute their queries with the updated mock responses.
           </p>

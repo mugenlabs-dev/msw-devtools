@@ -11,11 +11,11 @@ import {
   waitForOperationCount,
 } from "./helpers";
 
-const REST_FILTER_REGEX = /^rest$/i;
-const GRAPHQL_FILTER_REGEX = /^graphql$/i;
-const LIVE_FILTER_REGEX = /^live$/i;
-const ENABLED_FILTER_REGEX = /^enabled$/i;
-const ALL_FILTER_REGEX = /^all$/i;
+const REST_FILTER_REGEX = /^rest$/iu;
+const GRAPHQL_FILTER_REGEX = /^graphql$/iu;
+const LIVE_FILTER_REGEX = /^live$/iu;
+const ENABLED_FILTER_REGEX = /^enabled$/iu;
+const ALL_FILTER_REGEX = /^all$/iu;
 
 const collectOperationTexts = async (page: Page): Promise<string[]> => {
   const opElements = page.locator("[data-testid='operation-row']");
@@ -39,7 +39,7 @@ test.describe("Filter & Sort", () => {
       await expect(
         page
           .locator("button")
-          .filter({ hasText: new RegExp(`^${label}$`, "i") })
+          .filter({ hasText: new RegExp(`^${label}$`, "iu") })
           .first()
       ).toBeVisible();
     }

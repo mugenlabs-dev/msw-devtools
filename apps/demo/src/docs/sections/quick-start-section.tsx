@@ -70,7 +70,7 @@ export const QuickStartSection = () => (
     {/* Step 1 */}
     <div className="mb-3 flex items-center gap-2.5">
       <StepNumber n={1} />
-      <span className="font-semibold text-[15px] text-text-primary">Register your handlers</span>
+      <span className="text-text-primary text-[15px] font-semibold">Register your handlers</span>
     </div>
     <p className={prose}>
       Pass your MSW handlers directly to <code className={inlineCode}>registerRestMocks</code> or{" "}
@@ -89,11 +89,13 @@ export const QuickStartSection = () => (
     {/* Step 2 */}
     <div className="mb-3 flex items-center gap-2.5">
       <StepNumber n={2} />
-      <span className="font-semibold text-[15px] text-text-primary">Mount the DevTools plugin</span>
+      <span className="text-text-primary text-[15px] font-semibold">Mount the DevTools plugin</span>
     </div>
     <p className={prose}>
       Add the TanStack DevTools component to your app with the MSW plugin. The service worker starts
-      automatically when the plugin mounts:
+      automatically when the plugin mounts. In the Next.js App Router, put this in a client
+      component, marked <code className={inlineCode}>"use client"</code>, that your root layout
+      renders:
     </p>
     <div className="mb-7">
       <CodeBlock lang="tsx">
@@ -113,16 +115,42 @@ function App() {
       </CodeBlock>
     </div>
 
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">
+      Choose where it runs
+    </h3>
+    <p className={prose}>
+      The plugin bundles MSW and your mock data, and it starts a service worker that intercepts
+      requests. Load it with a dynamic import behind a check, so builds that don&apos;t need it
+      never download it. To test a staging or production build with data you can&apos;t get from the
+      real backend, gate the import on a flag you control, such as a query parameter. The bundle is
+      fetched only when the flag is set, and the mocks apply only in that browser:
+    </p>
+    <div className="mb-4">
+      <CodeBlock lang="tsx">
+        {`// main.tsx (Vite)
+const params = new URLSearchParams(location.search);
+if (import.meta.env.DEV || params.has("mocks")) {
+  await import("./mocks/setup");
+}`}
+      </CodeBlock>
+    </div>
+    <p className={`${prose} mb-7`}>
+      Render <code className={inlineCode}>{"<TanStackDevtools>"}</code> behind the same check, and
+      deploy <code className={inlineCode}>mockServiceWorker.js</code> only where you want mocking.
+      Anyone who sets the flag can load the panel and read the mock data, so keep secrets out of it.
+    </p>
+
     {/* Step 3 */}
     <div className="mb-3 flex items-center gap-2.5">
       <StepNumber n={3} />
-      <span className="font-semibold text-[15px] text-text-primary">
-        Register adapters <span className="font-normal text-text-dimmed text-xs">(optional)</span>
+      <span className="text-text-primary text-[15px] font-semibold">
+        Register adapters <span className="text-text-dimmed text-xs font-normal">(optional)</span>
       </span>
     </div>
     <p className={prose}>
       Adapters connect your data-fetching library to the devtools. When you toggle a mock or switch
-      variants, the adapter automatically refetches/revalidates so your UI updates immediately.
+      variants, the adapter resets your client's cache and refetches, so your UI updates
+      immediately.
     </p>
     <div className="!mb-0">
       <CodeBlock lang="typescript">

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist, type StateStorage } from "zustand/middleware";
 
-import { getPersistenceKey } from "./persistence-key";
+import { openPersistenceKey } from "./persistence-slot";
 import type {
   ErrorOverride,
   FilterOption,
@@ -173,6 +173,9 @@ const createSafeStorage = (): StateStorage => {
   };
 };
 
+/** Read once: persist and the cross-tab listener must agree on the key. */
+const persistenceKey = openPersistenceKey();
+
 /** @internal — Used by the plugin UI. Not part of the public API. */
 export const useMockStore = create<MockStoreState>()(
   devtools(
@@ -315,7 +318,7 @@ export const useMockStore = create<MockStoreState>()(
             collapsedGroups: new Set(sanitized.collapsedGroups),
           };
         },
-        name: getPersistenceKey(),
+        name: persistenceKey,
         partialize: (state) => ({
           collapsedGroups: [...state.collapsedGroups],
           filter: state.filter,
@@ -333,7 +336,7 @@ export const useMockStore = create<MockStoreState>()(
 // with its own copy on its next write.
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
-    if (event.key === getPersistenceKey()) {
+    if (event.key === persistenceKey) {
       void useMockStore.persist.rehydrate();
     }
   });

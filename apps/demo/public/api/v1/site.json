@@ -2,11 +2,12 @@
   "description": "A TanStack DevTools plugin for managing MSW mocks. Toggle, customize, and inspect your mock handlers in real time.",
   "github": "https://github.com/mugenlabs-dev/msw-devtools",
   "links": {
+    "docsMarkdown": "https://msw-devtools.mugenlabs.dev/llms-full.txt",
     "homepage": "https://msw-devtools.mugenlabs.dev/",
     "openapi": "https://msw-devtools.mugenlabs.dev/openapi.json",
     "playground": "https://msw-devtools.mugenlabs.dev/playground",
-    "sitemap": "https://msw-devtools.mugenlabs.dev/sitemap.xml",
-    "playgroundMsw2": "https://msw-devtools.mugenlabs.dev/msw2/"
+    "playgroundMsw2": "https://msw-devtools.mugenlabs.dev/msw2/",
+    "sitemap": "https://msw-devtools.mugenlabs.dev/sitemap.xml"
   },
   "name": "@mugenlabs/msw-devtools",
   "npm": "https://www.npmjs.com/package/@mugenlabs/msw-devtools",
@@ -24,7 +25,6 @@
     "/playground/rtk-query",
     "/playground/swr",
     "/playground/urql",
-    "/msw2",
     "/msw2/",
     "/msw2/apollo",
     "/msw2/fetch",

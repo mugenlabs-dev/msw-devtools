@@ -116,7 +116,7 @@ export const AllEnabled: Story = {
       await waitFor(() => {
         expect(canvas.getAllByTestId("operation-row").length).toBeGreaterThan(0);
       });
-      const toggles = canvas.getAllByRole("button", { name: /Toggle .* mock/ });
+      const toggles = canvas.getAllByRole("button", { name: /Toggle .* mock/u });
       for (const toggle of toggles) {
         await expect(toggle).toHaveAttribute("aria-pressed", "true");
       }

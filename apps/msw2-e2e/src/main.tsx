@@ -8,7 +8,7 @@ import "#demo/styles.css";
 
 import { router } from "./router";
 
-const root = document.getElementById("root");
+const root = document.querySelector("#root");
 if (!root) {
   throw new Error("missing #root");
 }

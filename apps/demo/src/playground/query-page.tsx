@@ -265,7 +265,7 @@ registerAdapter(createTanStackQueryAdapter(queryClient));`;
 
 export const QueryPage = () => (
   <div className="flex flex-col gap-8">
-    <div className="group rounded-2xl border border-border-primary bg-card-bg/30 p-6">
+    <div className="group border-border-primary bg-card-bg/30 rounded-2xl border p-6">
       <div className="flex items-center gap-4">
         <img
           alt="Master Ball"
@@ -276,9 +276,9 @@ export const QueryPage = () => (
           width={64}
         />
         <div>
-          <h2 className="m-0 font-bold text-text-primary text-xl">
+          <h2 className="text-text-primary m-0 text-xl font-bold">
             <a
-              className="text-text-primary no-underline transition-colors duration-150 hover:text-accent-blue"
+              className="text-text-primary hover:text-accent-blue no-underline transition-colors duration-150"
               href="https://tanstack.com/query"
               rel="noopener noreferrer"
               target="_blank"
@@ -286,7 +286,7 @@ export const QueryPage = () => (
               TanStack Query
             </a>
           </h2>
-          <p className="m-0 mt-1 text-sm text-text-dimmed">
+          <p className="text-text-dimmed m-0 mt-1 text-sm">
             The adapter listens for mock changes and automatically invalidates matching TanStack
             Query cache entries, triggering re-fetches without a full page reload.
           </p>

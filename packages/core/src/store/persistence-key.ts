@@ -1,16 +1,6 @@
-const SLOT = Symbol.for("@mugenlabs/msw-devtools.persistence-key");
+import { DEFAULT_PERSISTENCE_KEY, slot } from "./persistence-slot";
 
-type SlotHost = typeof globalThis & { [SLOT]?: { key?: string } };
-
-const host = globalThis as SlotHost;
-
-const slot = (): { key?: string } => {
-  host[SLOT] ??= {};
-  return host[SLOT];
-};
-
-/** localStorage key used when {@link setPersistenceKey} was not called. */
-export const DEFAULT_PERSISTENCE_KEY = "msw-devtools-store";
+export { DEFAULT_PERSISTENCE_KEY } from "./persistence-slot";
 
 /**
  * Choose where the panel stores toggles. Call this before importing
@@ -21,6 +11,14 @@ export const DEFAULT_PERSISTENCE_KEY = "msw-devtools-store";
 export const setPersistenceKey = (key: string): void => {
   if (key.trim() === "") {
     throw new Error("msw-devtools persistence key must not be empty");
+  }
+  const { openedWith } = slot();
+  if (openedWith !== undefined && openedWith !== key) {
+    console.warn(
+      `[msw-devtools] setPersistenceKey("${key}") ran after the store opened with "${openedWith}", so it has no effect. ` +
+        "Call it in a module that is imported before @mugenlabs/msw-devtools."
+    );
+    return;
   }
   slot().key = key;
 };

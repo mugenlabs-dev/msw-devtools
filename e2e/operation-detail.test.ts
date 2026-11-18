@@ -73,12 +73,12 @@ test.describe("Operation Detail Panel", () => {
 
     await statusInput.fill("418");
 
-    const resetBtn = page.locator("button").filter({ hasText: /reset/i }).first();
+    const resetBtn = page.locator("button").filter({ hasText: /reset/iu }).first();
     await expect(resetBtn).toBeVisible({ timeout: 3000 });
 
     await resetBtn.click();
 
-    await expect(page.locator("button").filter({ hasText: /reset/i }).first()).not.toBeVisible({
+    await expect(page.locator("button").filter({ hasText: /reset/iu }).first()).not.toBeVisible({
       timeout: 2000,
     });
   });

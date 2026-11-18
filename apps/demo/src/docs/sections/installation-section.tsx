@@ -9,7 +9,20 @@ export const InstallationSection = () => (
       <Package size={20} />
       Installation
     </SectionTitle>
-    <p className={prose}>Install the core library:</p>
+    <p className={prose}>
+      Install MSW first and set up its browser integration by following{" "}
+      <a
+        className="text-accent-blue no-underline"
+        href="https://mswjs.io/guides/integrations/browser"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        MSW&apos;s browser guide
+      </a>
+      . That setup puts the worker script in your public directory; the plugin starts it for you.
+      Follow MSW&apos;s own instructions for this step, as they can change between MSW releases.
+    </p>
+    <p className={prose}>Then install the core library:</p>
     <div className="mb-5">
       <InstallBlock packages="@mugenlabs/msw-devtools" />
     </div>
@@ -46,38 +59,38 @@ export const InstallationSection = () => (
       Minimums follow the MSW major you install. The public API of this package is the same on both.
     </p>
     <div className="mt-4 overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm text-text-secondary">
+      <table className="text-text-secondary w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="border-white/10 border-b text-text-dimmed text-xs uppercase tracking-wide">
+          <tr className="text-text-dimmed border-b border-white/10 text-xs tracking-wide uppercase">
             <th className="py-2 pr-4 font-medium">Requirement</th>
             <th className="py-2 pr-4 font-medium">MSW 2.x</th>
             <th className="py-2 pr-4 font-medium">MSW 3.x</th>
           </tr>
         </thead>
         <tbody>
-          <tr className="border-white/5 border-b">
+          <tr className="border-b border-white/5">
             <td className="py-2 pr-4">msw</td>
-            <td className="py-2 pr-4 font-mono text-text-primary">^2.0.0</td>
-            <td className="py-2 pr-4 font-mono text-text-primary">^3.0.0</td>
+            <td className="text-text-primary py-2 pr-4 font-mono">^2.0.0</td>
+            <td className="text-text-primary py-2 pr-4 font-mono">^3.0.0</td>
           </tr>
-          <tr className="border-white/5 border-b">
+          <tr className="border-b border-white/5">
             <td className="py-2 pr-4">Node</td>
-            <td className="py-2 pr-4 font-mono text-text-primary">≥20</td>
-            <td className="py-2 pr-4 font-mono text-text-primary">≥22.12</td>
+            <td className="text-text-primary py-2 pr-4 font-mono">≥20</td>
+            <td className="text-text-primary py-2 pr-4 font-mono">≥22.12</td>
           </tr>
-          <tr className="border-white/5 border-b">
+          <tr className="border-b border-white/5">
             <td className="py-2 pr-4">TypeScript</td>
-            <td className="py-2 pr-4 font-mono text-text-primary">≥5.0</td>
-            <td className="py-2 pr-4 font-mono text-text-primary">≥5.9</td>
+            <td className="text-text-primary py-2 pr-4 font-mono">≥5.0</td>
+            <td className="text-text-primary py-2 pr-4 font-mono">≥5.9</td>
           </tr>
           <tr>
             <td className="py-2 pr-4">Unhandled requests</td>
             <td className="py-2 pr-4">
-              <code className="font-mono text-text-primary">onUnhandledRequest</code>
+              <code className="text-text-primary font-mono">onUnhandledRequest</code>
             </td>
             <td className="py-2 pr-4">
               Same option; mapped to{" "}
-              <code className="font-mono text-text-primary">onUnhandledFrame</code>
+              <code className="text-text-primary font-mono">onUnhandledFrame</code>
             </td>
           </tr>
         </tbody>

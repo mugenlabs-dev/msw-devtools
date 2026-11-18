@@ -17,7 +17,7 @@ export const ExistingHandlersSection = () => (
     </p>
 
     {/* Basic registration */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">
       Register handlers directly
     </h3>
     <p className={prose}>
@@ -47,7 +47,7 @@ registerGraphqlMocks(
     </div>
 
     {/* Multiple variants */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">
       Multiple variants for the same endpoint
     </h3>
     <p className={prose}>

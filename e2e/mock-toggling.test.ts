@@ -7,11 +7,13 @@ import {
   waitForDemoReady,
   waitForLiveBadges,
 } from "./helpers";
+import { stubLivePokeApi } from "./live-api-stub";
 
-const LIVE_BADGE_REGEX = /^LIVE$/;
+const LIVE_BADGE_REGEX = /^LIVE$/u;
 
 test.describe("Mock Toggling", () => {
   test.beforeEach(async ({ page }) => {
+    await stubLivePokeApi(page.context());
     await enableAllMocksViaStorage(page);
     await page.goto("./playground/query");
     await waitForDemoReady(page);
@@ -41,7 +43,7 @@ test.describe("Mock Toggling", () => {
     const row = page.locator("[data-testid='operation-row']").filter({ hasText: "GET Gengar" });
     await expect(row).toBeVisible();
 
-    const rowToggle = row.getByRole("button", { name: /Toggle.*mock/ });
+    const rowToggle = row.getByRole("button", { name: /Toggle.*mock/u });
     await expect(rowToggle).toBeVisible();
     await expect(rowToggle).toHaveAttribute("aria-pressed", "true");
 

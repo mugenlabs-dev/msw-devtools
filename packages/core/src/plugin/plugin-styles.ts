@@ -11,7 +11,7 @@ export const ensurePluginStyles = (): void => {
   if (typeof document === "undefined") {
     return;
   }
-  if (document.getElementById(STYLE_ID) != null) {
+  if (document.querySelector(`#${STYLE_ID}`) != null) {
     return;
   }
 

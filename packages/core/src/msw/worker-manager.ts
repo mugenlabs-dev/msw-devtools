@@ -30,8 +30,7 @@ const initializeWorker = async (options?: WorkerOptions): Promise<SetupWorker> =
   const handlers = descriptors.map(createDynamicHandler);
   devtoolsHandlers = new Set(handlers);
 
-  // Handlers are real MSW instances; structural DynamicHandler is dual-major-safe.
-  const instance = setupWorker(...(handlers as never[]));
+  const instance = setupWorker(...handlers);
   const onUnhandled = options?.onUnhandledRequest ?? "bypass";
 
   // MSW 2 reads `onUnhandledRequest`; MSW 3 renamed it to `onUnhandledFrame`
@@ -145,7 +144,7 @@ export const refreshHandlers = (): void => {
   const descriptors = mockRegistry.getAll();
   const handlers = descriptors.map(createDynamicHandler);
   devtoolsHandlers = new Set(handlers);
-  worker.resetHandlers(...(handlers as never[]));
+  worker.resetHandlers(...handlers);
   if (appHandlers.length > 0) {
     worker.use(...appHandlers);
   }

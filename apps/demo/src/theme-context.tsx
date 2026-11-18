@@ -138,8 +138,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         // ignore
       }
 
-      const x = e?.clientX ?? window.innerWidth / 2;
-      const y = e?.clientY ?? 0;
+      // Grow from the toggle's centre, not the pointer: clicks land off-centre and keyboard
+      // activation reports clientX/clientY as 0.
+      const rect = e?.currentTarget.getBoundingClientRect();
+      const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+      const y = rect ? rect.top + rect.height / 2 : 0;
 
       const apply = () => applyTheme(next);
 

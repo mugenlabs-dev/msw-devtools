@@ -78,7 +78,7 @@ const routeTree = rootRoute.addChildren([
   ]),
 ]);
 
-const basepath = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+const basepath = import.meta.env.BASE_URL.replace(/\/$/u, "") || "/";
 
 export const router = createRouter({
   basepath,

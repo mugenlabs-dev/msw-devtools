@@ -1,4 +1,5 @@
-import { gql as apolloGql, useQuery as useApolloQuery } from "@apollo/client";
+import { gql as apolloGql } from "@apollo/client";
+import { useQuery as useApolloQuery } from "@apollo/client/react";
 import { useCallback } from "react";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
@@ -241,7 +242,8 @@ const AggronCard = () => {
 // ---------------------------------------------------------------------------
 
 const APOLLO_CODE = `// All fetching uses Apollo Client — GraphQL client
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 const GET_RAYQUAZA = gql\`
   query GetRayquaza {
@@ -266,7 +268,7 @@ registerAdapter(createApolloAdapter(apolloClient));`;
 
 export const ApolloPage = () => (
   <div className="flex flex-col gap-6">
-    <div className="group rounded-2xl border border-border-primary bg-card-bg/30 p-6">
+    <div className="group border-border-primary bg-card-bg/30 rounded-2xl border p-6">
       <div className="flex items-center gap-4">
         <img
           alt="Timer Ball"
@@ -277,9 +279,9 @@ export const ApolloPage = () => (
           width={64}
         />
         <div>
-          <h2 className="m-0 font-bold text-text-primary text-xl">
+          <h2 className="text-text-primary m-0 text-xl font-bold">
             <a
-              className="text-text-primary no-underline transition-colors duration-150 hover:text-accent-blue"
+              className="text-text-primary hover:text-accent-blue no-underline transition-colors duration-150"
               href="https://www.apollographql.com/docs/react"
               rel="noopener noreferrer"
               target="_blank"
@@ -287,7 +289,7 @@ export const ApolloPage = () => (
               Apollo Client
             </a>
           </h2>
-          <p className="m-0 mt-1 text-sm text-text-muted">
+          <p className="text-text-muted m-0 mt-1 text-sm">
             The adapter clears Apollo's normalized cache and refetches all active queries when mock
             toggles or variants change, keeping the UI in sync with the devtool panel.
           </p>

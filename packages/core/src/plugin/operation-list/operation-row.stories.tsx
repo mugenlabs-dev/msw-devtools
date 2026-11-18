@@ -71,7 +71,7 @@ export const Enabled: Story = {
         name: "Toggle GET /api/users mock",
       });
       await expect(toggle).toHaveAttribute("aria-pressed", "true");
-      await expect(canvas.getByText(/· Default/)).toBeInTheDocument();
+      await expect(canvas.getByText(/· Default/u)).toBeInTheDocument();
     });
     await step("Keyboard Enter triggers onSelect", async () => {
       const row = canvas.getByRole("button", { name: restGetDescriptor.operationName });
@@ -111,7 +111,7 @@ export const WithLiveBadge: Story = {
   play: async ({ canvas, step }) => {
     await step("Verify live badge", async () => {
       await expect(canvas.getByText("LIVE")).toBeInTheDocument();
-      await expect(canvas.getByText(/· Default/)).toBeInTheDocument();
+      await expect(canvas.getByText(/· Default/u)).toBeInTheDocument();
     });
   },
 };
@@ -167,7 +167,7 @@ export const RestPost: Story = {
     await step("Verify REST POST rendering", async () => {
       await expect(canvas.getByRole("button", { name: "POST /api/users" })).toBeInTheDocument();
       await expect(canvas.getByText("rest")).toBeInTheDocument();
-      await expect(canvas.getByText(/· Default/)).toBeInTheDocument();
+      await expect(canvas.getByText(/· Default/u)).toBeInTheDocument();
       const toggle = canvas.getByRole("button", { name: "Toggle POST /api/users mock" });
       await expect(toggle).toHaveAttribute("aria-pressed", "true");
     });

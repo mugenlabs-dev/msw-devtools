@@ -5,6 +5,7 @@
  * Usage: import type { MockOperationDescriptor } from "@mugenlabs/msw-devtools/types"
  */
 export type { MockChangeType, MockUpdateEvent, MswDevToolAdapter } from "./adapter/types";
+export type { GraphqlHandlerLike, HandlerOptions, RestHandlerLike } from "./msw/msw-internals";
 export type { WorkerOptions } from "./msw/worker-manager";
 export type {
   GraphQLMockDescriptor,

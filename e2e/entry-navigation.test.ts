@@ -21,16 +21,16 @@ test.describe("entry navigation", () => {
 
     await page.getByRole("link", { exact: true, name: "Playground" }).click();
 
-    await expect(page).toHaveURL(/\/playground\/query\/?$/);
+    await expect(page).toHaveURL(/\/playground\/query\/?$/u);
     await waitForDemoReady(page);
-    await expect(page.locator("h3", { hasText: /missingno/i })).toHaveCount(1);
+    await expect(page.locator("h3", { hasText: /missingno/iu })).toHaveCount(1);
     await openDevToolsPanel(page);
     await waitForLiveBadges(page, 6);
 
     const controller = await page.evaluate(
       () => navigator.serviceWorker.controller?.scriptURL ?? ""
     );
-    expect(controller).toMatch(/\/mockServiceWorker\.js$/);
+    expect(controller).toMatch(/\/mockServiceWorker\.js$/u);
     expect(controller).not.toContain("/playground/");
   });
 });

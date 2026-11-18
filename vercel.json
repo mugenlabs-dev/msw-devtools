@@ -46,6 +46,29 @@
       "continue": true
     },
     {
+      "src": "^/docs/?$",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": "(.*)text/markdown(.*)"
+        }
+      ],
+      "dest": "/llms-full.txt",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Type": "text/markdown; charset=utf-8",
+        "Vary": "Accept"
+      }
+    },
+    {
+      "src": "^/docs/?$",
+      "headers": {
+        "Vary": "Accept"
+      },
+      "continue": true
+    },
+    {
       "src": "^/index\\.md$",
       "headers": {
         "Content-Type": "text/markdown; charset=utf-8",
@@ -101,6 +124,11 @@
       "dest": "https://eu.i.posthog.com/$1"
     },
     {
+      "src": "^/msw2$",
+      "status": 308,
+      "headers": { "Location": "/msw2/" }
+    },
+    {
       "handle": "filesystem"
     },
     {
@@ -123,7 +151,7 @@
       "dest": "/playground/index.html"
     },
     {
-      "src": "^/msw2(?:/.*)?$",
+      "src": "^/msw2/.*$",
       "dest": "/msw2/index.html"
     },
     {

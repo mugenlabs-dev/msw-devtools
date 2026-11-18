@@ -5,9 +5,9 @@ import type { CSSProperties, ReactNode } from "react";
 import { ArrowRightIcon } from "../../components/icons/arrow-right";
 
 const FeaturePill = ({ icon, label }: { icon: ReactNode; label: string }) => (
-  <div className="flex items-center gap-2 rounded-lg border border-border-primary bg-card-bg/80 px-4 py-3 transition-[border-color,box-shadow] duration-200 hover:border-accent-purple/40 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
-    <span className="flex text-accent-purple [&_svg]:size-[1cap]">{icon}</span>
-    <span className="font-medium text-[13px] text-text-primary">{label}</span>
+  <div className="border-border-primary bg-card-bg/80 hover:border-accent-purple/40 flex items-center gap-2 rounded-lg border px-4 py-3 transition-[border-color,box-shadow] duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+    <span className="text-accent-purple flex [&_svg]:size-[1cap]">{icon}</span>
+    <span className="text-text-primary text-[13px] font-medium">{label}</span>
   </div>
 );
 
@@ -45,54 +45,41 @@ const LIBRARY_BRANDS: Record<string, { accent: string; hoverBg: string }> = {
 
 export const HeroSection = () => (
   <section className="relative mb-0 overflow-clip px-[var(--shell-gutter)] pt-[calc(var(--header-height)+var(--safe-top))] pb-16 text-center">
-    <div className="pointer-events-none absolute inset-0 overflow-clip">
-      <div
-        className="absolute start-[-10%] top-[-20%] h-[500px] w-[500px] rounded-full blur-[100px]"
-        style={{
-          background: "color-mix(in oklch, var(--accent-purple) 14%, transparent)",
-        }}
-      />
-      <div
-        className="absolute end-[-10%] top-[10%] h-[400px] w-[400px] rounded-full blur-[120px]"
-        style={{
-          background: "color-mix(in oklch, var(--accent-purple) 10%, transparent)",
-        }}
-      />
-      <div
-        className="absolute start-[30%] bottom-[-10%] h-[350px] w-[350px] rounded-full blur-[100px]"
-        style={{
-          background: "color-mix(in oklch, var(--accent-purple) 12%, transparent)",
-        }}
-      />
-    </div>
+    {/* One radial glow that fades out inside the section, so it has no hard edge. */}
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(ellipse at center, color-mix(in oklch, var(--accent-purple) 10%, transparent), transparent 70%)",
+      }}
+    />
 
     <div className="relative z-[2] mx-auto w-full max-w-[var(--shell-content)]">
       <div className="mb-6 flex justify-center">
         <img
-          alt="msw-devtools logo"
+          alt=""
           className="h-24 w-24 rounded-[20px]"
           height={96}
           src={`${import.meta.env.BASE_URL}logo.png`}
           width={96}
         />
       </div>
-      <h1 className="m-0 mb-4 font-extrabold font-mono text-[clamp(1.75rem,4vw+1rem,2.5rem)] text-text-primary tracking-[-0.03em] transition-colors duration-300">
-        @mugenlabs/
-        <wbr />
-        msw-devtools
+      <h1 className="text-text-primary m-0 mb-4 text-[clamp(1.75rem,4vw+1rem,2.5rem)] font-extrabold tracking-[-0.03em] transition-colors duration-300">
+        MSW DevTools
       </h1>
-      <p className="m-0 mb-8 text-pretty text-lg text-text-muted leading-normal transition-colors duration-300">
+      <p className="text-text-muted m-0 mb-8 text-lg leading-normal text-pretty transition-colors duration-300">
         A TanStack DevTools plugin for managing MSW mocks.
         <br />
         Toggle, customize, and inspect your mock handlers in real time.
       </p>
-      <p className="mx-auto mb-8 max-w-[480px] text-pretty rounded-lg border border-accent-purple/30 bg-accent-purple/10 px-4 py-2.5 text-[13px] text-text-muted">
+      <p className="border-accent-purple/30 bg-accent-purple/10 text-text-muted mx-auto mb-8 max-w-[480px] rounded-lg border px-4 py-2.5 text-[13px] text-pretty">
         This project is a work in progress &mdash; the API has not been finalised yet, which is why
         we haven&apos;t reached 1.0.0. Expect breaking changes between minor versions.
       </p>
       <div className="mb-12 flex justify-center gap-3">
         <Link
-          className="hero-cta pressable inline-flex items-center gap-2 rounded-lg bg-hero-btn-bg px-6 py-2.5 font-semibold text-hero-btn-color text-sm no-underline transition-[opacity,background,color,transform] duration-300"
+          className="hero-cta pressable bg-hero-btn-bg text-hero-btn-color inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold no-underline transition-[opacity,background,color,transform] duration-300"
           to="/playground"
         >
           Open Playground
@@ -110,7 +97,7 @@ export const HeroSection = () => (
       </div>
 
       <div className="mb-2">
-        <p className="mb-3 text-[13px] text-text-dimmed">Works with</p>
+        <p className="text-text-dimmed mb-3 text-[13px]">Works with</p>
         <div className="flex flex-wrap justify-center gap-2">
           {["TanStack Query", "RTK Query", "URQL", "Apollo Client", "SWR", "Axios", "fetch"].map(
             (lib) => {

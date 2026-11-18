@@ -1,3 +1,4 @@
+import { BookOpen } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { SidebarNav } from "./docs/components/sidebar-nav";
@@ -16,7 +17,7 @@ const FloatingButtons = () => {
   const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
-    const docsEl = document.getElementById("installation");
+    const docsEl = document.querySelector("#installation");
     if (!docsEl) {
       return;
     }
@@ -53,25 +54,13 @@ const FloatingButtons = () => {
         }}
       >
         <button
-          aria-label="Scroll to documentation"
-          className="pressable pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border border-accent-purple/30 bg-bg-primary/80 px-5 py-2.5 font-semibold text-accent-purple text-sm shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-md transition-[border-color,background,color,transform] duration-200 hover:border-accent-purple/50 hover:bg-bg-primary"
+          className="pressable border-accent-purple/30 bg-bg-primary/80 text-accent-purple hover:border-accent-purple/50 hover:bg-bg-primary pointer-events-auto flex cursor-pointer items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-md transition-[border-color,background,color,transform] duration-200"
           onClick={scrollToDocs}
           style={{ pointerEvents: showDocs ? "auto" : "none" }}
           type="button"
         >
-          <svg
-            aria-hidden="true"
-            className="icon-flex-none size-[1cap]"
-            fill="none"
-            height={14}
-            stroke="currentColor"
-            strokeWidth={2.5}
-            viewBox="0 0 24 24"
-            width={14}
-          >
-            <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Documentation
+          <BookOpen aria-hidden className="icon-flex-none" size={14} />
+          Go to Documentation
         </button>
       </div>
 
@@ -84,7 +73,7 @@ const FloatingButtons = () => {
       >
         <button
           aria-label="Scroll to top"
-          className="hit-44 pressable pointer-events-auto flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-secondary bg-bg-primary/80 text-text-muted shadow-[0_4px_16px_rgba(0,0,0,0.2)] backdrop-blur-md transition-[border-color,color,transform] duration-200 hover:border-accent-purple/40 hover:text-accent-purple"
+          className="hit-44 pressable border-border-secondary bg-bg-primary/80 text-text-muted hover:border-accent-purple/40 hover:text-accent-purple pointer-events-auto flex size-10 cursor-pointer items-center justify-center rounded-full border shadow-[0_4px_16px_rgba(0,0,0,0.2)] backdrop-blur-md transition-[border-color,color,transform] duration-200"
           onClick={scrollToTop}
           style={{ pointerEvents: showTop ? "auto" : "none" }}
           type="button"
@@ -117,7 +106,7 @@ export const DocsPage = () => {
 
   return (
     <PmProvider>
-      <div className="font-sans text-text-secondary transition-colors duration-300">
+      <div className="text-text-secondary font-sans transition-colors duration-300">
         <HeroSection />
         <FeaturesSection />
 
@@ -126,7 +115,7 @@ export const DocsPage = () => {
             <SidebarNav />
           </aside>
 
-          <div className="min-w-0 max-w-[var(--shell-content)] flex-1">
+          <div className="max-w-[var(--shell-content)] min-w-0 flex-1">
             <InstallationSection />
             <QuickStartSection />
             <AdapterSection />

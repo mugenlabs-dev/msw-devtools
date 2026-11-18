@@ -30,7 +30,6 @@ const RootComponent = () => (
   // The theme boot script sets data-theme and color-scheme on <html> before hydration.
   <html lang="en" suppressHydrationWarning>
     <head>
-      <title>@mugenlabs/msw-devtools</title>
       <HeadContent />
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: FOUC-safe theme boot before paint
@@ -59,7 +58,7 @@ const RootComponent = () => (
 								--header-bg: light-dark(color-mix(in oklch, oklch(97.9% 0 0) 85%, transparent), color-mix(in oklch, oklch(14.5% 0 0) 85%, transparent));
 								--text-primary: light-dark(oklch(21.8% 0 0), oklch(100% 0 0));
 								--text-secondary: light-dark(oklch(32.1% 0 0), oklch(90.7% 0 0));
-								--text-muted: light-dark(oklch(56.9% 0 0), oklch(62.7% 0 0));
+								--text-muted: light-dark(oklch(51% 0 0), oklch(62.7% 0 0));
 							}
 							html[data-theme="light"] { color-scheme: light; }
 							html[data-theme="dark"] { color-scheme: dark; }
@@ -83,7 +82,7 @@ const RootComponent = () => (
             applicationCategory: "DeveloperApplication",
             description: SITE_DESCRIPTION,
             license: "https://opensource.org/licenses/MIT",
-            name: "@mugenlabs/msw-devtools",
+            name: "MSW DevTools",
             offers: { "@type": "Offer", price: "0" },
             operatingSystem: "Web",
             url: SITE_URL,
@@ -119,6 +118,7 @@ export const Route = createRootRoute({
       { href: SITE_URL, rel: "canonical" },
     ],
     meta: [
+      { title: "MSW DevTools — A TanStack DevTools plugin for MSW" },
       { charSet: "utf8" },
       {
         content: "width=device-width, initial-scale=1.0, viewport-fit=cover",
@@ -127,18 +127,17 @@ export const Route = createRootRoute({
       { content: SITE_DESCRIPTION, name: "description" },
       { content: "oklch(14.5% 0 0)", name: "theme-color" },
       // Open Graph
-      { content: "@mugenlabs/msw-devtools", property: "og:title" },
+      { content: "MSW DevTools — A TanStack DevTools plugin for MSW", property: "og:title" },
       { content: SITE_DESCRIPTION, property: "og:description" },
       { content: `${SITE_URL}og-image.png`, property: "og:image" },
       { content: "website", property: "og:type" },
       { content: SITE_URL, property: "og:url" },
       // Twitter Card
       { content: "summary_large_image", name: "twitter:card" },
-      { content: "@mugenlabs/msw-devtools", name: "twitter:title" },
+      { content: "MSW DevTools — A TanStack DevTools plugin for MSW", name: "twitter:title" },
       { content: SITE_DESCRIPTION, name: "twitter:description" },
       { content: `${SITE_URL}og-image.png`, name: "twitter:image" },
     ],
-    title: "@mugenlabs/msw-devtools",
   }),
   notFoundComponent: NotFoundPage,
 });

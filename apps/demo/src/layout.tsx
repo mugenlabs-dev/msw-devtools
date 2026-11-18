@@ -9,12 +9,22 @@ import { GradualBlur } from "./gradual-blur";
 import { prefersReducedMotion } from "./lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 
-const navIconBase =
-  "hit-44 pressable flex items-center justify-center rounded-lg text-sm font-medium h-8 w-8 text-text-muted transition-[color,background,transform,box-shadow] duration-150 hover:text-text-secondary hover:bg-bg-tertiary hover:-translate-y-px data-[active=true]:bg-bg-tertiary data-[active=true]:text-text-primary data-[active=true]:shadow-[0_0_0_1px_var(--border-secondary)]";
+const navLinkBase =
+  "hit-44 pressable inline-flex items-center gap-[0.4em] rounded-md px-3 py-1.5 font-medium text-sm text-text-muted transition-[color,background] duration-150 hover:text-text-secondary data-[active=true]:bg-accent-purple/15 data-[active=true]:text-accent-purple";
 
-const NavIcon = ({ children, isActive }: { children: ReactNode; isActive: boolean }) => (
-  <span className={navIconBase} data-active={isActive}>
-    {children}
+/** Icon plus label; the label hides on narrow screens, where the link keeps its aria-label. */
+const NavLabel = ({
+  children,
+  icon,
+  isActive,
+}: {
+  children: ReactNode;
+  icon: ReactNode;
+  isActive: boolean;
+}) => (
+  <span className={navLinkBase} data-active={isActive}>
+    {icon}
+    <span className="max-sm:hidden">{children}</span>
   </span>
 );
 
@@ -58,14 +68,14 @@ export const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <a
-        className="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-[100] focus:rounded-lg focus:bg-bg-primary focus:px-4 focus:py-2 focus:text-text-primary focus:shadow-lg"
+        className="focus:bg-bg-primary focus:text-text-primary sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-[100] focus:rounded-lg focus:px-4 focus:py-2 focus:shadow-lg"
         href="#main-content"
       >
         Skip to content
       </a>
       <motion.header
         animate={hidden ? "hidden" : "visible"}
-        className="site-header sticky top-0 z-50 border-border-primary border-b bg-header-bg shadow-[0_4px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-[background,border-color,box-shadow] duration-300"
+        className="site-header border-border-primary bg-header-bg sticky top-0 z-50 border-b shadow-[0_4px_30px_rgba(0,0,0,0.05)] backdrop-blur-[20px] transition-[background,border-color,box-shadow] duration-300"
         transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeInOut" }}
         variants={{
           hidden: { y: "-100%" },
@@ -78,19 +88,18 @@ export const Layout = ({ children }: { children: ReactNode }) => {
             to="/"
           >
             <img
-              alt="msw-devtools logo"
+              alt=""
               className="h-8 w-8 rounded-lg"
               height={32}
               src={`${import.meta.env.BASE_URL}logo.png`}
               width={32}
             />
-            <span className="font-bold font-mono text-lg text-text-primary tracking-tight transition-colors duration-300">
-              <span className="max-sm:hidden">@mugenlabs/</span>
-              msw-devtools
+            <span className="text-text-primary text-lg font-semibold transition-colors duration-300">
+              MSW DevTools
             </span>
           </Link>
 
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1">
             <Link
               activeOptions={{ exact: true }}
               aria-label="Docs"
@@ -99,9 +108,12 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               to="/"
             >
               {({ isActive }) => (
-                <NavIcon isActive={isActive}>
-                  <BookOpen aria-hidden className="icon-flex-none size-[1lh]" size={16} />
-                </NavIcon>
+                <NavLabel
+                  icon={<BookOpen aria-hidden className="icon-flex-none" size={14} />}
+                  isActive={isActive}
+                >
+                  Docs
+                </NavLabel>
               )}
             </Link>
 
@@ -112,9 +124,12 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               to="/playground"
             >
               {({ isActive }) => (
-                <NavIcon isActive={isActive}>
-                  <Gamepad2 aria-hidden className="icon-flex-none size-[1lh]" size={16} />
-                </NavIcon>
+                <NavLabel
+                  icon={<Gamepad2 aria-hidden className="icon-flex-none" size={14} />}
+                  isActive={isActive}
+                >
+                  Playground
+                </NavLabel>
               )}
             </Link>
 
@@ -126,9 +141,12 @@ export const Layout = ({ children }: { children: ReactNode }) => {
               target="_blank"
               title="GitHub"
             >
-              <NavIcon isActive={false}>
-                <GithubIcon aria-hidden className="icon-flex-none flex size-[1lh]" size={16} />
-              </NavIcon>
+              <NavLabel
+                icon={<GithubIcon aria-hidden className="icon-flex-none flex" size={14} />}
+                isActive={false}
+              >
+                GitHub
+              </NavLabel>
             </a>
 
             <div className="ms-1">

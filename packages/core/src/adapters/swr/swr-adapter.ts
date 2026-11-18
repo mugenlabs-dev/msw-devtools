@@ -12,6 +12,8 @@ type SWRMutateFn = (
  * When mock configuration changes, it clears every cache entry and revalidates.
  * `undefined` is the data argument on purpose. Omitting it leaves the previous
  * payload on screen for the whole revalidation.
+ *
+ * Keys used for local state (no fetcher) are cleared as well.
  */
 export const createSwrAdapter = (mutate: SWRMutateFn): MswDevToolAdapter => ({
   id: "swr",

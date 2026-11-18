@@ -1,7 +1,9 @@
 /**
  * Ambient module so the dual-major test helper can `import("msw/graphql")`
  * when typechecking against MSW 2, which only exports GraphQL from the root.
- * On MSW 3 the real package export takes precedence.
+ *
+ * Only `tsconfig.msw2.json` includes this file. An ambient declaration wins over
+ * the real package, so including it on MSW 3 would replace msw/graphql's types.
  */
 declare module "msw/graphql" {
   export const graphql: {

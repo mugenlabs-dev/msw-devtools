@@ -113,7 +113,7 @@
   --pill-bg: light-dark(oklch(95.5% 0 0), oklch(17.8% 0 0));
   --pill-color: light-dark(oklch(45% 0 0), oklch(73.8% 0 0));
   --text-dimmed: light-dark(oklch(68.3% 0 0), oklch(51% 0 0));
-  --text-muted: light-dark(oklch(56.9% 0 0), oklch(62.7% 0 0));
+  --text-muted: light-dark(oklch(51% 0 0), oklch(62.7% 0 0));
   --text-primary: light-dark(oklch(21.8% 0 0), oklch(100% 0 0));
   --text-secondary: light-dark(oklch(32.1% 0 0), oklch(90.7% 0 0));
   --text-tertiary: light-dark(oklch(45% 0 0), oklch(73.8% 0 0));
@@ -200,6 +200,16 @@ textarea {
   min-width: auto;
 }
 
+/* Icon wrappers are sized to the text (1cap / 1lh); keep the SVG inside them and centred. */
+:where(.icon-flex-none) {
+  align-items: center;
+  justify-content: center;
+}
+
+:where(.icon-flex-none > svg) {
+  max-height: 100%;
+}
+
 /* Focus ring — accent purple (not currentColor on muted icons) */
 :focus {
   outline: none;
@@ -219,18 +229,21 @@ button.bg-hero-btn-bg:focus-visible,
   box-shadow: 0 0 0 2px var(--hero-btn-bg);
 }
 
-/* ≥44px hit area via centered pseudo (visual size unchanged) */
-.hit-44 {
-  position: relative;
-}
+/* ≥44px hit area via centered pseudo (visual size unchanged).
+   In the components layer so a position utility (e.g. `absolute`) wins. */
+@layer components {
+  .hit-44 {
+    position: relative;
+  }
 
-.hit-44::after {
-  position: absolute;
-  inset: 50%;
-  width: max(100%, 44px);
-  height: max(100%, 44px);
-  content: "";
-  translate: -50% -50%;
+  .hit-44::after {
+    position: absolute;
+    inset: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    content: "";
+    translate: -50% -50%;
+  }
 }
 
 .pressable {
@@ -282,13 +295,13 @@ button.bg-hero-btn-bg:focus-visible,
 /* Playground page enter */
 @keyframes playground-enter {
   from {
-    filter: blur(3px);
     opacity: 0;
+    filter: blur(3px);
     transform: translateY(10px);
   }
   to {
-    filter: blur(0);
     opacity: 1;
+    filter: blur(0);
     transform: translateY(0);
   }
 }
@@ -587,10 +600,10 @@ button.bg-hero-btn-bg:focus-visible,
   *,
   *::before,
   *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 
   .playground-page-enter {

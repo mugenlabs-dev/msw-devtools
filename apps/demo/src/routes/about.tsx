@@ -59,12 +59,12 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
   head: () => ({
     meta: [
+      { title: "About — MSW DevTools" },
       {
         content:
           "About @mugenlabs/msw-devtools — the Mugenlabs TanStack DevTools plugin for MSW mock management.",
         name: "description",
       },
     ],
-    title: "About · @mugenlabs/msw-devtools",
   }),
 });
