@@ -108,10 +108,16 @@ export const MOCK_CHARIZARD_SPRITE =
  * The rendered `img[data-sprite="default"]` src has to move from the mock shiny
  * file to PokeAPI's normal sprite. A network body that contains `abilities` can
  * pass while this src stays on the mock.
+ *
+ * Seed mocks before load so readiness does not wait on live GraphQL. Force the
+ * Playwright live stand-in even when E2E_LIVE_POKEAPI=1: beta.pokeapi.co GraphQL
+ * currently returns 401, so a mocks-off cold load never reaches six cards, and
+ * All Off would leave GraphQL cards empty. The assertion stays on the on-screen
+ * sprite `src` (MOCK_CHARIZARD_SPRITE → LIVE_CHARIZARD_SPRITE).
  */
 export const expectAllOffShowsLiveCharizardSprite = async (
   page: Page,
-  options: { path: string }
+  options: { path: string; persistenceKey?: string }
 ) => {
   const consoleErrors: string[] = [];
   const onConsole = (msg: { type: () => string; text: () => string }) => {
@@ -126,7 +132,9 @@ export const expectAllOffShowsLiveCharizardSprite = async (
   page.on("pageerror", onPageError);
 
   try {
-    await stubLivePokeApi(page.context());
+    // Strongest lock for this case: Playwright routes + seeded mocks, not live uptime.
+    await stubLivePokeApi(page.context(), { force: true });
+    await enableAllMocksViaStorage(page, { persistenceKey: options.persistenceKey });
     await page.goto(options.path);
     await waitForDemoReady(page);
     await openDevToolsPanel(page);

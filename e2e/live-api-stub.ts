@@ -48,8 +48,14 @@ const json = (body: unknown) => ({
 
 export const usesLivePokeApi = () => process.env.E2E_LIVE_POKEAPI === "1";
 
-export const stubLivePokeApi = async (context: BrowserContext) => {
-  if (usesLivePokeApi()) {
+/**
+ * Install Playwright routes for pokeapi.co / GraphQL / sprites.
+ * Nightly CI sets E2E_LIVE_POKEAPI=1 so most tests hit the real APIs as a canary.
+ * Pass `{ force: true }` when a case must stay deterministic even on that run
+ * (for example readiness that needs GraphQL while beta.pokeapi.co returns 401).
+ */
+export const stubLivePokeApi = async (context: BrowserContext, options?: { force?: boolean }) => {
+  if (usesLivePokeApi() && !options?.force) {
     return;
   }
 

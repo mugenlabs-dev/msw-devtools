@@ -32,6 +32,9 @@ test.describe("stale mock after toggle off", () => {
 
   test("All On → Refetch → All Off → Refetch shows live Charizard sprite", async ({ page }) => {
     test.setTimeout(60_000);
-    await expectAllOffShowsLiveCharizardSprite(page, { path: "./query" });
+    await expectAllOffShowsLiveCharizardSprite(page, {
+      path: "./query",
+      persistenceKey: playgroundPersistenceKey("2"),
+    });
   });
 });
