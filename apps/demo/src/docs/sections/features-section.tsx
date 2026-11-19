@@ -80,14 +80,14 @@ const FeatureRow = ({
     >
       <div className={flipped ? "lg:order-2" : ""}>
         <div className="mb-2 flex items-center gap-2">
-          <span className="text-text-muted transition-colors duration-200 group-hover/feature:text-accent-purple">
+          <span className="text-text-muted group-hover/feature:text-accent-purple transition-colors duration-200">
             {icon(rowRef)}
           </span>
-          <h3 className="m-0 font-semibold text-[17px] text-text-primary transition-colors duration-300">
+          <h3 className="text-text-primary m-0 text-[17px] font-semibold transition-colors duration-300">
             {title}
           </h3>
         </div>
-        <p className="m-0 text-pretty text-sm text-text-muted leading-relaxed transition-colors duration-300">
+        <p className="text-text-muted m-0 text-sm leading-relaxed text-pretty transition-colors duration-300">
           {description}
         </p>
       </div>
@@ -151,13 +151,13 @@ const FEATURES: {
 export const FeaturesSection = () => (
   <section className="py-20">
     <div className="shell shell-breakout">
-      <h2 className="mb-4 text-center font-extrabold text-[clamp(1.375rem,2vw+1rem,1.75rem)] text-text-primary tracking-tight transition-colors duration-300">
-        Why @mugenlabs/msw-devtools?
+      <h2 className="text-text-primary mb-4 text-center text-[clamp(1.375rem,2vw+1rem,1.75rem)] font-extrabold tracking-tight transition-colors duration-300">
+        Why MSW DevTools?
       </h2>
-      <p className="mx-auto mb-14 max-w-[540px] text-pretty text-center text-base text-text-muted leading-relaxed transition-colors duration-300">
+      <p className="text-text-muted mx-auto mb-14 max-w-[540px] text-center text-base leading-relaxed text-pretty transition-colors duration-300">
         Tired of commenting out handlers, hard-coding error responses, and refreshing the page every
-        time you need a different mock? @mugenlabs/msw-devtools lets you toggle, swap, and override
-        any MSW mock on the fly — right from the browser, without touching your code.
+        time you need a different mock? MSW DevTools lets you toggle, swap, and override any MSW
+        mock on the fly — right from the browser, without touching your code.
       </p>
 
       <div className="flex flex-col gap-14">

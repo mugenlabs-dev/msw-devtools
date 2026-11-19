@@ -2,7 +2,7 @@ import { Code2, Puzzle, Settings, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import { CodeBlock } from "../components/code-block";
 import { SectionTitle } from "../components/section-title";
-import { prose } from "../styles";
+import { inlineCode, prose } from "../styles";
 
 // ---------------------------------------------------------------------------
 // Badge — small coloured pill for return type or tag
@@ -43,20 +43,20 @@ const ApiEntry = ({
   signature: string;
 }) => (
   <div
-    className="group concentric rounded-xl border border-border-primary bg-card-bg/50 p-5 transition-[border-color,box-shadow] duration-200 hover:border-border-secondary hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)]"
-    id={`api-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+    className="group concentric border-border-primary bg-card-bg/50 hover:border-border-secondary rounded-xl border p-5 transition-[border-color,box-shadow] duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)]"
+    id={`api-${name.toLowerCase().replace(/[^a-z0-9]+/gu, "-")}`}
     style={{ ["--_radius" as string]: "0.75rem", ["--_pad" as string]: "1.25rem" }}
   >
     <div className="mb-2 flex flex-wrap items-center gap-2">
-      <h4 className="m-0 font-bold font-mono text-[15px] text-accent-purple">{name}</h4>
+      <h4 className="text-accent-purple m-0 font-mono text-[15px] font-bold">{name}</h4>
       {badge ? <Badge variant={badgeVariant}>{badge}</Badge> : null}
     </div>
-    <div className="concentric-inner mb-3 bg-bg-tertiary/60 px-3 py-2">
-      <code className="code-scroll-fade block overflow-x-auto whitespace-pre font-mono text-[12.5px] text-text-secondary leading-relaxed">
+    <div className="concentric-inner bg-bg-tertiary/60 mb-3 px-3 py-2">
+      <code className="code-scroll-fade text-text-secondary block overflow-x-auto font-mono text-[12.5px] leading-relaxed whitespace-pre">
         {signature}
       </code>
     </div>
-    <p className="m-0 text-[13.5px] text-text-tertiary leading-relaxed">{description}</p>
+    <p className="text-text-tertiary m-0 text-[13.5px] leading-relaxed">{description}</p>
     {children}
   </div>
 );
@@ -77,13 +77,13 @@ const ApiCategory = ({
 }) => (
   <div className="mt-10 mb-6 first:mt-4">
     <div className="mb-1 flex items-center gap-2.5">
-      <span className="flex size-8 items-center justify-center rounded-lg bg-accent-purple/10 text-accent-purple">
+      <span className="bg-accent-purple/10 text-accent-purple flex size-8 items-center justify-center rounded-lg">
         {icon}
       </span>
-      <h3 className="m-0 font-bold text-[17px] text-text-primary">{title}</h3>
+      <h3 className="text-text-primary m-0 text-[17px] font-bold">{title}</h3>
     </div>
     {description ? (
-      <p className="mt-1 mb-4 ml-[42px] text-[13px] text-text-muted">{description}</p>
+      <p className="text-text-muted mt-1 mb-4 ml-[42px] text-[13px]">{description}</p>
     ) : (
       <div className="mb-4" />
     )}
@@ -99,13 +99,13 @@ const ParamTable = ({
 }: {
   params: Array<{ defaultVal?: string; description: string; name: string; type: string }>;
 }) => (
-  <div className="mt-3 overflow-x-auto rounded-lg border border-border-primary">
+  <div className="border-border-primary mt-3 overflow-x-auto rounded-lg border">
     <table className="w-full border-collapse text-[12.5px]">
       <thead>
         <tr className="bg-bg-tertiary/40">
           {["Parameter", "Type", "Default", "Description"].map((h) => (
             <th
-              className="border-border-primary border-b px-3 py-2 text-start font-semibold text-[11px] text-text-muted uppercase tracking-wider"
+              className="border-border-primary text-text-muted border-b px-3 py-2 text-start text-[11px] font-semibold tracking-wider uppercase"
               key={h}
             >
               {h}
@@ -116,10 +116,10 @@ const ParamTable = ({
       <tbody>
         {params.map((p) => (
           <tr className="border-border-primary border-b last:border-b-0" key={p.name}>
-            <td className="px-3 py-2 font-medium font-mono text-accent-blue">{p.name}</td>
-            <td className="px-3 py-2 font-mono text-text-secondary">{p.type}</td>
-            <td className="px-3 py-2 font-mono text-text-dimmed">{p.defaultVal ?? "\u2014"}</td>
-            <td className="px-3 py-2 text-text-tertiary">{p.description}</td>
+            <td className="text-accent-blue px-3 py-2 font-mono font-medium">{p.name}</td>
+            <td className="text-text-secondary px-3 py-2 font-mono">{p.type}</td>
+            <td className="text-text-dimmed px-3 py-2 font-mono">{p.defaultVal ?? "\u2014"}</td>
+            <td className="text-text-tertiary px-3 py-2">{p.description}</td>
           </tr>
         ))}
       </tbody>
@@ -139,6 +139,16 @@ export const ApiReferenceSection = () => (
     <p className={prose}>
       The essentials you need to get started, plus advanced exports for custom integrations.
     </p>
+    <p className={prose}>
+      The API is the same on MSW 2 and MSW 3. Only your MSW imports differ: on MSW 3,{" "}
+      <code className={inlineCode}>graphql</code> comes from{" "}
+      <code className={inlineCode}>msw/graphql</code> and only has{" "}
+      <code className={inlineCode}>link</code>.{" "}
+      <code className={inlineCode}>WorkerOptions.onUnhandledRequest</code> keeps its name on both
+      majors; on MSW 3 it is applied as <code className={inlineCode}>onUnhandledFrame</code>. Always
+      await <code className={inlineCode}>stopWorker()</code>, since MSW 3 stops the worker
+      asynchronously.
+    </p>
 
     {/* ── Core ── */}
     <ApiCategory
@@ -149,7 +159,7 @@ export const ApiReferenceSection = () => (
       <ApiEntry
         badge="OperationHandlesFor<Defs>"
         badgeVariant="green"
-        description="Register one or more REST mocks from MSW HttpHandlers. Operation metadata (method, path, operationName) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
+        description="Register one or more REST mocks from MSW HttpHandlers. Operation metadata (method, path, operationName) is auto-derived from the handler. Throws at registration if a handler or variant is a GraphQL handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerRestMocks"
         signature="registerRestMocks<const Defs extends readonly RestMockDef[]>(...defs: Defs): OperationHandlesFor<Defs>"
       >
@@ -181,21 +191,21 @@ export const ApiReferenceSection = () => (
       <ApiEntry
         badge="OperationHandlesFor<Defs>"
         badgeVariant="green"
-        description="Register one or more GraphQL mocks from MSW GraphQLHandlers. Operation metadata (operationName, operationType) is auto-derived from the handler. Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
+        description="Register one or more GraphQL mocks from MSW GraphQL handlers (msw root on 2.x, msw/graphql on 3.x). Prefer graphql.link. Operation metadata (operationName, operationType) is auto-derived from the handler. Throws at registration if a handler or variant is not a GraphQL handler, or is a subscription handler (not supported). Returns type-safe operation handles — an array (destructurable in registration order) that is also indexable by operationName — to pass to useMockRefetch instead of raw strings."
         name="registerGraphqlMocks"
         signature="registerGraphqlMocks<const Defs extends readonly GraphqlMockDef[]>(...defs: Defs): OperationHandlesFor<Defs>"
       >
         <ParamTable
           params={[
             {
-              description: "MSW GraphQLHandler (shorthand for single variant)",
+              description: "MSW GraphQL handler (shorthand for single variant)",
               name: "def.handler",
-              type: "GraphQLHandler",
+              type: "GraphqlHandlerLike",
             },
             {
               description: "Multiple handler variants for the same operation",
               name: "def.variants",
-              type: "HandlerVariantInput<GraphQLHandler>[]",
+              type: "HandlerVariantInput<GraphqlHandlerLike>[]",
             },
             {
               description: "Override the auto-derived operation name",
@@ -282,6 +292,13 @@ function UserCard() {
       title="Advanced"
     >
       <ApiEntry
+        badge="void"
+        badgeVariant="muted"
+        description="Sets the localStorage key for panel state. Call it from @mugenlabs/msw-devtools/persistence in its own module, and import that module before the main package: the store reads the key once when it loads. A later call logs a warning and is ignored. The default key is msw-devtools-store. Two bundles on one origin need different keys or they overwrite each other."
+        name="setPersistenceKey"
+        signature="setPersistenceKey(key: string): void"
+      />
+      <ApiEntry
         badge="Promise<SetupWorker>"
         badgeVariant="blue"
         description="Manually start the MSW service worker with custom options. The plugin auto-starts the worker on mount — only use this if you need a custom serviceWorkerUrl or other non-default options. If the worker is already running, the plugin skips auto-start."
@@ -292,7 +309,8 @@ function UserCard() {
           params={[
             {
               defaultVal: "'bypass'",
-              description: "How to handle requests with no matching handler",
+              description:
+                "How to handle requests with no matching handler. Public name stays onUnhandledRequest; on MSW 3 it is also applied as onUnhandledFrame.",
               name: "options.onUnhandledRequest",
               type: "'bypass' | 'warn' | 'error'",
             },

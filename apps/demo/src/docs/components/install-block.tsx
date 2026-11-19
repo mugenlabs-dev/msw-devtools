@@ -52,10 +52,10 @@ const PmButton = ({
 
   return (
     <button
-      className={`pressable hit-44 flex cursor-pointer items-center gap-1.5 rounded-md border px-3 py-1 font-mono font-semibold text-xs transition-[background,border-color,color,transform] duration-150 ${
+      className={`pressable hit-44 flex cursor-pointer items-center gap-1.5 rounded-md border px-3 py-1 font-mono text-xs font-semibold transition-[background,border-color,color,transform] duration-150 ${
         active
           ? "border-border-tertiary bg-bg-tertiary text-text-primary"
-          : "border-transparent bg-transparent text-text-dimmed hover:text-text-secondary"
+          : "text-text-dimmed hover:text-text-secondary border-transparent bg-transparent"
       }`}
       onClick={handleClick}
       type="button"

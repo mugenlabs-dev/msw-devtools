@@ -12,10 +12,10 @@ Do not use this package as a security, compliance, or accessibility certificatio
 
 ## How agents should call this product
 
-1. Read the docs homepage or `/docs` for installation, quick start, adapters, and the API reference.
-2. Install from npm: `npm install @mugenlabs/msw-devtools` (peer: `msw`, `react`, `react-dom`, `zustand`).
-3. Register handlers with `registerRestMocks` / `registerGraphqlMocks`, mount `createMswDevToolsPlugin` inside TanStack DevTools, and optionally `registerAdapter` for auto-refetch.
-4. Use the playground routes under `/playground` to exercise the panel against sample REST/GraphQL clients.
+1. Read the full documentation as Markdown at `/llms-full.txt` (also served for `/docs` with `Accept: text/markdown`). It covers installation, quick start, adapters, and the API reference.
+2. Install MSW and set up its browser integration by following MSW's own guide (https://mswjs.io/guides/integrations/browser); it creates the worker script the plugin starts. Then install from npm: `npm install @mugenlabs/msw-devtools @tanstack/react-devtools` (peer: `msw` `^2 || ^3`, `react`, plus optional adapter peers). Minimums follow the MSW major: MSW 2 needs Node ≥20 and TypeScript ≥5.0; MSW 3 needs Node ≥22.12 and TypeScript ≥5.9.
+3. Register handlers with `registerRestMocks` / `registerGraphqlMocks` (prefer `graphql.link`; on MSW 3 import `graphql` from `msw/graphql`), mount `createMswDevToolsPlugin` inside TanStack DevTools, and optionally `registerAdapter` for auto-refetch. Keep `onUnhandledRequest` in `WorkerOptions` — it maps to MSW 3's `onUnhandledFrame`. Load the mock setup with a dynamic import behind a check: development only, or a flag you control when testing a deployed build (see "Choose where it runs" in the docs).
+4. Use `/playground` (MSW 3) or `/msw2/` (MSW 2) to exercise the panel. Both serve the same six library pages (TanStack Query, SWR, URQL, Apollo, RTK Query, and fetch). Each path has its own `mockServiceWorker.js` and scope. The version switch navigates between them.
 5. Reach the project only via GitHub Issues: https://github.com/mugenlabs-dev/msw-devtools/issues
 
 ## Main pages
@@ -23,10 +23,12 @@ Do not use this package as a security, compliance, or accessibility certificatio
 - [Docs homepage — @mugenlabs/msw-devtools](https://msw-devtools.mugenlabs.dev/)
 - [Documentation (same content, discoverable /docs URL)](https://msw-devtools.mugenlabs.dev/docs)
 - [Developer portal](https://msw-devtools.mugenlabs.dev/developers)
-- [Interactive playground](https://msw-devtools.mugenlabs.dev/playground)
+- [Interactive playground (MSW 3)](https://msw-devtools.mugenlabs.dev/playground)
+- [Interactive playground (MSW 2)](https://msw-devtools.mugenlabs.dev/msw2/)
 - [About Mugenlabs / msw-devtools](https://msw-devtools.mugenlabs.dev/about)
 - [Contact (GitHub Issues only)](https://msw-devtools.mugenlabs.dev/contact)
 - [Privacy](https://msw-devtools.mugenlabs.dev/privacy)
+- [Full documentation as Markdown](https://msw-devtools.mugenlabs.dev/llms-full.txt)
 - [Markdown homepage body](https://msw-devtools.mugenlabs.dev/index.md)
 - [npm package @mugenlabs/msw-devtools](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
 - [GitHub repository](https://github.com/mugenlabs-dev/msw-devtools)
@@ -43,4 +45,4 @@ The site uses PostHog (EU) to count page visits, record anonymous feature use (s
 
 ## Usage
 
-Prefer the canonical site `https://msw-devtools.mugenlabs.dev/`. Agents may request Markdown with `Accept: text/markdown` once content negotiation is enabled. Do not submit credentials or private app data to this documentation site.
+Prefer the canonical site `https://msw-devtools.mugenlabs.dev/`. Agents may request Markdown with `Accept: text/markdown`: `/` returns the homepage summary and `/docs` returns the full documentation. Do not submit credentials or private app data to this documentation site.

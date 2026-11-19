@@ -1,6 +1,10 @@
-import { graphql, HttpResponse, http } from "msw";
+import { HttpResponse, http } from "msw";
+import type { graphql as mswGraphql } from "msw/graphql";
+import { graphql } from "#/test-utils/graphql";
 
 import type { registerGraphqlMocks, registerRestMocks } from "./registry";
+
+type GraphQLQueryHandler = ReturnType<ReturnType<typeof mswGraphql.link>["query"]>;
 
 describe("operation handles", () => {
   let registerRest: typeof registerRestMocks;
@@ -61,6 +65,57 @@ describe("operation handles", () => {
       expect(handles.GetPancham.operationName).toBe("GetPancham");
     });
 
+    it("rejects an http handler when it is registered, not when the worker starts", () => {
+      expect(() =>
+        registerGraphql({
+          // @ts-expect-error -- an http.* handler is not a GraphQL handler
+          handler: http.get("https://api.example.com/users", () => HttpResponse.json({})),
+        })
+      ).toThrow(
+        /registerGraphqlMocks needs GraphQL handlers.*GET https:\/\/api\.example\.com\/users/u
+      );
+    });
+
+    it("rejects an http handler hidden among GraphQL variants", () => {
+      expect(() =>
+        registerGraphql({
+          variants: [
+            graphql.query("GetPancham", () => HttpResponse.json({ data: {} })),
+            // The test helper's `graphql` is untyped, so only the runtime check applies here.
+            http.get("https://api.example.com/users", () => HttpResponse.json({})),
+          ],
+        })
+      ).toThrow(/registerGraphqlMocks needs GraphQL handlers/u);
+    });
+
+    it("rejects a subscription handler", () => {
+      const handler = graphql.query("OnPancham", () => HttpResponse.json({ data: {} }));
+      Object.assign(handler.info, { operationType: "subscription" });
+
+      expect(() => registerGraphql({ handler })).toThrow(
+        /GraphQL subscriptions are not supported/u
+      );
+    });
+
+    it("rejects a GraphQL handler registered as a REST mock", () => {
+      expect(() =>
+        registerRest({
+          // The test helper's `graphql` is untyped, so only the runtime check applies here.
+          handler: graphql.query("GetPancham", () => HttpResponse.json({ data: {} })),
+        })
+      ).toThrow(/registerRestMocks needs http\.\* handlers.*use registerGraphqlMocks/u);
+    });
+
+    it("does not accept a GraphQL handler as a REST mock", () => {
+      // Compile-time only: the call is never made.
+      const check = (handler: GraphQLQueryHandler) =>
+        registerRest({
+          // @ts-expect-error -- a GraphQL handler is not an http.* handler
+          handler,
+        });
+      expect(check).toBeTypeOf("function");
+    });
+
     it("returns handles matching an explicit operationName override", () => {
       const handles = registerGraphql({
         handler: graphql.query("GetPancham", () => HttpResponse.json({ data: {} })),
@@ -105,7 +160,7 @@ describe("operation handles", () => {
   describe("handler metadata", () => {
     it("records handler options, RegExp paths and GraphQL endpoints on the descriptor", async () => {
       const { mockRegistry } = await import("./registry");
-      const path = /\/api\/items\/\d+$/;
+      const path = /\/api\/items\/\d+$/u;
       registerRest({
         handler: http.get(path, () => HttpResponse.json({}), { once: true }),
         operationName: "GET item",
@@ -126,9 +181,9 @@ describe("operation handles", () => {
 
     it("derives a readable name for RegExp paths", () => {
       const [handle] = registerRest({
-        handler: http.get(/\/api\/items$/, () => HttpResponse.json({})),
+        handler: http.get(/\/api\/items$/u, () => HttpResponse.json({})),
       });
-      expect(handle.operationName).toBe("GET /\\/api\\/items$/");
+      expect(handle.operationName).toBe("GET /\\/api\\/items$/u");
     });
   });
 
@@ -225,10 +280,10 @@ describe("operation handles", () => {
 
     it("names a RegExp GraphQL handler after its pattern", () => {
       const [handle] = registerGraphql({
-        handler: graphql.query(/^GetUser/, () => HttpResponse.json({ data: {} })),
+        handler: graphql.query(/^GetUser/u, () => HttpResponse.json({ data: {} })),
       });
 
-      expect(handle.operationName).toBe("/^GetUser/");
+      expect(handle.operationName).toBe("/^GetUser/u");
     });
 
     it("warns when a different request reuses a registered name", () => {

@@ -1,4 +1,4 @@
-import { ApolloProvider } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import {
   createMswDevToolsPlugin,
   mockRegistry,
@@ -14,13 +14,15 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { SWRConfig } from "swr";
 import { Provider as UrqlProvider } from "urql";
 
 import { apolloClient } from "./graphql/apollo-client";
-import { urqlClient } from "./graphql/client";
+import { createUrqlClient } from "./graphql/client";
 import { trackEvent } from "./lib/analytics";
+import "./mocks/setup";
+import { startPlaygroundWorker } from "./mocks/start-playground-worker";
 import { PlaygroundPageShell } from "./playground-shell";
 
 // Create TanStack Query client
@@ -45,7 +47,7 @@ const WorkerGate = ({ children }: { children: ReactNode }) => {
   const workerStatus = useMockStore((s) => s.workerStatus);
   if (workerStatus === "idle" || workerStatus === "starting") {
     return (
-      <p className="m-0 py-12 text-center text-sm text-text-muted" data-testid="worker-starting">
+      <p className="text-text-muted m-0 py-12 text-center text-sm" data-testid="worker-starting">
         Starting the mock service worker…
       </p>
     );
@@ -79,21 +81,30 @@ const useMockUpdateTracking = () => {
 };
 
 export const PlaygroundLayout = () => {
+  const [urql, setUrql] = useState(createUrqlClient);
+  const devtoolsPlugins = useMemo(() => [createMswDevToolsPlugin()], []);
   useMockUpdateTracking();
+  useLayoutEffect(() => {
+    startPlaygroundWorker();
+  }, []);
+  useEffect(
+    () =>
+      onMockUpdate(() => {
+        setUrql(createUrqlClient());
+      }),
+    []
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <SWRConfig value={{ revalidateOnFocus: false }}>
         <ApolloProvider client={apolloClient}>
-          <UrqlProvider value={urqlClient}>
+          <UrqlProvider value={urql}>
             <PlaygroundPageShell>
               <WorkerGate>
                 <Outlet />
               </WorkerGate>
             </PlaygroundPageShell>
-            <TanStackDevtools
-              config={{ defaultOpen: true }}
-              plugins={[createMswDevToolsPlugin()]}
-            />
+            <TanStackDevtools config={{ defaultOpen: true }} plugins={devtoolsPlugins} />
           </UrqlProvider>
         </ApolloProvider>
       </SWRConfig>

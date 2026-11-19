@@ -1,7 +1,12 @@
-import { GraphQLHandler, HttpHandler } from "msw";
-
 import { isJsonResponse } from "#/msw/create-handler";
-import { getGraphQLEndpoint, getHandlerOptions, getHandlerResolver } from "#/msw/msw-internals";
+import type { GraphqlHandlerLike, RestHandlerLike } from "#/msw/msw-internals";
+import {
+  getGraphQLEndpoint,
+  getHandlerOptions,
+  getHandlerResolver,
+  isGraphqlHandler,
+  isMswRequestHandler,
+} from "#/msw/msw-internals";
 import { useMockStore } from "#/store/store";
 import type {
   GraphQLMockDescriptor,
@@ -123,8 +128,8 @@ const toGraphQLOperationType = (operationType: unknown): GraphQLOperationType =>
 const slugify = (value: string): string =>
   value
     .toLowerCase()
-    .replaceAll(/[^a-z0-9]+/g, "-")
-    .replaceAll(/^-+|-+$/g, "") || "variant";
+    .replaceAll(/[^a-z0-9]+/gu, "-")
+    .replaceAll(/^-+|-+$/gu, "") || "variant";
 
 /** Small, dependency-free string hash (djb2 xor), rendered in base 36. */
 const hashString = (value: string): string => {
@@ -140,22 +145,26 @@ const hashString = (value: string): string => {
  * A variant id that survives reordering: the label when one was given,
  * otherwise a hash of the handler's resolver source.
  */
-const variantIdFor = (handler: HttpHandler | GraphQLHandler, label: string | undefined): string =>
+const variantIdFor = (
+  handler: GraphqlHandlerLike | RestHandlerLike,
+  label: string | undefined
+): string =>
   label === undefined
     ? `handler-${hashString(getHandlerResolver(handler).toString())}`
     : slugify(label);
 
 /** Normalise a HandlerVariantInput into a HandlerVariant with id and label. */
-const normaliseVariant = <H extends HttpHandler | GraphQLHandler>(
+const normaliseVariant = <H extends GraphqlHandlerLike | RestHandlerLike>(
   input: HandlerVariantInput<H>,
   index: number
 ): HandlerVariant => {
+  // Structural check: bare MSW handlers have `run`; `{ handler, label }` does not.
+  // Avoids `instanceof GraphQLHandler`, which is not importable from `msw` on 3.x.
   const isObject =
     typeof input === "object" &&
     input !== null &&
     "handler" in input &&
-    !(input instanceof HttpHandler) &&
-    !(input instanceof GraphQLHandler);
+    !isMswRequestHandler(input);
 
   const handler = isObject ? (input as { handler: H; label?: string }).handler : (input as H);
   const label = isObject ? (input as { handler: H; label?: string }).label : undefined;
@@ -181,7 +190,7 @@ const dedupeVariantIds = (variants: HandlerVariant[]): HandlerVariant[] => {
 };
 
 /** Extract the list of handlers from a mock def that has either `handler` or `variants`. */
-const extractVariants = <H extends HttpHandler | GraphQLHandler>(def: {
+const extractVariants = <H extends GraphqlHandlerLike | RestHandlerLike>(def: {
   handler?: H;
   variants?: HandlerVariantInput<H>[];
 }): HandlerVariant[] => {
@@ -195,7 +204,7 @@ const extractVariants = <H extends HttpHandler | GraphQLHandler>(def: {
 };
 
 /** Get the primary (first) handler for introspection. */
-const getPrimaryHandler = (variants: HandlerVariant[]): HttpHandler | GraphQLHandler => {
+const getPrimaryHandler = (variants: HandlerVariant[]): GraphqlHandlerLike | RestHandlerLike => {
   if (variants.length === 0) {
     throw new Error("msw-devtools: at least one handler variant is required.");
   }
@@ -277,6 +286,8 @@ const buildOperationHandles = (descriptors: MockOperationDescriptor[]): Operatio
  * Register one or more REST mocks from MSW HttpHandlers.
  * Operation metadata (method, path, operationName) is auto-derived from handler info.
  *
+ * @throws if any handler or variant is a GraphQL handler.
+ *
  * @returns type-safe {@link OperationHandlesFor} — a tuple of handles (destructurable
  * in registration order) that is also indexable by `operationName`. With explicit
  * `operationName`s the keys are literal, so typos are caught at compile time.
@@ -289,6 +300,14 @@ export const registerRestMocks = <const Defs extends readonly RestMockDef[]>(
 
   for (const def of defs) {
     const variants = extractVariants(def);
+    // Fail here, not later in startWorker(), where one bad mock rejects them all.
+    for (const variant of variants) {
+      if (isGraphqlHandler(variant.handler)) {
+        throw new Error(
+          `msw-devtools: registerRestMocks needs http.* handlers. Got the GraphQL handler "${variant.handler.info.header}"; use registerGraphqlMocks for it.`
+        );
+      }
+    }
     const primary = getPrimaryHandler(variants);
     const info = primary.info as unknown as Record<string, unknown>;
 
@@ -313,8 +332,12 @@ export const registerRestMocks = <const Defs extends readonly RestMockDef[]>(
 };
 
 /**
- * Register one or more GraphQL mocks from MSW GraphqlHandlers.
+ * Register one or more GraphQL mocks from MSW GraphQL handlers (`graphql.query`,
+ * `graphql.mutation` or `graphql.operation`; from `msw` on 2.x, `msw/graphql` on 3.x).
  * Operation metadata (operationName, operationType) is auto-derived from handler info.
+ *
+ * @throws if any handler or variant is not a GraphQL handler, such as an `http.*` handler,
+ * or is a subscription handler.
  *
  * @returns type-safe {@link OperationHandlesFor} — a tuple of handles (destructurable
  * in registration order) that is also indexable by `operationName`. With explicit
@@ -328,6 +351,19 @@ export const registerGraphqlMocks = <const Defs extends readonly GraphqlMockDef[
 
   for (const def of defs) {
     const variants = extractVariants(def);
+    // Fail here, not later in startWorker(), where one bad mock rejects them all.
+    for (const variant of variants) {
+      if (!isGraphqlHandler(variant.handler)) {
+        throw new Error(
+          `msw-devtools: registerGraphqlMocks needs GraphQL handlers (query, mutation or operation from msw's \`graphql\`). Got "${variant.handler.info.header}".`
+        );
+      }
+      if (variant.handler.info.operationType === "subscription") {
+        throw new Error(
+          `msw-devtools: GraphQL subscriptions are not supported. Got "${variant.handler.info.header}".`
+        );
+      }
+    }
     const primary = getPrimaryHandler(variants);
     const info = primary.info as unknown as Record<string, unknown>;
 
@@ -345,7 +381,7 @@ export const registerGraphqlMocks = <const Defs extends readonly GraphqlMockDef[
       def.operationType ?? toGraphQLOperationType(info.operationType);
 
     descriptors.push({
-      endpoint: getGraphQLEndpoint(primary as GraphQLHandler),
+      endpoint: getGraphQLEndpoint(primary as GraphqlHandlerLike),
       graphqlOperationName,
       group: def.group,
       operationName,

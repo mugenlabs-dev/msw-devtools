@@ -26,6 +26,9 @@ const DevelopersPage = () => (
         <a href={`${SITE_URL}llms.txt`}>llms.txt</a> — when-to-use guidance for agents
       </li>
       <li>
+        <a href={`${SITE_URL}llms-full.txt`}>llms-full.txt</a> — the full documentation as Markdown
+      </li>
+      <li>
         <a href={`${SITE_URL}index.md`}>index.md</a> — Markdown homepage body
       </li>
     </ul>
@@ -75,12 +78,12 @@ export const Route = createFileRoute("/developers")({
   component: DevelopersPage,
   head: () => ({
     meta: [
+      { title: "Developers — MSW DevTools" },
       {
         content:
           "Developer portal for @mugenlabs/msw-devtools — docs, playground, npm, and agent links from Mugenlabs.",
         name: "description",
       },
     ],
-    title: "Developers · @mugenlabs/msw-devtools",
   }),
 });

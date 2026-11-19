@@ -2,12 +2,12 @@ import { expect, test } from "@playwright/test";
 
 import { enableAllMocksViaStorage, waitForDemoReady } from "./helpers";
 
-const REST_BADGE_REGEX = /^REST$/;
-const GRAPHQL_BADGE_REGEX = /^GraphQL$/;
-const NORMAL_TYPE_REGEX = /^normal$/;
-const FIRE_TYPE_REGEX = /^fire$/;
-const DRAGON_TYPE_REGEX = /^dragon$/;
-const FIGHTING_TYPE_REGEX = /^fighting$/;
+const REST_BADGE_REGEX = /^REST$/u;
+const GRAPHQL_BADGE_REGEX = /^GraphQL$/u;
+const NORMAL_TYPE_REGEX = /^normal$/u;
+const FIRE_TYPE_REGEX = /^fire$/u;
+const DRAGON_TYPE_REGEX = /^dragon$/u;
+const FIGHTING_TYPE_REGEX = /^fighting$/u;
 
 test.describe("Demo Cards", () => {
   test.beforeEach(async ({ page }) => {
@@ -40,7 +40,6 @@ test.describe("Demo Cards", () => {
   });
 
   test("cards show Pokemon sprites", async ({ page }) => {
-    // Default sprites only — shiny overlays stay in the DOM for CSS hover.
     const spriteImages = page.locator('img[data-sprite="default"]');
     await expect(spriteImages).toHaveCount(6, { timeout: 10_000 });
   });

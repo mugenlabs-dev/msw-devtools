@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
+import { playgroundFetch } from "../playground-fetch";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -36,7 +37,7 @@ const gqlSwrFetcher = async (
   key: string
 ): Promise<{ data: { pokemon_v2_pokemon: GraphQLPokemon[] } }> => {
   const [, operationName, query] = key.split("|");
-  const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+  const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
     body: JSON.stringify({ operationName, query }),
     headers: { "Content-Type": "application/json" },
     method: "POST",
@@ -180,13 +181,16 @@ const TogekissCard = () => {
 
 const SWR_CODE = `// 1. Register REST + GraphQL handlers
 import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-import { http, graphql, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw";
+import { graphql } from "msw/graphql";
+
+const api = graphql.link("https://beta.pokeapi.co/graphql/v1beta");
 
 registerRestMocks(
   { handler: http.get("https://pokeapi.co/api/v2/pokemon/445", () => HttpResponse.json({ ... })) },
 );
 registerGraphqlMocks(
-  { handler: graphql.query("GetGardevoir", () => HttpResponse.json({ data: { ... } })) },
+  { handler: api.query("GetGardevoir", () => HttpResponse.json({ data: { ... } })) },
 );
 
 // 2. Fetch with useSWR — REST and GraphQL
@@ -231,7 +235,7 @@ const SetupSwr = () => {
 export const SwrPage = () => (
   <div className="flex flex-col gap-6">
     <SetupSwr />
-    <div className="group rounded-2xl border border-border-primary bg-card-bg/30 p-6">
+    <div className="group border-border-primary bg-card-bg/30 rounded-2xl border p-6">
       <div className="flex items-center gap-4">
         <img
           alt="Ultra Ball"
@@ -242,9 +246,9 @@ export const SwrPage = () => (
           width={64}
         />
         <div>
-          <h2 className="m-0 font-bold text-text-primary text-xl">
+          <h2 className="text-text-primary m-0 text-xl font-bold">
             <a
-              className="text-text-primary no-underline transition-colors duration-150 hover:text-accent-blue"
+              className="text-text-primary hover:text-accent-blue no-underline transition-colors duration-150"
               href="https://swr.vercel.app"
               rel="noopener noreferrer"
               target="_blank"
@@ -252,7 +256,7 @@ export const SwrPage = () => (
               SWR
             </a>
           </h2>
-          <p className="m-0 mt-1 text-sm text-text-dimmed">
+          <p className="text-text-dimmed m-0 mt-1 text-sm">
             The adapter hooks into SWR's global mutate to revalidate stale keys when mock
             configurations change, so cards refresh instantly without manual cache busting.
           </p>

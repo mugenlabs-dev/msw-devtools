@@ -50,7 +50,7 @@ const CopyButton = ({
       aria-label="Copy code"
       className={`hit-44 pressable absolute end-2.5 top-2.5 z-[1] flex cursor-pointer items-center justify-center rounded-md border p-[5px_6px] transition-[opacity,background,border-color,color,transform] duration-150 ${
         copied
-          ? "border-[rgba(74,222,128,0.3)] bg-[rgba(74,222,128,0.15)] text-accent-green opacity-100"
+          ? "text-accent-green border-[rgba(74,222,128,0.3)] bg-[rgba(74,222,128,0.15)] opacity-100"
           : "border-white/10 bg-white/5 text-[#888] opacity-60 hover:opacity-100"
       }`}
       onClick={handleCopy}
@@ -104,12 +104,12 @@ export const CodeBlock = ({
     >
       <div className="code-chrome__header flex items-center gap-1.5 bg-white/[0.02] px-4 py-3">
         <WindowDots />
-        <span className="ml-auto font-mono text-text-dimmed text-xs">{lang}</span>
+        <span className="text-text-dimmed ml-auto font-mono text-xs">{lang}</span>
       </div>
       <div className="concentric-inner relative" style={{ ["--_radius" as string]: "12px" }}>
         <CopyButton language={lang} onCopy={onCopy} text={trimmed} />
         {html == null ? (
-          <pre className="code-scroll-fade m-0 bg-transparent p-4 px-5 font-mono text-[#e0e0e0] text-[13px] leading-relaxed">
+          <pre className="code-scroll-fade m-0 bg-transparent p-4 px-5 font-mono text-[13px] leading-relaxed text-[#e0e0e0]">
             <code>{trimmed}</code>
           </pre>
         ) : (

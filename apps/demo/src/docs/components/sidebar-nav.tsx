@@ -34,8 +34,8 @@ const NavItem = ({
   <button
     className={`pressable flex w-full cursor-pointer items-center gap-2 border-none bg-transparent px-3 py-2 text-start text-[13px] transition-[color,opacity,transform,border-color] duration-200 ${
       active
-        ? "translate-x-0.5 font-semibold text-text-primary opacity-100"
-        : "font-normal text-text-muted opacity-70 hover:text-text-secondary hover:opacity-100"
+        ? "text-text-primary translate-x-0.5 font-semibold opacity-100"
+        : "text-text-muted hover:text-text-secondary font-normal opacity-70 hover:opacity-100"
     }`}
     onClick={onClick}
     style={{
@@ -61,7 +61,7 @@ export const SidebarNav = () => {
 
   useEffect(() => {
     const headings = sections
-      .map((s) => document.getElementById(s.id))
+      .map((s) => document.querySelector<HTMLElement>(`#${s.id}`))
       .filter((el): el is HTMLElement => el != null);
 
     if (headings.length === 0) {
@@ -95,7 +95,7 @@ export const SidebarNav = () => {
   }, []);
 
   const handleClick = useCallback((id: string) => {
-    const el = document.getElementById(id);
+    const el = document.querySelector(`#${id}`);
     if (el) {
       setActiveId(id);
       isClickScrolling.current = true;
@@ -109,7 +109,7 @@ export const SidebarNav = () => {
 
   return (
     <nav className="sticky top-[calc(var(--header-height)+20px)] flex flex-col gap-1.5">
-      <span className="mb-2 px-3 font-semibold text-[11px] text-text-dimmed uppercase tracking-wide">
+      <span className="text-text-dimmed mb-2 px-3 text-[11px] font-semibold tracking-wide uppercase">
         On this page
       </span>
       {sections.map((section) => (

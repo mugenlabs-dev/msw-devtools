@@ -27,12 +27,11 @@ export const AdapterSection = () => (
     </p>
 
     {/* TanStack Query */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">TanStack Query</h3>
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">TanStack Query</h3>
     <p className={prose}>
-      Invalidates all queries via{" "}
-      <code className={inlineCode}>queryClient.invalidateQueries()</code> when mock config changes.
-      Only queries with active subscriptions (i.e., components currently mounted and observing them)
-      are refetched.
+      Resets all queries via <code className={inlineCode}>queryClient.resetQueries()</code> when
+      mock config changes. Reset drops the cached payload, then refetches queries with active
+      subscriptions (components currently mounted and observing them).
     </p>
     <div className="!mb-0">
       <CodeBlock lang="typescript">
@@ -50,18 +49,16 @@ registerAdapter(createTanStackQueryAdapter(queryClient));`}
         <code className={inlineCode}>CustomEvent</code> is dispatched on the window. Enable all /
         Disable all also fire once with <code className={inlineCode}>operationName</code>{" "}
         <code className={inlineCode}>*</code>. The TanStack Query adapter ignores the operation name
-        and calls <code className={inlineCode}>queryClient.invalidateQueries()</code>, which marks
-        every query in the cache as stale. React Query then automatically refetches only queries
-        that have active subscriptions &mdash; that is, queries being observed by at least one
-        mounted component. Inactive queries (those with no observers) are marked stale but not
-        refetched until a component subscribes to them again. This keeps network usage efficient
-        while ensuring every visible piece of data reflects the latest mock configuration.
+        and calls <code className={inlineCode}>queryClient.resetQueries()</code>, which removes
+        cached data and refetches queries that have active subscriptions. Inactive queries are
+        cleared too, and they fetch again when a component subscribes. Infinite queries go back to
+        their first page. The previous payload is not left on screen while that request runs.
       </p>
     </Accordion>
     <div className="mb-6" />
 
     {/* URQL */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">URQL</h3>
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">URQL</h3>
     <p className={prose}>
       Uses a custom exchange that re-executes active queries. Add{" "}
       <code className={inlineCode}>mockRefetchExchange</code> to your URQL client&apos;s exchange
@@ -97,10 +94,10 @@ const client = createClient({
     <div className="mb-6" />
 
     {/* Apollo */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">Apollo Client</h3>
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">Apollo Client</h3>
     <p className={prose}>
-      Calls <code className={inlineCode}>apolloClient.refetchQueries()</code> to re-run all active
-      queries.
+      Calls <code className={inlineCode}>apolloClient.resetStore()</code> to clear the normalized
+      cache and re-run active queries.
     </p>
     <div className="!mb-0">
       <CodeBlock lang="typescript">
@@ -115,18 +112,18 @@ registerAdapter(createApolloAdapter(apolloClient));`}
     <Accordion title="How it works">
       <p className={`${prose} !m-0`}>
         The Apollo adapter listens for mock update events and calls{" "}
-        <code className={inlineCode}>
-          apolloClient.refetchQueries({"{"} include: &quot;active&quot; {"}"})
-        </code>
-        . This tells Apollo to re-run every query that currently has active observers (i.e., any
-        component rendering data from a query). The queries bypass the cache and hit MSW again,
-        picking up whatever mock variant is now active.
+        <code className={inlineCode}>apolloClient.resetStore()</code>. That clears the normalized
+        cache, then refetches every query with an active observer. A refetch that leaves the cache
+        in place would keep painting the previous payload.{" "}
+        <code className={inlineCode}>resetStore</code> also clears local-only fields, runs{" "}
+        <code className={inlineCode}>onResetStore</code> callbacks and rejects queries that are
+        still in flight.
       </p>
     </Accordion>
     <div className="mb-6" />
 
     {/* RTK Query */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">RTK Query</h3>
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">RTK Query</h3>
     <p className={prose}>
       Resets the API state via <code className={inlineCode}>api.util.resetApiState()</code> when
       mock config changes. Only endpoints with active subscriptions (i.e., components currently
@@ -171,9 +168,10 @@ registerAdapter(createRtkQueryAdapter(store, pokemonApi));`}
     <div className="mb-6" />
 
     {/* SWR */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">SWR</h3>
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">SWR</h3>
     <p className={prose}>
-      Calls the global <code className={inlineCode}>mutate()</code> to revalidate all SWR keys.
+      Calls the global <code className={inlineCode}>mutate()</code> to clear every SWR key, then
+      revalidate.
     </p>
     <div className="!mb-0">
       <CodeBlock lang="tsx">
@@ -196,28 +194,28 @@ function SetupAdapter() {
     </div>
     <Accordion title="How it works">
       <p className={`${prose} !m-0`}>
-        The SWR adapter calls the global <code className={inlineCode}>mutate()</code> function with
-        a matcher that returns <code className={inlineCode}>true</code> for all cache keys and no
-        data argument. This tells SWR to revalidate every cached entry while keeping the current
-        data on screen, triggering fresh network requests that hit MSW with the updated mock
-        configuration. Because SWR&apos;s <code className={inlineCode}>mutate</code> is scoped to
-        the provider context, the adapter must be registered inside a React component that has
-        access to <code className={inlineCode}>useSWRConfig()</code>.
+        The SWR adapter calls <code className={inlineCode}>mutate()</code> with a matcher for every
+        key, <code className={inlineCode}>undefined</code> as the next value, and{" "}
+        <code className={inlineCode}>revalidate: true</code>. The undefined value clears each entry
+        before SWR requests again, so the previous payload is not kept on screen. Keys you use for
+        local state are cleared too. Because <code className={inlineCode}>mutate</code> is scoped to
+        the provider, register the adapter inside a component that can call{" "}
+        <code className={inlineCode}>useSWRConfig()</code>.
       </p>
     </Accordion>
     <div className="mb-6" />
 
     {/* Axios / fetch */}
-    <h3 className="mx-0 mt-6 mb-3 font-semibold text-base text-text-primary">
+    <h3 className="text-text-primary mx-0 mt-6 mb-3 text-base font-semibold">
       Axios &amp; plain fetch
     </h3>
-    <div className="mt-4 mb-4 flex gap-3 rounded-lg border border-accent-blue/20 bg-accent-blue/5 px-4 py-3">
-      <Info className="mt-0.5 shrink-0 text-accent-blue" size={16} />
-      <p className="m-0 text-[13px] text-text-secondary leading-relaxed">
+    <div className="border-accent-blue/20 bg-accent-blue/5 mt-4 mb-4 flex gap-3 rounded-lg border px-4 py-3">
+      <Info className="text-accent-blue mt-0.5 shrink-0" size={16} />
+      <p className="text-text-secondary m-0 text-[13px] leading-relaxed">
         <strong>Consider using a server-state library instead.</strong> Libraries like TanStack
         Query, RTK Query, SWR, or Apollo provide built-in caching, deduplication, and automatic
-        refetching — making the integration with @mugenlabs/msw-devtools seamless and zero-config.
-        The Axios/fetch adapter requires manual <code className={inlineCode}>useMockRefetch</code>{" "}
+        refetching — making the integration with MSW DevTools seamless and zero-config. The
+        Axios/fetch adapter requires manual <code className={inlineCode}>useMockRefetch</code>{" "}
         wiring in every component, which adds boilerplate and is harder to maintain.
       </p>
     </div>
@@ -254,7 +252,8 @@ function UserCard() {
         listens for mock update events matching a specific operation name (including bulk{" "}
         <code className={inlineCode}>*</code> Enable all / Disable all via{" "}
         <code className={inlineCode}>affectsOperation</code>) and calls your refetch callback when
-        the mock changes, giving you per-operation control over what gets refreshed.
+        the mock changes. Clear the data you render at the start of that callback, then request.
+        Otherwise the mocked payload stays up while the request runs, and after it fails.
       </p>
     </Accordion>
   </section>

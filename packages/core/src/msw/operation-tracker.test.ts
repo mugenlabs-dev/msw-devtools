@@ -153,7 +153,7 @@ describe("operation-tracker", () => {
 
   it("marks a REST operation registered with a RegExp path as seen", () => {
     mockRegistry.register(
-      restDescriptor({ operationName: "GET user by id", path: /\/api\/users\/\d+$/ })
+      restDescriptor({ operationName: "GET user by id", path: /\/api\/users\/\d+$/u })
     );
     const { emit, worker } = createFakeWorker();
     setupOperationTracker(worker as never);
@@ -177,7 +177,7 @@ describe("operation-tracker", () => {
     mockRegistry.register(
       restDescriptor({
         operationName: "GET user by id",
-        path: /^http:\/\/localhost\/api\/users\/\d+$/g,
+        path: /^http:\/\/localhost\/api\/users\/\d+$/gu,
       })
     );
     const { emit, worker } = createFakeWorker();
@@ -235,5 +235,26 @@ describe("operation-tracker", () => {
     emit(new Request("http://localhost/api/todos", { method: "GET" }));
 
     expect(seen().has("GET /api/todos")).toBe(false);
+  });
+
+  it("ignores document navigations and form submissions", () => {
+    mockRegistry.register(restDescriptor({ path: "/" }));
+    const { emit, worker } = createFakeWorker();
+    setupOperationTracker(worker as never);
+
+    // Node's Request rejects mode:"navigate"; shape the object MSW emits instead.
+    const navigateGet = new Request("http://localhost/", { method: "GET" });
+    Object.defineProperty(navigateGet, "mode", { value: "navigate" });
+    const navigatePost = new Request("http://localhost/", {
+      body: "q=1",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      method: "POST",
+    });
+    Object.defineProperty(navigatePost, "mode", { value: "navigate" });
+
+    emit(navigateGet);
+    emit(navigatePost);
+
+    expect(seen().size).toBe(0);
   });
 });

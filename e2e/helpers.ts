@@ -1,6 +1,175 @@
 import type { Page } from "@playwright/test";
 
 import { expect } from "@playwright/test";
+import { playgroundPersistenceKey } from "../apps/demo/src/playground-persistence";
+import { stubLivePokeApi } from "./live-api-stub";
+
+export const REST_MISSINGNO = JSON.stringify({ name: "missingno", types: [] });
+
+export const GQL_MISSINGNO = JSON.stringify({
+  data: {
+    pokemon_v2_pokemon: [
+      {
+        name: "missingno",
+        pokemon_v2_pokemonsprites: [],
+        pokemon_v2_pokemontypes: [],
+      },
+    ],
+  },
+});
+
+/** One row per playground cache. The override is a body the live API does not return. */
+export const STALE_MOCK_CASES = [
+  ["query", "GET Gengar", REST_MISSINGNO],
+  ["swr", "GetScizor", GQL_MISSINGNO],
+  ["urql", "GetEevee", GQL_MISSINGNO],
+  ["rtk-query", "GET Weavile", REST_MISSINGNO],
+  ["apollo", "GetAbsol", GQL_MISSINGNO],
+  ["fetch", "GET Mimikyu", REST_MISSINGNO],
+  ["fetch", "GET Sylveon", REST_MISSINGNO],
+] as const;
+
+/**
+ * Charizard body the live API does not return.
+ * The default mock uses the real species name, so a heading of "charizard" cannot show the difference.
+ */
+export const FIXTURE_CHARIZARD = JSON.stringify({
+  name: "fixture-charizard",
+  sprites: { front_default: "https://example.invalid/fixture-charizard.png" },
+  types: [{ type: { name: "fixture" } }],
+});
+
+/** Seed one distinctive override, then turn that mock off and require the name to leave. */
+export const expectMockPayloadLeaves = async (
+  page: Page,
+  options: { operation: string; override: string; path: string; persistenceKey?: string }
+) => {
+  await enableAllMocksViaStorage(page, {
+    overrides: { [options.operation]: options.override },
+    persistenceKey: options.persistenceKey,
+  });
+  await page.goto(options.path);
+  await waitForDemoReady(page);
+  await openDevToolsPanel(page);
+  await expect(page.locator("h3", { hasText: /missingno/iu })).toHaveCount(1);
+
+  const row = page.locator("[data-testid='operation-row']").filter({ hasText: options.operation });
+  await row.getByRole("button", { name: /Toggle.*mock/u }).click();
+
+  await expect(page.locator("h3", { hasText: /missingno/iu })).toHaveCount(0);
+};
+
+/**
+ * Turn every mock off, then require the Charizard card's next read to come from the network.
+ * Network Charizard has `abilities` (live, or the stand-in from `stubLivePokeApi`). The fixture
+ * and the default mock do not.
+ */
+export const expectAllOffReturnsLive = async (
+  page: Page,
+  options: { path: string; persistenceKey?: string }
+) => {
+  await stubLivePokeApi(page.context());
+  await enableAllMocksViaStorage(page, {
+    overrides: { "GET Charizard": FIXTURE_CHARIZARD },
+    persistenceKey: options.persistenceKey,
+  });
+  await page.goto(options.path);
+  await waitForDemoReady(page);
+  await openDevToolsPanel(page);
+  await expect(page.locator("h3", { hasText: "fixture-charizard" })).toHaveCount(1);
+
+  await page.getByRole("button", { name: "All Off" }).click();
+  await expect(page.getByText(`0/${TOTAL_OPERATIONS} active`).first()).toBeVisible();
+  await expect(page.locator("h3", { hasText: "fixture-charizard" })).toHaveCount(0);
+
+  // Every mock is off now, so any Charizard response from here on came from the network.
+  const networkResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/v2/pokemon/6")
+  );
+  const card = page.locator(".pokemon-card").first();
+  await card.getByRole("button", { name: "Refetch" }).click();
+
+  const body = await (await networkResponse).text();
+  expect(body).toContain('"abilities"');
+  expect(body).not.toContain("fixture-charizard");
+  await expect(card.locator("h3")).toHaveText("charizard");
+};
+
+/** Live Charizard `front_default` from PokeAPI (normal orange sprite). */
+export const LIVE_CHARIZARD_SPRITE =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png";
+
+/** Demo mock Charizard uses the shiny asset as `front_default` so All On is visible. */
+export const MOCK_CHARIZARD_SPRITE =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/6.png";
+
+/**
+ * All On, refetch Charizard, All Off, refetch again.
+ * The rendered `img[data-sprite="default"]` src has to move from the mock shiny
+ * file to PokeAPI's normal sprite. A network body that contains `abilities` can
+ * pass while this src stays on the mock.
+ */
+export const expectAllOffShowsLiveCharizardSprite = async (
+  page: Page,
+  options: { path: string }
+) => {
+  const consoleErrors: string[] = [];
+  const onConsole = (msg: { type: () => string; text: () => string }) => {
+    if (msg.type() === "error") {
+      consoleErrors.push(msg.text());
+    }
+  };
+  const onPageError = (err: Error) => {
+    consoleErrors.push(`PAGEERROR: ${err.message}`);
+  };
+  page.on("console", onConsole);
+  page.on("pageerror", onPageError);
+
+  try {
+    await stubLivePokeApi(page.context());
+    await page.goto(options.path);
+    await waitForDemoReady(page);
+    await openDevToolsPanel(page);
+
+    await page.getByRole("button", { name: "All On" }).click();
+    await expect(
+      page.getByText(`${TOTAL_OPERATIONS}/${TOTAL_OPERATIONS} active`).first()
+    ).toBeVisible();
+
+    const card = page
+      .locator(".pokemon-card")
+      .filter({ hasText: /charizard/iu })
+      .first();
+    const sprite = card.locator('img[data-sprite="default"]');
+    await card.getByRole("button", { name: "Refetch" }).click();
+    await expect(sprite).toHaveAttribute("src", MOCK_CHARIZARD_SPRITE);
+
+    const errorsBeforeOff = consoleErrors.length;
+    await page.getByRole("button", { name: "All Off" }).click();
+    await expect(page.getByText(`0/${TOTAL_OPERATIONS} active`).first()).toBeVisible();
+
+    await card.getByRole("button", { name: "Refetch" }).click();
+    await expect(sprite).toHaveAttribute("src", LIVE_CHARIZARD_SPRITE);
+    await expect(card.locator("h3")).toHaveText("charizard");
+
+    await card.hover();
+    await expect(card.locator('img[data-sprite="shiny"]')).toHaveCount(0);
+    await expect(sprite).toHaveAttribute("src", LIVE_CHARIZARD_SPRITE);
+    await page.mouse.move(5, 5);
+
+    const allSprites = page.locator('img[data-sprite="default"]');
+    await expect(allSprites).toHaveCount(6);
+    for (let i = 0; i < 6; i += 1) {
+      await expect(allSprites.nth(i)).not.toHaveAttribute("src", /\/shiny\//u);
+    }
+
+    const newErrors = consoleErrors.slice(errorsBeforeOff);
+    expect(newErrors, `console errors after All Off: ${newErrors.join(" | ")}`).toEqual([]);
+  } finally {
+    page.off("console", onConsole);
+    page.off("pageerror", onPageError);
+  }
+};
 
 /** All registered operation names in the demo app. */
 export const ALL_OPERATION_NAMES = [
@@ -77,21 +246,30 @@ export const PAGE_OPERATIONS: Record<string, string[]> = {
 
 /**
  * Pre-enable all mocks via localStorage before the page loads.
- * The Zustand store persists under key "msw-devtools-store".
- * This ensures cards always show mock data instead of relying on real APIs.
+ * The demo reads `msw-devtools-store:3` and the MSW 2 host reads `msw-devtools-store:2`.
  *
  * When `seedOnce` is true, localStorage is only set if not already present,
  * preserving any state changes (e.g. filter/sort) across navigations.
+ * `overrides` maps an operation name to a `customJsonOverride` string.
  */
-export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?: boolean }) => {
+export const enableAllMocksViaStorage = async (
+  page: Page,
+  options?: {
+    overrides?: Record<string, string>;
+    persistenceKey?: string;
+    seedOnce?: boolean;
+  }
+) => {
   const seedOnce = options?.seedOnce ?? false;
+  const persistenceKey = options?.persistenceKey ?? playgroundPersistenceKey("3");
+  const overrides = options?.overrides;
 
   const operations: Record<
     string,
     {
       activeVariantId: string;
       customHeaders: null;
-      customJsonOverride: null;
+      customJsonOverride: string | null;
       delay: number;
       enabled: boolean;
       errorOverride: null;
@@ -103,7 +281,7 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
     operations[name] = {
       activeVariantId: "variant-0",
       customHeaders: null,
-      customJsonOverride: null,
+      customJsonOverride: overrides?.[name] ?? null,
       delay: 0,
       enabled: true,
       errorOverride: null,
@@ -112,8 +290,8 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
   }
 
   await page.addInitScript(
-    ({ ops, onlyIfEmpty }) => {
-      if (onlyIfEmpty && localStorage.getItem("msw-devtools-store") !== null) {
+    ({ onlyIfEmpty, ops, storageKey }) => {
+      if (onlyIfEmpty && localStorage.getItem(storageKey) !== null) {
         return;
       }
       const state = {
@@ -126,9 +304,9 @@ export const enableAllMocksViaStorage = async (page: Page, options?: { seedOnce?
         },
         version: 0,
       };
-      localStorage.setItem("msw-devtools-store", JSON.stringify(state));
+      localStorage.setItem(storageKey, JSON.stringify(state));
     },
-    { onlyIfEmpty: seedOnce, ops: operations }
+    { onlyIfEmpty: seedOnce, ops: operations, storageKey: persistenceKey }
   );
 };
 

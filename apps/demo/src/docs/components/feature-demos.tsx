@@ -54,8 +54,8 @@ const useDemoPhase = (steps: number, intervalMs: number) => {
 const DemoShell = ({ caption, children }: { caption: string; children: ReactNode }) => (
   <div className="w-full rounded-xl border border-[#333] bg-[#1e1e1e] p-4 font-mono text-[11px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]">
     <div className="flex h-[152px] flex-col justify-center gap-2">{children}</div>
-    <div className="mt-3 border-[#2a2a2a] border-t pt-2.5">
-      <p className="m-0 h-[30px] overflow-clip font-sans text-[#888] text-[11px] leading-[15px]">
+    <div className="mt-3 border-t border-[#2a2a2a] pt-2.5">
+      <p className="m-0 h-[30px] overflow-clip font-sans text-[11px] leading-[15px] text-[#888]">
         {caption}
       </p>
     </div>
@@ -168,7 +168,7 @@ export const SwitchVariantsDemo = () => {
           <span className="text-[#666]">variant</span>
           <span className="flex items-center gap-2 rounded border border-[#444] bg-[#252525] px-2 py-1 text-[#e0e0e0] transition-colors duration-300">
             {step.label}
-            <span className="text-[#666] text-[9px]">▾</span>
+            <span className="text-[9px] text-[#666]">▾</span>
           </span>
         </div>
         <div className="truncate px-2.5 text-[#8b8b8b] transition-opacity duration-300">
@@ -398,11 +398,11 @@ export const AutoRefetchDemo = () => {
       <DemoShell caption={step.caption}>
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           <div className="rounded-md bg-[#1a1a1a] px-2.5 py-2">
-            <div className="mb-1 text-[#666] text-[9px] uppercase tracking-wide">Panel</div>
+            <div className="mb-1 text-[9px] tracking-wide text-[#666] uppercase">Panel</div>
             <div className="truncate text-[#e0e0e0]">GetPancham</div>
-            <div className="mt-1 flex items-center gap-1.5 truncate rounded border border-[#444] bg-[#252525] px-1.5 py-0.5 text-[#e0e0e0] text-[10px] transition-colors duration-300">
+            <div className="mt-1 flex items-center gap-1.5 truncate rounded border border-[#444] bg-[#252525] px-1.5 py-0.5 text-[10px] text-[#e0e0e0] transition-colors duration-300">
               <span className="truncate">{step.variant}</span>
-              <span className="shrink-0 text-[#666] text-[8px]">▾</span>
+              <span className="shrink-0 text-[8px] text-[#666]">▾</span>
             </div>
           </div>
           <span
@@ -411,7 +411,7 @@ export const AutoRefetchDemo = () => {
             ⇢
           </span>
           <div className="rounded-md bg-[#1a1a1a] px-2.5 py-2">
-            <div className="mb-1 text-[#666] text-[9px] uppercase tracking-wide">Your app</div>
+            <div className="mb-1 text-[9px] tracking-wide text-[#666] uppercase">Your app</div>
             {step.app === "loading" ? (
               <div className="flex h-8 items-center gap-1.5 text-[#888]">
                 <Spinner />
@@ -421,7 +421,7 @@ export const AutoRefetchDemo = () => {
             {step.app === "data" ? (
               <div className="h-8">
                 <div className="truncate text-[#e0e0e0]">pancham</div>
-                <div className="text-[#666] text-[10px]">fighting · 80 wt</div>
+                <div className="text-[10px] text-[#666]">fighting · 80 wt</div>
               </div>
             ) : null}
             {step.app === "empty" ? (

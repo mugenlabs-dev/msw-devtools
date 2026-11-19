@@ -32,21 +32,26 @@ A [TanStack DevTools](https://tanstack.com/devtools) plugin for managing [MSW](h
 
 Everything ships in a single package. Adapters are available via subpath exports and are tree-shakeable.
 
-| Import path                           | Description                                                                 |
-| ------------------------------------- | --------------------------------------------------------------------------- |
+| Import path                                       | Description                                                                 |
+| ------------------------------------------------- | --------------------------------------------------------------------------- |
 | `@mugenlabs/msw-devtools`                         | Registry, store, MSW integration, React UI plugin, adapter system           |
 | `@mugenlabs/msw-devtools/types`                   | Type-only entry point (no runtime code)                                     |
-| `@mugenlabs/msw-devtools/adapters/tanstack-query` | Auto-refetch via query invalidation                                         |
-| `@mugenlabs/msw-devtools/adapters/urql`           | Auto-refetch via custom exchange                                            |
-| `@mugenlabs/msw-devtools/adapters/swr`            | Auto-refetch via global mutate                                              |
-| `@mugenlabs/msw-devtools/adapters/apollo`         | Auto-refetch via refetchQueries                                             |
+| `@mugenlabs/msw-devtools/persistence`             | Sets the localStorage key before the store loads                            |
+| `@mugenlabs/msw-devtools/adapters/tanstack-query` | Resets every query with `resetQueries`, then refetches active ones          |
+| `@mugenlabs/msw-devtools/adapters/urql`           | Re-executes active queries from `mockRefetchExchange`                       |
+| `@mugenlabs/msw-devtools/adapters/swr`            | Clears every SWR key, then revalidates                                      |
+| `@mugenlabs/msw-devtools/adapters/apollo`         | Clears the store with `resetStore`, then refetches                          |
 | `@mugenlabs/msw-devtools/adapters/rtk-query`      | Auto-refetch via resetApiState                                              |
 | `@mugenlabs/msw-devtools/adapters/axios`          | Registration marker for Axios users (use `useMockRefetch` for live updates) |
 
 ## Installation
 
+Install MSW first and set up its browser integration by following [MSW's browser guide](https://mswjs.io/guides/integrations/browser). That setup puts the worker script in your public directory; the plugin starts it for you. Follow MSW's own instructions for this step, as they can change between MSW releases.
+
+Then install the plugin and TanStack DevTools, which hosts the panel:
+
 ```bash
-npm install @mugenlabs/msw-devtools
+npm install @mugenlabs/msw-devtools @tanstack/react-devtools
 ```
 
 The package is ESM-only and runs in the browser: MSW needs Service Worker support, so serve the app over HTTPS or from `localhost`. It is safe to import during server rendering (SSR): registering mocks there only records them, and the worker starts in the browser when the plugin mounts.
@@ -55,48 +60,74 @@ The package is ESM-only and runs in the browser: MSW needs Service Worker suppor
 
 | Dependency | Version | Required |
 | --- | --- | --- |
-| `msw` | `^2.0.0` | Yes |
+| `msw` | `^2.0.0 \|\| ^3.0.0` | Yes |
 | `react` | `^18.0.0 \|\| ^19.0.0` | Yes |
-| `@tanstack/react-devtools` | `^0.9.0` | Optional — only needed to host the panel |
+| `@tanstack/react-devtools` | `^0.9.0 \|\| ^0.10.0` | Optional — only needed to host the panel |
 | `@tanstack/react-query` | `^5.0.0` | Only if using TanStack Query adapter |
 | `@urql/core` + `wonka` | `^5.0.0 \|\| ^6.0.0` / `^6.3.2` | Only if using URQL adapter |
 
 The Apollo (Client 3 or 4), SWR (2.x) and RTK Query adapters only call the client you pass in, so those libraries are not peer dependencies.
 
+### Compatibility
+
+Minimums follow the MSW major you install. The public API of this package is the same on both.
+
+| Requirement | MSW 2.x | MSW 3.x |
+| --- | --- | --- |
+| `msw` | `^2.0.0` | `^3.0.0` |
+| Node | ≥20 | ≥22.12 |
+| TypeScript | ≥5.0 | ≥5.9 |
+| Unhandled requests | `WorkerOptions.onUnhandledRequest` | Same option; mapped to `onUnhandledFrame` |
+
+Prefer `graphql.link(...)` for GraphQL handlers. On MSW 3 import `graphql` from `msw/graphql` — that module only exports `link` (no root `graphql.query`), so link-first is required there and still works on MSW 2. GraphQL subscription mocking and `defineNetwork` are out of scope for this package.
+
 ## Quick Start
 
-This guide assumes you already have MSW installed and `mockServiceWorker.js` generated in your public directory.
+This guide assumes MSW is installed and its worker script is in your public directory (see [Installation](#installation)).
 
 ### 1. Register your MSW handlers
 
-Use `registerRestMocks` and `registerGraphqlMocks` to register your existing MSW handlers with the devtools. Operation metadata (method, path, operation name) is automatically derived from handler info.
+Use `registerRestMocks` and `registerGraphqlMocks` to register your existing MSW handlers with the devtools. Operation metadata (method, path, operation name) is automatically derived from handler info. Prefer `graphql.link` so the same handlers work on MSW 2 and 3; only the import path differs.
+
+MSW 3:
 
 ```ts
 // mocks/setup.ts
 import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-import { http, HttpResponse, graphql } from "msw";
+import { http, HttpResponse } from "msw";
+import { graphql } from "msw/graphql";
 
-// REST -- pass your HttpHandler directly
+const api = graphql.link("/graphql");
+
 registerRestMocks(
   { handler: http.get("/api/users", () => HttpResponse.json({ users: [] })) },
   { handler: http.get("/api/posts", () => HttpResponse.json({ posts: [] })), group: "Blog" },
 );
 
-// GraphQL -- with multiple variants
 registerGraphqlMocks({
   group: "Users",
   variants: [
-    graphql.query("GetUser", () =>
+    api.query("GetUser", () =>
       HttpResponse.json({ data: { user: { id: 1, name: "John" } } })
     ),
     {
-      handler: graphql.query("GetUser", () =>
+      handler: api.query("GetUser", () =>
         HttpResponse.json({ data: { user: null } })
       ),
       label: "Not Found",
     },
   ],
 });
+```
+
+MSW 2 (same handlers; import `graphql` from `msw` instead of `msw/graphql`):
+
+```ts
+import { http, HttpResponse, graphql } from "msw";
+import { registerRestMocks, registerGraphqlMocks } from "@mugenlabs/msw-devtools";
+
+const api = graphql.link("/graphql");
+// ...registerRestMocks / registerGraphqlMocks as above
 ```
 
 ### 2. Mount the plugin
@@ -117,7 +148,7 @@ function App() {
 }
 ```
 
-The MSW service worker starts automatically when the plugin mounts.
+The MSW service worker starts automatically when the plugin mounts. In the Next.js App Router, put this in a client component, marked `"use client"`, that your root layout renders.
 
 > **Custom worker options:** If you need to customise the worker (e.g. a different `serviceWorkerUrl`), call `startWorker()` before the plugin mounts. The plugin detects an already-running worker and skips auto-start. Options passed after the worker has started are ignored, and a console warning says so.
 >
@@ -126,9 +157,11 @@ The MSW service worker starts automatically when the plugin mounts.
 > void startWorker({ serviceWorkerUrl: "/custom-path/mockServiceWorker.js" });
 > ```
 
-### Keep it out of production
+### Choose where it runs
 
-The plugin bundles MSW and your mock data, and it starts a service worker that intercepts requests. Load it only in development, for example with a dynamic import so production bundles never include it:
+The plugin bundles MSW and your mock data, and it starts a service worker that intercepts requests. Load it with a dynamic import behind a check, so builds that don't need it never download it.
+
+During development only:
 
 ```tsx
 // main.tsx (Vite)
@@ -137,11 +170,23 @@ if (import.meta.env.DEV) {
 }
 ```
 
-Render `<TanStackDevtools>` behind the same check, and leave `mockServiceWorker.js` out of production deploys unless you mean to mock there.
+On demand in a deployed environment, to test a staging or production build with data you can't get from the real backend: gate the same import on a flag you control, such as a query parameter. The bundle is fetched only when the flag is set, and the mocks apply only in that browser.
+
+```tsx
+// main.tsx (Vite)
+const params = new URLSearchParams(location.search);
+if (import.meta.env.DEV || params.has("mocks")) {
+  await import("./mocks/setup");
+}
+```
+
+Render `<TanStackDevtools>` behind the same check, and deploy `mockServiceWorker.js` only where you want mocking. Anyone who sets the flag can load the panel and read the mock data, so keep secrets out of it.
 
 ### 3. (Optional) Register an adapter for auto-refetch
 
-Adapters automatically refetch/revalidate queries when you change mock configuration in the devtools panel.
+Adapters clear the library cache and then refetch when you change mock configuration in the devtools panel. The previous payload does not stay on screen.
+
+The reset covers the whole client cache, not just the operation you changed. TanStack Query resets every query (infinite queries go back to page one), SWR clears every key including local-state keys, and Apollo's `resetStore` runs `onResetStore` callbacks and rejects queries in flight.
 
 **TanStack Query:**
 
@@ -236,7 +281,30 @@ function UserCard() {
 }
 ```
 
-> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate seamlessly with `@mugenlabs/msw-devtools` without needing per-operation `useMockRefetch` calls.
+Clear the data on screen at the start of the `useMockRefetch` callback, then request. A callback that only fires the request leaves the mocked payload up while the request runs, and after it fails.
+
+> **Tip:** If you're starting a new project, consider using a server-state library like [TanStack Query](https://tanstack.com/query), [SWR](https://swr.vercel.app/), or [Apollo Client](https://www.apollographql.com/docs/react/) instead of plain `fetch()` or Axios. These libraries provide built-in caching, deduplication, and automatic refetching, and their adapters integrate with `@mugenlabs/msw-devtools` without per-operation `useMockRefetch` calls.
+
+### Separate stored toggles per bundle
+
+The panel stores toggles under `msw-devtools-store`. Two bundles on one origin share that key and overwrite each other. Set a different key before the main package loads. The `/persistence` entry does not load the store.
+
+The store reads the key once, when `@mugenlabs/msw-devtools` is first imported, and imports run before the rest of a file. So call `setPersistenceKey` in its own module, and import that module first:
+
+```ts
+// persistence-boot.ts
+import { setPersistenceKey } from "@mugenlabs/msw-devtools/persistence";
+
+setPersistenceKey("msw-devtools-store:my-app");
+```
+
+```ts
+// main.ts
+import "./persistence-boot"; // must come before the main package
+import { startWorker } from "@mugenlabs/msw-devtools";
+```
+
+A call made after the store has loaded logs a warning and has no effect.
 
 ## Handler Registration Patterns
 
@@ -267,24 +335,28 @@ registerRestMocks({
 Provide an array of `variants` instead of a single `handler`. Each variant is either a bare handler or `{ handler, label }`:
 
 ```ts
+const api = graphql.link("/graphql"); // works on MSW 2 and 3
+
 registerGraphqlMocks({
   group: "Users",
   variants: [
-    graphql.query("GetUser", successResolver),                        // label: "Default"
-    { handler: graphql.query("GetUser", emptyResolver), label: "Empty" },
-    { handler: graphql.query("GetUser", errorResolver), label: "Error" },
+    api.query("GetUser", successResolver),                        // label: "Default"
+    { handler: api.query("GetUser", emptyResolver), label: "Empty" },
+    { handler: api.query("GetUser", errorResolver), label: "Error" },
   ],
 });
 ```
 
 ## API Reference
 
+The API is the same on MSW 2 and MSW 3. Only your MSW imports differ: on MSW 3, `graphql` comes from `msw/graphql` and only has `link`. `WorkerOptions.onUnhandledRequest` keeps its name on both majors; on MSW 3 it is applied as `onUnhandledFrame`. Always `await stopWorker()`, since MSW 3 stops the worker asynchronously.
+
 ### Core Exports (`@mugenlabs/msw-devtools`)
 
 | Export | Description |
 | --- | --- |
-| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
-| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from `GraphQLHandler` info. Returns `OperationHandlesFor<typeof defs>`. |
+| `registerRestMocks(...defs)` | Register REST mock handlers. Metadata is auto-derived from `HttpHandler` info. Returns `OperationHandlesFor<typeof defs>`. Throws at registration if a handler or variant is a GraphQL handler. |
+| `registerGraphqlMocks(...defs)` | Register GraphQL mock handlers. Metadata is auto-derived from the handler info. Returns `OperationHandlesFor<typeof defs>`. Throws at registration if a handler or variant is not a GraphQL handler, or is a subscription handler (not supported). |
 | `registerAdapter(adapter)` | Register a data-fetching adapter for auto-refetch. Returns an unregister function. |
 | `createMswDevToolsPlugin(options?)` | Create the TanStack DevTools plugin config object. |
 | `useMockRefetch(operation, refetch)` | React hook that auto-refetches when mock config changes for a specific operation. Accepts an `OperationHandle` (recommended) or a raw operation-name string. |
@@ -319,6 +391,8 @@ registerGraphqlMocks({
 | `OperationHandles` | The untyped form: `OperationHandle[]` indexable by any string. |
 | `HandlerVariant` | A resolved variant stored in the registry -- `{ handler, id, label, options? }` |
 | `HandlerVariantInput<H>` | What you pass as a variant: a bare handler or `{ handler, label }` |
+| `RestHandlerLike` / `GraphqlHandlerLike` | The handler shapes the register functions accept. MSW 2 and 3 handlers both satisfy them; an `http.*` handler is not a `GraphqlHandlerLike`. |
+| `HandlerOptions` | The handler options the devtools keep when wrapping a variant -- `{ once? }` |
 | `RestMockDescriptor` | Internal descriptor for a registered REST operation -- `{ type: "rest", method, path: string \| RegExp, operationName, group?, variants }` |
 | `GraphQLMockDescriptor` | Internal descriptor for a registered GraphQL operation -- `{ type: "graphql", operationName, graphqlOperationName, operationType, endpoint, group?, variants }`. `graphqlOperationName` is what the handler matches on; `operationName` is the display name |
 | `MockOperationDescriptor` | Union of `RestMockDescriptor` and `GraphQLMockDescriptor` |
@@ -331,7 +405,7 @@ registerGraphqlMocks({
 
 ## Documentation
 
-Full documentation and live playground: [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
+Full documentation and live playground (MSW 3 at `/playground`, MSW 2 at `/msw2/`): [https://msw-devtools.mugenlabs.dev/](https://msw-devtools.mugenlabs.dev/)
 
 ## Upgrading
 

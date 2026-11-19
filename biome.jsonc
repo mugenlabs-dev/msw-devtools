@@ -20,9 +20,13 @@
     "rules": {
       "correctness": {
         // Biome can't resolve TypeScript path aliases (#/...) or vitest globals
-        "noUndeclaredVariables": "off"
+        "noUndeclaredVariables": "off",
+        // Build and test tools are installed once, at the workspace root
+        "noUndeclaredDependencies": "off"
       },
       "suspicious": {
+        // The demo site uses newer CSS on purpose (light-dark(), view transitions)
+        "useBaseline": "off",
         "noDoubleEquals": "off",
         // `x != null` is the project idiom for null-or-undefined checks
         "noEqualsToNull": "off",
@@ -45,7 +49,7 @@
   "overrides": [
     {
       // Playwright tests and Storybook play functions await steps sequentially on purpose
-      "includes": ["e2e/**", "**/*.stories.tsx"],
+      "includes": ["e2e/**", "e2e-msw2/**", "**/*.stories.tsx"],
       "linter": {
         "rules": {
           "performance": {

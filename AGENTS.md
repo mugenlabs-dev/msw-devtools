@@ -38,7 +38,7 @@ The organization is spelled **Mugenlabs**.
 - The full suite takes a couple of minutes, so pull requests run all of it.
 - `pull_request` covers branches. `push` covers `main` only, so each change runs the workflow once. A nightly `schedule` run executes the full suite, so new advisories and upstream breakage show up between changes.
 - Pull requests that change `packages/core` (outside tests and stories) must add a changeset; `scripts/check-changeset.sh` enforces it.
-- The unit and Storybook tests also run against the oldest and newest versions the peer ranges allow (`scripts/pin-peer-versions.mjs`).
+- The unit and Storybook tests also run against the oldest and newest versions the peer ranges allow, for each MSW major (`scripts/pin-peer-versions.mjs`).
 - `pnpm audit:published` blocks on advisories in the published package's dependencies. `pnpm audit:workspace` covers dev tools and the demo and only reports.
 - Actions are pinned to a full commit SHA with the version in a comment (`uses: actions/checkout@<sha> # v7.0.1`). To bump one, resolve the new tag with `git ls-remote --tags https://github.com/<owner>/<repo>` (use the `^{}` line for annotated tags) and update the SHA and the comment together. Dependabot opens a weekly grouped PR for these.
 - Every job sets `timeout-minutes`. Keep timeouts tight, with headroom over the slowest observed run.

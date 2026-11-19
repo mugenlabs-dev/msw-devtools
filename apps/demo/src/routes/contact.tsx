@@ -20,11 +20,11 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
   head: () => ({
     meta: [
+      { title: "Contact — MSW DevTools" },
       {
         content: `Contact ${SITE_NAME} via GitHub Issues.`,
         name: "description",
       },
     ],
-    title: "Contact · @mugenlabs/msw-devtools",
   }),
 });

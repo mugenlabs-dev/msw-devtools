@@ -34,12 +34,12 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
       <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-red-500/15">
         <AlertTriangle className="text-red-400" size={28} />
       </div>
-      <h1 className="m-0 font-bold text-2xl text-text-primary">Something went wrong</h1>
-      <p className="mt-3 text-pretty text-sm text-text-muted">
+      <h1 className="text-text-primary m-0 text-2xl font-bold">Something went wrong</h1>
+      <p className="text-text-muted mt-3 text-sm text-pretty">
         {error instanceof Error ? error.message : String(error)}
       </p>
       <button
-        className="pressable mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary transition-colors hover:bg-bg-tertiary"
+        className="pressable border-border-secondary text-text-primary hover:bg-bg-tertiary mt-6 rounded-md border px-4 py-2 text-sm transition-colors"
         onClick={() => {
           void router.invalidate();
         }}
@@ -53,13 +53,13 @@ export const ErrorPage = ({ error }: ErrorComponentProps) => {
 
 export const NotFoundPage = () => (
   <Shell>
-    <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-accent-blue/15">
+    <div className="bg-accent-blue/15 mb-6 flex size-16 items-center justify-center rounded-full">
       <Compass className="text-accent-blue" size={28} />
     </div>
-    <h1 className="m-0 font-bold text-2xl text-text-primary">Page not found</h1>
-    <p className="mt-3 text-pretty text-sm text-text-muted">There is nothing at this address.</p>
+    <h1 className="text-text-primary m-0 text-2xl font-bold">Page not found</h1>
+    <p className="text-text-muted mt-3 text-sm text-pretty">There is nothing at this address.</p>
     <Link
-      className="pressable mt-6 rounded-md border border-border-secondary px-4 py-2 text-sm text-text-primary no-underline transition-colors hover:bg-bg-tertiary"
+      className="pressable border-border-secondary text-text-primary hover:bg-bg-tertiary mt-6 rounded-md border px-4 py-2 text-sm no-underline transition-colors"
       to="/"
     >
       Back to the docs

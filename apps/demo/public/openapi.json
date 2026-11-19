@@ -15,7 +15,7 @@
   },
   "servers": [
     {
-      "url": "https://msw-devtools-mugenlabs.vercel.app",
+      "url": "https://msw-devtools.mugenlabs.dev",
       "description": "Production demo (Vercel)"
     },
     {

@@ -9,7 +9,7 @@ import {
   waitForOperationCount,
 } from "./helpers";
 
-const LIVE_FILTER_REGEX = /^live$/i;
+const LIVE_FILTER_REGEX = /^live$/iu;
 
 /**
  * Get operation names currently shown in the devtools panel.

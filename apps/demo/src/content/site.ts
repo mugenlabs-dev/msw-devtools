@@ -1,7 +1,7 @@
 /** Canonical public site used in copy, JSON-LD, and absolute markdown links. */
 export const SITE_URL = "https://msw-devtools.mugenlabs.dev/";
 
-export const SITE_NAME = "@mugenlabs/msw-devtools";
+export const SITE_NAME = "MSW DevTools";
 
 export const SITE_DESCRIPTION =
   "Mugenlabs MSW DevTools plugin for TanStack DevTools — toggle, customize, and inspect Mock Service Worker handlers in real time.";

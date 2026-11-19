@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Match CI Lint: run Biome before the push leaves the machine.
+# Skip with `git push --no-verify`; CI still runs the same check.
+set -e
+ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+if ! command -v pnpm >/dev/null 2>&1 || [ ! -x node_modules/.bin/biome ]; then
+  echo "pre-push: pnpm or Biome is missing, so lint was skipped. Run pnpm install." >&2
+  exit 0
+fi
+pnpm lint

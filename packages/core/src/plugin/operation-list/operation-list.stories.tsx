@@ -89,7 +89,7 @@ export const AllEnabled: Story = {
   play: async ({ canvas, step }) => {
     await step("Verify all enabled", async () => {
       await canvas.findByText("7/7 active");
-      const toggles = canvas.getAllByRole("button", { name: /Toggle .* mock/ });
+      const toggles = canvas.getAllByRole("button", { name: /Toggle .* mock/u });
       for (const toggle of toggles) {
         await expect(toggle).toHaveAttribute("aria-pressed", "true");
       }

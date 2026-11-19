@@ -25,7 +25,7 @@ export const SectionTitle = ({ children, id }: { children: ReactNode; id: string
 
   return (
     <h2
-      className="mb-4 flex scroll-mt-[72px] items-center gap-2 font-bold text-[22px] text-text-primary tracking-tight transition-colors duration-300"
+      className="text-text-primary mb-4 flex scroll-mt-[72px] items-center gap-2 text-[22px] font-bold tracking-tight transition-colors duration-300"
       id={id}
     >
       <button

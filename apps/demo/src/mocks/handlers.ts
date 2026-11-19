@@ -2,13 +2,28 @@
  * MSW handlers for all Pokemon endpoints in the demo.
  * 30 unique Pokemon across 5 playground pages, each with realistic mock responses.
  */
-import { graphql, HttpResponse, http } from "msw";
+import { HttpResponse, http, type JsonBodyType } from "msw";
+import { graphql } from "msw/graphql";
+
+const mockJson = <Body extends JsonBodyType>(body: Body) =>
+  HttpResponse.json<Body>(body, { headers: { "Cache-Control": "no-store" } });
 
 // ---------------------------------------------------------------------------
 // Shared response helpers
 // ---------------------------------------------------------------------------
 
 const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
+
+/**
+ * Mock cards use the shiny sprite as `front_default` so All On is visually
+ * distinct from live PokeAPI (normal orange / species colors). Live responses
+ * keep the normal sprite URL; without this split, mock and live share the same
+ * `front_default` and hover-shiny made All Off look "still mocked".
+ */
+const mockSprite = (id: number) => `${SPRITE_BASE}/shiny/${id}.png`;
+
+/** Link-scoped GraphQL API — works the same on MSW 2 and 3. */
+const pokeGraphql = graphql.link("https://beta.pokeapi.co/graphql/v1beta");
 
 const gqlPokemonResponse = (pokemon: {
   height: number;
@@ -26,8 +41,7 @@ const gqlPokemonResponse = (pokemon: {
         pokemon_v2_pokemonsprites: [
           {
             sprites: {
-              front_default: `${SPRITE_BASE}/${pokemon.id}.png`,
-              front_shiny: `${SPRITE_BASE}/shiny/${pokemon.id}.png`,
+              front_default: mockSprite(pokemon.id),
             },
           },
         ],
@@ -51,8 +65,7 @@ const restPokemonResponse = (pokemon: {
   id: pokemon.id,
   name: pokemon.name,
   sprites: {
-    front_default: `${SPRITE_BASE}/${pokemon.id}.png`,
-    front_shiny: `${SPRITE_BASE}/shiny/${pokemon.id}.png`,
+    front_default: mockSprite(pokemon.id),
   },
   types: pokemon.types.map((t) => ({ type: { name: t } })),
   weight: pokemon.weight,
@@ -64,7 +77,7 @@ const restPokemonResponse = (pokemon: {
 
 /** Charizard — REST */
 export const getCharizardHandler = http.get("https://pokeapi.co/api/v2/pokemon/6", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 17,
       id: 6,
@@ -77,7 +90,7 @@ export const getCharizardHandler = http.get("https://pokeapi.co/api/v2/pokemon/6
 
 /** Gengar — REST */
 export const getGengarHandler = http.get("https://pokeapi.co/api/v2/pokemon/94", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 15,
       id: 94,
@@ -90,7 +103,7 @@ export const getGengarHandler = http.get("https://pokeapi.co/api/v2/pokemon/94",
 
 /** Tyranitar — REST */
 export const getTyranitarHandler = http.get("https://pokeapi.co/api/v2/pokemon/248", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 20,
       id: 248,
@@ -102,18 +115,18 @@ export const getTyranitarHandler = http.get("https://pokeapi.co/api/v2/pokemon/2
 );
 
 /** Pancham — GraphQL */
-export const getPanchamHandler = graphql.query("GetPancham", () =>
-  HttpResponse.json(
+export const getPanchamHandler = pokeGraphql.query("GetPancham", () =>
+  mockJson(
     gqlPokemonResponse({ height: 6, id: 674, name: "pancham", types: ["fighting"], weight: 80 })
   )
 );
-export const getPanchamEmptyHandler = graphql.query("GetPancham", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getPanchamEmptyHandler = pokeGraphql.query("GetPancham", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Salamence — GraphQL */
-export const getSalamenceHandler = graphql.query("GetSalamence", () =>
-  HttpResponse.json(
+export const getSalamenceHandler = pokeGraphql.query("GetSalamence", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 15,
       id: 373,
@@ -123,18 +136,18 @@ export const getSalamenceHandler = graphql.query("GetSalamence", () =>
     })
   )
 );
-export const getSalamenceEmptyHandler = graphql.query("GetSalamence", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getSalamenceEmptyHandler = pokeGraphql.query("GetSalamence", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Snorlax — GraphQL */
-export const getSnorlaxHandler = graphql.query("GetSnorlax", () =>
-  HttpResponse.json(
+export const getSnorlaxHandler = pokeGraphql.query("GetSnorlax", () =>
+  mockJson(
     gqlPokemonResponse({ height: 21, id: 143, name: "snorlax", types: ["normal"], weight: 4600 })
   )
 );
-export const getSnorlaxEmptyHandler = graphql.query("GetSnorlax", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getSnorlaxEmptyHandler = pokeGraphql.query("GetSnorlax", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 // ---------------------------------------------------------------------------
@@ -143,7 +156,7 @@ export const getSnorlaxEmptyHandler = graphql.query("GetSnorlax", () =>
 
 /** Garchomp — REST */
 export const getGarchompHandler = http.get("https://pokeapi.co/api/v2/pokemon/445", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 19,
       id: 445,
@@ -156,7 +169,7 @@ export const getGarchompHandler = http.get("https://pokeapi.co/api/v2/pokemon/44
 
 /** Lucario — REST */
 export const getLucarioHandler = http.get("https://pokeapi.co/api/v2/pokemon/448", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 12,
       id: 448,
@@ -169,7 +182,7 @@ export const getLucarioHandler = http.get("https://pokeapi.co/api/v2/pokemon/448
 
 /** Blaziken — REST */
 export const getBlazikenHandler = http.get("https://pokeapi.co/api/v2/pokemon/257", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 19,
       id: 257,
@@ -181,8 +194,8 @@ export const getBlazikenHandler = http.get("https://pokeapi.co/api/v2/pokemon/25
 );
 
 /** Gardevoir — GraphQL */
-export const getGardevoirHandler = graphql.query("GetGardevoir", () =>
-  HttpResponse.json(
+export const getGardevoirHandler = pokeGraphql.query("GetGardevoir", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 16,
       id: 282,
@@ -192,13 +205,13 @@ export const getGardevoirHandler = graphql.query("GetGardevoir", () =>
     })
   )
 );
-export const getGardevoirEmptyHandler = graphql.query("GetGardevoir", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getGardevoirEmptyHandler = pokeGraphql.query("GetGardevoir", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Scizor — GraphQL */
-export const getScizorHandler = graphql.query("GetScizor", () =>
-  HttpResponse.json(
+export const getScizorHandler = pokeGraphql.query("GetScizor", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 18,
       id: 212,
@@ -208,13 +221,13 @@ export const getScizorHandler = graphql.query("GetScizor", () =>
     })
   )
 );
-export const getScizorEmptyHandler = graphql.query("GetScizor", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getScizorEmptyHandler = pokeGraphql.query("GetScizor", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Togekiss — GraphQL */
-export const getTogekissHandler = graphql.query("GetTogekiss", () =>
-  HttpResponse.json(
+export const getTogekissHandler = pokeGraphql.query("GetTogekiss", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 15,
       id: 468,
@@ -224,8 +237,8 @@ export const getTogekissHandler = graphql.query("GetTogekiss", () =>
     })
   )
 );
-export const getTogekissEmptyHandler = graphql.query("GetTogekiss", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getTogekissEmptyHandler = pokeGraphql.query("GetTogekiss", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 // ---------------------------------------------------------------------------
@@ -233,18 +246,16 @@ export const getTogekissEmptyHandler = graphql.query("GetTogekiss", () =>
 // ---------------------------------------------------------------------------
 
 /** Eevee — GraphQL */
-export const getEeveeHandler = graphql.query("GetEevee", () =>
-  HttpResponse.json(
-    gqlPokemonResponse({ height: 3, id: 133, name: "eevee", types: ["normal"], weight: 65 })
-  )
+export const getEeveeHandler = pokeGraphql.query("GetEevee", () =>
+  mockJson(gqlPokemonResponse({ height: 3, id: 133, name: "eevee", types: ["normal"], weight: 65 }))
 );
-export const getEeveeEmptyHandler = graphql.query("GetEevee", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getEeveeEmptyHandler = pokeGraphql.query("GetEevee", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Lapras — GraphQL */
-export const getLaprasHandler = graphql.query("GetLapras", () =>
-  HttpResponse.json(
+export const getLaprasHandler = pokeGraphql.query("GetLapras", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 25,
       id: 131,
@@ -254,33 +265,33 @@ export const getLaprasHandler = graphql.query("GetLapras", () =>
     })
   )
 );
-export const getLaprasEmptyHandler = graphql.query("GetLapras", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getLaprasEmptyHandler = pokeGraphql.query("GetLapras", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Alakazam — GraphQL */
-export const getAlakazamHandler = graphql.query("GetAlakazam", () =>
-  HttpResponse.json(
+export const getAlakazamHandler = pokeGraphql.query("GetAlakazam", () =>
+  mockJson(
     gqlPokemonResponse({ height: 15, id: 65, name: "alakazam", types: ["psychic"], weight: 480 })
   )
 );
-export const getAlakazamEmptyHandler = graphql.query("GetAlakazam", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getAlakazamEmptyHandler = pokeGraphql.query("GetAlakazam", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Arcanine — GraphQL */
-export const getArcanineHandler = graphql.query("GetArcanine", () =>
-  HttpResponse.json(
+export const getArcanineHandler = pokeGraphql.query("GetArcanine", () =>
+  mockJson(
     gqlPokemonResponse({ height: 19, id: 59, name: "arcanine", types: ["fire"], weight: 1550 })
   )
 );
-export const getArcanineEmptyHandler = graphql.query("GetArcanine", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getArcanineEmptyHandler = pokeGraphql.query("GetArcanine", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Steelix — GraphQL */
-export const getSteelixHandler = graphql.query("GetSteelix", () =>
-  HttpResponse.json(
+export const getSteelixHandler = pokeGraphql.query("GetSteelix", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 92,
       id: 208,
@@ -290,13 +301,13 @@ export const getSteelixHandler = graphql.query("GetSteelix", () =>
     })
   )
 );
-export const getSteelixEmptyHandler = graphql.query("GetSteelix", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getSteelixEmptyHandler = pokeGraphql.query("GetSteelix", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Heracross — GraphQL */
-export const getHeracrossHandler = graphql.query("GetHeracross", () =>
-  HttpResponse.json(
+export const getHeracrossHandler = pokeGraphql.query("GetHeracross", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 15,
       id: 214,
@@ -306,8 +317,8 @@ export const getHeracrossHandler = graphql.query("GetHeracross", () =>
     })
   )
 );
-export const getHeracrossEmptyHandler = graphql.query("GetHeracross", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getHeracrossEmptyHandler = pokeGraphql.query("GetHeracross", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 // ---------------------------------------------------------------------------
@@ -315,8 +326,8 @@ export const getHeracrossEmptyHandler = graphql.query("GetHeracross", () =>
 // ---------------------------------------------------------------------------
 
 /** Rayquaza — GraphQL */
-export const getRayquazaHandler = graphql.query("GetRayquaza", () =>
-  HttpResponse.json(
+export const getRayquazaHandler = pokeGraphql.query("GetRayquaza", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 70,
       id: 384,
@@ -326,13 +337,13 @@ export const getRayquazaHandler = graphql.query("GetRayquaza", () =>
     })
   )
 );
-export const getRayquazaEmptyHandler = graphql.query("GetRayquaza", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getRayquazaEmptyHandler = pokeGraphql.query("GetRayquaza", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Metagross — GraphQL */
-export const getMetagrossHandler = graphql.query("GetMetagross", () =>
-  HttpResponse.json(
+export const getMetagrossHandler = pokeGraphql.query("GetMetagross", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 16,
       id: 376,
@@ -342,33 +353,31 @@ export const getMetagrossHandler = graphql.query("GetMetagross", () =>
     })
   )
 );
-export const getMetagrossEmptyHandler = graphql.query("GetMetagross", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getMetagrossEmptyHandler = pokeGraphql.query("GetMetagross", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Milotic — GraphQL */
-export const getMiloticHandler = graphql.query("GetMilotic", () =>
-  HttpResponse.json(
+export const getMiloticHandler = pokeGraphql.query("GetMilotic", () =>
+  mockJson(
     gqlPokemonResponse({ height: 62, id: 350, name: "milotic", types: ["water"], weight: 1620 })
   )
 );
-export const getMiloticEmptyHandler = graphql.query("GetMilotic", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getMiloticEmptyHandler = pokeGraphql.query("GetMilotic", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Absol — GraphQL */
-export const getAbsolHandler = graphql.query("GetAbsol", () =>
-  HttpResponse.json(
-    gqlPokemonResponse({ height: 12, id: 359, name: "absol", types: ["dark"], weight: 470 })
-  )
+export const getAbsolHandler = pokeGraphql.query("GetAbsol", () =>
+  mockJson(gqlPokemonResponse({ height: 12, id: 359, name: "absol", types: ["dark"], weight: 470 }))
 );
-export const getAbsolEmptyHandler = graphql.query("GetAbsol", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getAbsolEmptyHandler = pokeGraphql.query("GetAbsol", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Flygon — GraphQL */
-export const getFlygonHandler = graphql.query("GetFlygon", () =>
-  HttpResponse.json(
+export const getFlygonHandler = pokeGraphql.query("GetFlygon", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 20,
       id: 330,
@@ -378,13 +387,13 @@ export const getFlygonHandler = graphql.query("GetFlygon", () =>
     })
   )
 );
-export const getFlygonEmptyHandler = graphql.query("GetFlygon", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getFlygonEmptyHandler = pokeGraphql.query("GetFlygon", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Aggron — GraphQL */
-export const getAggronHandler = graphql.query("GetAggron", () =>
-  HttpResponse.json(
+export const getAggronHandler = pokeGraphql.query("GetAggron", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 21,
       id: 306,
@@ -394,8 +403,8 @@ export const getAggronHandler = graphql.query("GetAggron", () =>
     })
   )
 );
-export const getAggronEmptyHandler = graphql.query("GetAggron", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getAggronEmptyHandler = pokeGraphql.query("GetAggron", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 // ---------------------------------------------------------------------------
@@ -404,7 +413,7 @@ export const getAggronEmptyHandler = graphql.query("GetAggron", () =>
 
 /** Infernape — REST */
 export const getInfernapeHandler = http.get("https://pokeapi.co/api/v2/pokemon/392", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 12,
       id: 392,
@@ -417,7 +426,7 @@ export const getInfernapeHandler = http.get("https://pokeapi.co/api/v2/pokemon/3
 
 /** Weavile — REST */
 export const getWeavileHandler = http.get("https://pokeapi.co/api/v2/pokemon/461", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 11,
       id: 461,
@@ -430,14 +439,14 @@ export const getWeavileHandler = http.get("https://pokeapi.co/api/v2/pokemon/461
 
 /** Zoroark — REST */
 export const getZoroarkHandler = http.get("https://pokeapi.co/api/v2/pokemon/571", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({ height: 16, id: 571, name: "zoroark", types: ["dark"], weight: 811 })
   )
 );
 
 /** Volcarona — GraphQL */
-export const getVolcaronaHandler = graphql.query("GetVolcarona", () =>
-  HttpResponse.json(
+export const getVolcaronaHandler = pokeGraphql.query("GetVolcarona", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 16,
       id: 637,
@@ -447,13 +456,13 @@ export const getVolcaronaHandler = graphql.query("GetVolcarona", () =>
     })
   )
 );
-export const getVolcaronaEmptyHandler = graphql.query("GetVolcarona", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getVolcaronaEmptyHandler = pokeGraphql.query("GetVolcarona", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Hydreigon — GraphQL */
-export const getHydreigonHandler = graphql.query("GetHydreigon", () =>
-  HttpResponse.json(
+export const getHydreigonHandler = pokeGraphql.query("GetHydreigon", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 18,
       id: 635,
@@ -463,13 +472,13 @@ export const getHydreigonHandler = graphql.query("GetHydreigon", () =>
     })
   )
 );
-export const getHydreigonEmptyHandler = graphql.query("GetHydreigon", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getHydreigonEmptyHandler = pokeGraphql.query("GetHydreigon", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 /** Chandelure — GraphQL */
-export const getChandelureHandler = graphql.query("GetChandelure", () =>
-  HttpResponse.json(
+export const getChandelureHandler = pokeGraphql.query("GetChandelure", () =>
+  mockJson(
     gqlPokemonResponse({
       height: 10,
       id: 609,
@@ -479,8 +488,8 @@ export const getChandelureHandler = graphql.query("GetChandelure", () =>
     })
   )
 );
-export const getChandelureEmptyHandler = graphql.query("GetChandelure", () =>
-  HttpResponse.json({ data: { pokemon_v2_pokemon: [] } })
+export const getChandelureEmptyHandler = pokeGraphql.query("GetChandelure", () =>
+  mockJson({ data: { pokemon_v2_pokemon: [] } })
 );
 
 // ---------------------------------------------------------------------------
@@ -489,7 +498,7 @@ export const getChandelureEmptyHandler = graphql.query("GetChandelure", () =>
 
 /** Mimikyu — REST */
 export const getMimikyuHandler = http.get("https://pokeapi.co/api/v2/pokemon/778", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 2,
       id: 778,
@@ -502,35 +511,35 @@ export const getMimikyuHandler = http.get("https://pokeapi.co/api/v2/pokemon/778
 
 /** Umbreon — REST */
 export const getUmbreonHandler = http.get("https://pokeapi.co/api/v2/pokemon/197", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({ height: 10, id: 197, name: "umbreon", types: ["dark"], weight: 270 })
   )
 );
 
 /** Espeon — REST */
 export const getEspeonHandler = http.get("https://pokeapi.co/api/v2/pokemon/196", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({ height: 9, id: 196, name: "espeon", types: ["psychic"], weight: 265 })
   )
 );
 
 /** Sylveon — REST */
 export const getSylveonHandler = http.get("https://pokeapi.co/api/v2/pokemon/700", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({ height: 10, id: 700, name: "sylveon", types: ["fairy"], weight: 235 })
   )
 );
 
 /** Mewtwo — REST */
 export const getMewtwoHandler = http.get("https://pokeapi.co/api/v2/pokemon/150", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({ height: 20, id: 150, name: "mewtwo", types: ["psychic"], weight: 1220 })
   )
 );
 
 /** Dragonite — REST */
 export const getDragoniteHandler = http.get("https://pokeapi.co/api/v2/pokemon/149", () =>
-  HttpResponse.json(
+  mockJson(
     restPokemonResponse({
       height: 22,
       id: 149,

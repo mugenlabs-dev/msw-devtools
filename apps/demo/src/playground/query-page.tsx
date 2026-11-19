@@ -2,6 +2,7 @@ import { useQuery as useTanStackQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { CodeBlock } from "../docs/components/code-block";
 import { playgroundCardsGrid } from "../lib/utils";
+import { playgroundFetch } from "../playground-fetch";
 import type { GraphQLPokemon } from "../pokemon-card";
 import {
   GRAPHQL_BADGE,
@@ -114,7 +115,7 @@ const TyranitarCard = () => {
 const PanchamCard = () => {
   const { data, error, isLoading, refetch } = useTanStackQuery<GraphQLResponse>({
     queryFn: async () => {
-      const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+      const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
         body: JSON.stringify({
           operationName: "GetPancham",
           query: PANCHAM_QUERY,
@@ -147,7 +148,7 @@ const PanchamCard = () => {
 const SalamenceCard = () => {
   const { data, error, isLoading, refetch } = useTanStackQuery<GraphQLResponse>({
     queryFn: async () => {
-      const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+      const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
         body: JSON.stringify({
           operationName: "GetSalamence",
           query: SALAMENCE_QUERY,
@@ -180,7 +181,7 @@ const SalamenceCard = () => {
 const SnorlaxCard = () => {
   const { data, error, isLoading, refetch } = useTanStackQuery<GraphQLResponse>({
     queryFn: async () => {
-      const res = await fetch("https://beta.pokeapi.co/graphql/v1beta", {
+      const res = await playgroundFetch("https://beta.pokeapi.co/graphql/v1beta", {
         body: JSON.stringify({
           operationName: "GetSnorlax",
           query: SNORLAX_QUERY,
@@ -225,11 +226,13 @@ registerRestMocks(
 
 // 2. Register GraphQL handlers — operationName auto-derived from handler
 import { registerGraphqlMocks } from "@mugenlabs/msw-devtools";
-import { graphql } from "msw";
+import { graphql } from "msw/graphql";
+
+const api = graphql.link("https://beta.pokeapi.co/graphql/v1beta");
 
 registerGraphqlMocks(
-  { handler: graphql.query("GetPancham", () => HttpResponse.json({ data: { ... } })) },
-  { handler: graphql.query("GetSnorlax", () => HttpResponse.json({ data: { ... } })) },
+  { handler: api.query("GetPancham", () => HttpResponse.json({ data: { ... } })) },
+  { handler: api.query("GetSnorlax", () => HttpResponse.json({ data: { ... } })) },
 );
 
 // 3. Fetch with useQuery — works for both REST and GraphQL
@@ -262,7 +265,7 @@ registerAdapter(createTanStackQueryAdapter(queryClient));`;
 
 export const QueryPage = () => (
   <div className="flex flex-col gap-8">
-    <div className="group rounded-2xl border border-border-primary bg-card-bg/30 p-6">
+    <div className="group border-border-primary bg-card-bg/30 rounded-2xl border p-6">
       <div className="flex items-center gap-4">
         <img
           alt="Master Ball"
@@ -273,9 +276,9 @@ export const QueryPage = () => (
           width={64}
         />
         <div>
-          <h2 className="m-0 font-bold text-text-primary text-xl">
+          <h2 className="text-text-primary m-0 text-xl font-bold">
             <a
-              className="text-text-primary no-underline transition-colors duration-150 hover:text-accent-blue"
+              className="text-text-primary hover:text-accent-blue no-underline transition-colors duration-150"
               href="https://tanstack.com/query"
               rel="noopener noreferrer"
               target="_blank"
@@ -283,7 +286,7 @@ export const QueryPage = () => (
               TanStack Query
             </a>
           </h2>
-          <p className="m-0 mt-1 text-sm text-text-dimmed">
+          <p className="text-text-dimmed m-0 mt-1 text-sm">
             The adapter listens for mock changes and automatically invalidates matching TanStack
             Query cache entries, triggering re-fetches without a full page reload.
           </p>

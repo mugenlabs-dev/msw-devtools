@@ -17,7 +17,7 @@ test.describe("Filter & Sort Persistence", () => {
     // Set filter to "rest"
     await page
       .locator("button")
-      .filter({ hasText: /^rest$/i })
+      .filter({ hasText: /^rest$/iu })
       .first()
       .click();
     await waitForOperationCount(page, 15);

@@ -1,9 +1,10 @@
-import { delay, graphql, HttpResponse, http, passthrough } from "msw";
+import type { RequestHandler } from "msw";
+import { delay, HttpResponse, http, passthrough } from "msw";
 import type { HandlerVariant, MockOperationDescriptor } from "#/registry/types";
 import { isGraphQLDescriptor, isRestDescriptor, resolveActiveVariant } from "#/registry/types";
 import { useMockStore } from "#/store/store";
 import type { ErrorOverride, OperationMockConfig } from "#/store/types";
-import { getHandlerResolver } from "./msw-internals";
+import { createGraphqlHandlerFrom, getHandlerResolver, isGraphqlHandler } from "./msw-internals";
 
 // ---------------------------------------------------------------------------
 // Generic error responses
@@ -251,26 +252,29 @@ const createRestHandler = (descriptor: Extract<MockOperationDescriptor, { type: 
 const createGraphQLHandler = (
   descriptor: Extract<MockOperationDescriptor, { type: "graphql" }>
 ) => {
-  const link = graphql.link(descriptor.endpoint);
-  const gqlMethods = {
-    mutation: link.mutation,
-    operation: (
-      _name: string | RegExp,
-      resolver: Parameters<typeof link.operation>[0],
-      options?: Parameters<typeof link.operation>[1]
-    ) => link.operation(resolver, options),
-    query: link.query,
-  };
-  const gqlMethod = gqlMethods[descriptor.operationType];
+  const prototype = descriptor.variants[0]?.handler;
+  if (!(prototype && isGraphqlHandler(prototype))) {
+    throw new Error(
+      `msw-devtools: GraphQL operation "${descriptor.operationName}" needs a GraphQL handler variant.`
+    );
+  }
 
-  return gqlMethod(
-    descriptor.graphqlOperationName,
-    (info) => resolveAndRespond(descriptor, info),
-    primaryOptions(descriptor)
-  );
+  return createGraphqlHandlerFrom(prototype, {
+    endpoint: descriptor.endpoint,
+    operationType: descriptor.operationType,
+    options: primaryOptions(descriptor),
+    predicate: descriptor.graphqlOperationName,
+    resolver: (info) => resolveAndRespond(descriptor, info),
+  });
 };
 
-export const createDynamicHandler = (descriptor: MockOperationDescriptor) => {
+/**
+ * Runtime MSW handler instance. `RequestHandler` is a type-only import that
+ * both majors export from the root, so no GraphQLHandler import is needed.
+ */
+export type DynamicHandler = RequestHandler;
+
+export const createDynamicHandler = (descriptor: MockOperationDescriptor): DynamicHandler => {
   if (isGraphQLDescriptor(descriptor)) {
     return createGraphQLHandler(descriptor);
   }

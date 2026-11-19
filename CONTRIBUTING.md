@@ -9,7 +9,8 @@ This is a pnpm workspace monorepo.
 | Path | Contents |
 | --- | --- |
 | `packages/core` | The published package, `@mugenlabs/msw-devtools`. Source in `src/`, Storybook config in `.storybook/`, bundled with tsup |
-| `apps/demo` | Demo and documentation site (TanStack Start + React), deployed at msw-devtools.mugenlabs.dev. The landing page is statically generated and `/playground/*` is client-only. Not published — it is in the Changesets ignore list |
+| `apps/demo` | Demo and documentation site (TanStack Start + React), deployed at msw-devtools.mugenlabs.dev. The landing page is statically generated and `/playground/*` is the MSW 3 client playground. Not published — it is in the Changesets ignore list |
+| `apps/msw2-e2e` | MSW 2 host for the shared playground at `/msw2/` (own `mockServiceWorker.js` and scope). Pages and handlers live in `apps/demo`. Used by peer-matrix Playwright and the public MSW 2/3 switch |
 | `e2e` | Playwright specs that drive the demo app and assert against a real DevTools panel |
 | `scripts` | One-off repo scripts (e.g. OG image generation) |
 
@@ -23,7 +24,7 @@ Requires Node 24 LTS (see `.nvmrc`) and pnpm >=10.
 pnpm install
 pnpm build      # build packages/core once
 pnpm dev        # tsup --watch on packages/core
-pnpm dev:demo   # demo site on http://localhost:3001
+pnpm dev:demo   # demo site on http://localhost:3001 (MSW 2 playground at /msw2/)
 ```
 
 The demo consumes the package via `workspace:*` and imports its built output, so run `pnpm build` (or keep `pnpm dev` running) before or alongside `pnpm dev:demo`.
@@ -36,7 +37,7 @@ All of these run from the repo root:
 | --- | --- |
 | `pnpm build` | Builds `packages/core` with tsup |
 | `pnpm dev` | Rebuilds the package on change |
-| `pnpm dev:demo` | Runs the demo site on port 3001 |
+| `pnpm dev:demo` | Runs the demo site on port 3001, plus the MSW 2 playground (port 3003), proxied at `/msw2/` |
 | `pnpm typecheck` | Builds, then typechecks `packages/core` and `apps/demo` |
 | `pnpm test:ci` | Unit tests (Vitest, jsdom) |
 | `pnpm test-storybook` | Storybook component tests (Vitest browser mode, Chromium) |
@@ -44,7 +45,7 @@ All of these run from the repo root:
 | `pnpm test:e2e` | Playwright end-to-end tests against the demo |
 | `pnpm lint` / `pnpm lint:fix` | Biome check, with or without `--write` |
 | `pnpm lint:package` | Checks the built package's `exports` and types with publint and are-the-types-wrong (run `pnpm build` first) |
-| `pnpm readme:sync` | Regenerates the npm README (`packages/core/README.md`) from the root `README.md`; CI fails if it's out of date |
+| `pnpm readme:sync` | Regenerates the npm README (`packages/core/README.md`) and the site's `apps/demo/public/llms-full.txt` from the root `README.md`; CI fails if either is out of date |
 | `pnpm audit:published` | Audits the dependencies users install with the library; fails CI on a moderate or higher advisory |
 | `pnpm audit:workspace` | Audits the whole workspace, including the demo and dev tools; CI reports it without failing |
 | `pnpm storybook` | Storybook dev server on port 6006 |
@@ -62,7 +63,9 @@ pnpm test:ci
 
 Run `pnpm test-storybook` and `pnpm test:e2e` too if you touched the panel UI. CI runs the same checks.
 
-CI also runs the unit and Storybook tests against the oldest and the newest versions the peer ranges in `packages/core/package.json` allow (React 18 and 19, msw 2.0 and the latest 2.x, and so on). `scripts/pin-peer-versions.mjs` reads those ranges, so changing a peer range changes what gets tested. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done.
+CI also runs unit tests, Storybook, typecheck, and Playwright against the peer matrix in `packages/core/package.json`: oldest and latest MSW 2.x, and oldest and latest MSW 3.x (plus the matching React ends of the support window). `scripts/pin-peer-versions.mjs` reads those ranges. To reproduce a failure locally, run `node scripts/pin-peer-versions.mjs oldest` (or `latest-2` / `oldest-3` / `latest-3`) and `pnpm install --no-frozen-lockfile`, then revert `package.json` and `pnpm-lock.yaml` when you're done — or `pnpm typecheck:peers:oldest`, which pins, typechecks core with `packages/core/tsconfig.msw2.json`, and restores those files. That script is the local gate for oldest-peer type errors; it is not on `pre-push` because pin + reinstall is too slow for every push. MSW 2 legs use `pnpm test:e2e:msw2` against the `/msw2/` playground and typecheck core with `packages/core/tsconfig.msw2.json`, which adds an ambient `msw/graphql` stub. The `oldest-3` leg runs the demo e2e; `latest-3` skips it because the E2E job already covers the locked 3.x.
+
+E2E tests that turn mocks off answer PokeAPI and sprite requests with a Playwright stand-in (`e2e/live-api-stub.ts`), so they don't depend on third-party uptime. Set `E2E_LIVE_POKEAPI=1` to hit the real APIs; the nightly CI run does.
 
 ## Releases
 
@@ -78,7 +81,7 @@ The demo app is ignored by Changesets and is never versioned or published.
 
 ## Conventions
 
-- **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting.
+- **Formatting and linting**: [Biome](https://biomejs.dev) with the [Ultracite](https://www.ultracite.ai) preset (`biome.jsonc`), 100-column lines. Run `pnpm lint:fix` rather than hand-formatting. `pnpm install` sets `core.hooksPath` to `.githooks/` (unless you already set your own hooks path, or there's no git checkout); the `pre-push` hook runs `pnpm lint` so a format drift fails before CI. `git push --no-verify` skips it, and CI still runs the same check.
 - **TypeScript**: strict, ESM only. Public API surface is re-exported from `packages/core/src/index.ts` (and the per-library adapters under `src/adapters/*`, each exposed as a subpath such as `@mugenlabs/msw-devtools/adapters/swr`) — add new exports there.
 - **Tests**: [Vitest](https://vitest.dev). Unit tests are colocated with their source. Behaviour changes should come with a test.
 - **Keep the docs in sync**: the public API is documented in three places — the root `README.md` (`pnpm readme:sync` copies it to `packages/core/README.md` for npm), the docs site (`apps/demo/src/docs/sections/*`), and the JSDoc on the exported functions. Update all three when an option changes.

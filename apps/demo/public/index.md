@@ -12,9 +12,10 @@ Do not expect a hosted product REST API or CLI that talks to a remote backend. I
 
 ## Start here
 
-- [Full documentation](https://msw-devtools.mugenlabs.dev/docs) — installation, quick start, adapters, API reference
+- [Full documentation](https://msw-devtools.mugenlabs.dev/docs) — installation, quick start, adapters, API reference ([as Markdown](https://msw-devtools.mugenlabs.dev/llms-full.txt))
 - [Developer portal](https://msw-devtools.mugenlabs.dev/developers) — links for agents and humans
-- [Playground](https://msw-devtools.mugenlabs.dev/playground) — live demo with TanStack Query, SWR, URQL, Apollo, RTK Query, fetch
+- [Playground (MSW 3)](https://msw-devtools.mugenlabs.dev/playground) — TanStack Query, SWR, URQL, Apollo, RTK Query, fetch
+- [Playground (MSW 2)](https://msw-devtools.mugenlabs.dev/msw2/). Same six library pages as the MSW 3 playground, on MSW 2.
 - [npm](https://www.npmjs.com/package/@mugenlabs/msw-devtools)
 - [GitHub](https://github.com/mugenlabs-dev/msw-devtools)
 - [llms.txt](https://msw-devtools.mugenlabs.dev/llms.txt)
@@ -24,11 +25,13 @@ Do not expect a hosted product REST API or CLI that talks to a remote backend. I
 
 ## Install
 
+Install MSW and set up its browser integration by following [MSW's browser guide](https://mswjs.io/guides/integrations/browser). Then install the plugin and TanStack DevTools, which hosts the panel:
+
 ```bash
-npm install @mugenlabs/msw-devtools
+npm install @mugenlabs/msw-devtools @tanstack/react-devtools
 ```
 
-Peer dependencies include `msw`, `react`, `react-dom`, and `zustand`. Host the panel with `@tanstack/react-devtools` when you want the visual UI.
+Peer dependencies: `msw` (`^2 || ^3`) and `react` (`^18 || ^19`). `@tanstack/react-devtools` is an optional peer, needed to show the panel. See the [full documentation](https://msw-devtools.mugenlabs.dev/llms-full.txt) for the quick start.
 
 ## Features
 

@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import { enableAllMocksViaStorage, openDevToolsPanel, waitForDemoReady } from "./helpers";
+import { stubLivePokeApi } from "./live-api-stub";
 
 test.describe("Adapter refetch", () => {
   test("toggling a mock triggers a TanStack Query client refetch", async ({ page }) => {
+    await stubLivePokeApi(page.context());
     await enableAllMocksViaStorage(page);
     await page.goto("./playground/query");
     await waitForDemoReady(page);
@@ -12,7 +14,7 @@ test.describe("Adapter refetch", () => {
     await expect(page.locator("h3", { hasText: "Gengar" }).first()).toBeVisible();
 
     const row = page.locator("[data-testid='operation-row']").filter({ hasText: "GET Gengar" });
-    const rowToggle = row.getByRole("button", { name: /Toggle.*mock/ });
+    const rowToggle = row.getByRole("button", { name: /Toggle.*mock/u });
     await expect(rowToggle).toHaveAttribute("aria-pressed", "true");
 
     const refetch = page.waitForRequest(

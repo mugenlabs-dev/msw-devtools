@@ -4,6 +4,8 @@ const baseURL = process.env.BASE_URL ?? "http://localhost:3001";
 const isRemote = process.env.BASE_URL !== undefined;
 
 export default defineConfig({
+  // The real PokeAPI (nightly run) answers far slower than the local stand-ins.
+  ...(process.env.E2E_LIVE_POKEAPI === "1" ? { expect: { timeout: 20_000 } } : {}),
   forbidOnly: process.env.CI !== undefined,
   fullyParallel: true,
   reporter: "html",

@@ -1,4 +1,4 @@
-import { graphql, HttpResponse, http } from "msw";
+import { HttpResponse, http } from "msw";
 import type {
   GraphQLMockDescriptor,
   HandlerVariant,
@@ -6,6 +6,7 @@ import type {
   RestMockDescriptor,
 } from "#/registry/types";
 import type { OperationMockConfig } from "#/store/types";
+import { graphql } from "#/test-utils/graphql";
 
 // ---------------------------------------------------------------------------
 // Handler variants — real MSW handlers wrapped as HandlerVariant objects
