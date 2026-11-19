@@ -1,5 +1,30 @@
 # @mugenlabs/msw-devtools
 
+## 0.10.0
+
+### Minor Changes
+
+- 6a2486e: **Behaviour change:** toggling a mock now clears each adapter's whole cache before it refetches, instead of refetching over the old payload. `refetchQueries` and `invalidateQueries` left the mocked body on screen.
+  
+  - TanStack Query calls `queryClient.resetQueries()`. Every query returns to its initial state, including inactive ones and infinite queries (back to the first page). Active queries refetch.
+  - SWR calls `mutate(() => true, undefined, { revalidate: true })`. Every key becomes `undefined` first, including keys you use for local state.
+  - Apollo calls `client.resetStore()`. This also clears local-only cache fields, runs `onResetStore` callbacks and rejects queries that are in flight. `ApolloClientLike` now needs `resetStore` instead of `refetchQueries`, so update hand-written mocks of it.
+  
+  `setPersistenceKey`, from `@mugenlabs/msw-devtools/persistence`, chooses the localStorage key, so two bundles on one origin can keep separate panel state. Call it in its own module and import that module before the main package. A call made after the store has loaded logs a warning and is ignored. The default key is still `msw-devtools-store`.
+- 11e02d2: Support MSW 2.x and 3.x on the same public API (`msw: ^2.0.0 || ^3.0.0`).
+  
+  GraphQL wrappers are built from the user's handler constructor instead of importing `graphql` / `GraphQLHandler` from the MSW root (removed in 3.x), which also avoids MSW 3 attaching a hidden subscription sibling from `graphql.link().operation()`. Prefer `graphql.link` in app code; on MSW 3 import `graphql` from `msw/graphql`.
+  
+  `WorkerOptions.onUnhandledRequest` still works: it is passed as both `onUnhandledRequest` (MSW 2) and `onUnhandledFrame` (MSW 3). `stopWorker()` awaits `worker.stop()`, which is async in MSW 3. `registerGraphqlMocks` now throws at registration when a handler or variant is not a GraphQL handler (for example an `http.*` handler), instead of failing later in `startWorker()`, and rejects GraphQL subscription handlers, which are not supported. `registerRestMocks` throws the same way for a GraphQL handler. The types reject the mixed-up cases too.
+  
+  New type exports from the root and `/types`: `RestHandlerLike`, `GraphqlHandlerLike` (the handler shapes the register functions accept) and `HandlerOptions`.
+  
+  Document navigations and form submissions (`request.mode === "navigate"`) are ignored by the LIVE request tracker.
+
+### Patch Changes
+
+- 1bf2df5: Accept `@tanstack/react-devtools` 0.10 as a peer (`^0.9.0 || ^0.10.0`), so installs with the current TanStack DevTools no longer report an unmet peer. Update the `@tanstack/pacer` dependency to 0.23.
+
 ## 0.9.3
 
 ### Patch Changes
